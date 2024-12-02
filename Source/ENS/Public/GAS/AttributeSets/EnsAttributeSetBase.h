@@ -1,0 +1,23 @@
+// Copyright (c) 2024-2025, Equipment'N Slash contributors. All rights reserved.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "AttributeSet.h"
+#include "EnsAttributeSetBase.generated.h"
+
+#define ATTRIBUTE_ACCESSORS(ClassName, PropertyName)			\
+	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName)	\
+	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName)				\
+	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName)				\
+	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
+
+/**
+ * \brief The default attributes storage for any object using GAS.
+ */
+UCLASS()
+class ENS_API UEnsAttributeSetBase : public UAttributeSet
+{
+	GENERATED_BODY()
+	UEnsAttributeSetBase();
+};
