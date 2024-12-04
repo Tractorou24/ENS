@@ -1,0 +1,44 @@
+---
+Language:        Cpp
+BasedOnStyle: LLVM
+# Negative value of IndentWidth
+AccessModifierOffset: -4
+AlignConsecutiveMacros: Consecutive
+AllowShortBlocksOnASingleLine: Empty
+AllowShortEnumsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes
+BraceWrapping:
+  AfterCaseLabel:  true
+  AfterClass:      true
+  AfterControlStatement: Always
+  AfterEnum:       true
+  AfterFunction:   true
+  AfterNamespace:  true
+  AfterObjCDeclaration: true
+  AfterStruct:     true
+  AfterUnion:      true
+  AfterExternBlock: true
+  BeforeCatch:     true
+  BeforeElse:      true
+  BeforeLambdaBody: false
+  BeforeWhile:     false
+  IndentBraces:    false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+BreakBeforeBraces: Custom
+BreakConstructorInitializers: BeforeComma
+ColumnLimit:     0
+FixNamespaceComments: true
+IndentCaseLabels: true
+IndentPPDirectives: BeforeHash
+IndentWidth:     4
+InsertNewlineAtEOF: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+NamespaceIndentation: All
+# Same as IndentWidth
+PenaltyBreakAssignment: 4
+PointerAlignment: Left
+SpacesInContainerLiterals: false
+Standard:        c++20
+...
