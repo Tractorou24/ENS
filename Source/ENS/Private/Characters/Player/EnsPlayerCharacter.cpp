@@ -44,6 +44,10 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
 	CameraComponent->SetupAttachment(CameraBoom, UEnsSpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
+
+	//Set up actor team
+	TeamId = FGenericTeamId(0);
+	TeamId.ResetAttitudeSolver();
 }
 
 void AEnsPlayerCharacter::Death()
@@ -94,6 +98,19 @@ void AEnsPlayerCharacter::MoveToActor(const AActor* Actor)
 	MoveReq.SetReachTestIncludesAgentRadius(true);
 	MoveReq.SetCanStrafe(true);
 	MoveTo(MoveReq);
+}
+
+void AEnsPlayerCharacter::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+	if (TeamId != NewTeamID)
+	{
+		TeamId = NewTeamID;
+	}
+}
+
+FGenericTeamId AEnsPlayerCharacter::GetGenericTeamId() const
+{
+	return TeamId;
 }
 
 void AEnsPlayerCharacter::MoveTo(const FAIMoveRequest& MoveReq)

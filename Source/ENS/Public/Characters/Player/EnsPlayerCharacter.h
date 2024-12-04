@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
 #include "Characters/EnsCharacterBase.h"
 #include "EnsPlayerCharacter.generated.h"
 
@@ -13,10 +14,12 @@
  * It is the default character in the \ref EnsGameMode.
  */
 UCLASS()
-class ENS_API AEnsPlayerCharacter : public AEnsCharacterBase
+class ENS_API AEnsPlayerCharacter : public AEnsCharacterBase, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
+	FGenericTeamId TeamId;
+	
 public:
 	/// \brief Called at the game start
 	virtual void BeginPlay() override;
@@ -41,6 +44,12 @@ public:
      * \param Actor The actor to move to.
 	 */
 	void MoveToActor(const AActor* Actor);
+
+	UFUNCTION(BlueprintCallable)
+	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
+
+	UFUNCTION(BlueprintCallable)
+	virtual FGenericTeamId GetGenericTeamId() const override;
 
 private:
 	void MoveTo(const struct FAIMoveRequest& MoveReq);

@@ -4,11 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "AITypes.h"
+#include "GenericTeamAgentInterface.h"
 #include "InputActionValue.h"
 
 #include "GameFramework/PlayerController.h"
 #include "EnsPlayerController.generated.h"
 
+class UCameraComponent;
+class UCapsuleComponent;
+class UStaticMeshComponent;
 struct FPathFollowingResult;
 DECLARE_LOG_CATEGORY_EXTERN(LogPlayerCharacter, Log, All);
 
@@ -48,6 +52,15 @@ public:
 	/// \brief Returns the current mouse position relative to the viewport or the last known position.
 	FVector2D GetRelativeMousePosition() const { return RelativeMousePosition; }
 
+	UPROPERTY(BlueprintReadWrite, Category="Camera Occlusion|Components")
+	float FadeInSpeed = 5.0f;
+	UPROPERTY(BlueprintReadWrite, Category="Camera Occlusion|Components")
+	float FadeOutSpeed = 3.0f;
+	UPROPERTY(BlueprintReadWrite, Category="Camera Occlusion|Components")
+	float MinOpacity = 0.1f;
+	UPROPERTY(BlueprintReadWrite, Category="Camera Occlusion|Components")
+	float MaxOpacity = 1.f;
+
 protected:
 	/// \brief Binds the inputs to the corresponding player actions.
 	virtual void SetupInputComponent() override;
@@ -60,6 +73,14 @@ private:
 	/// \brief The current mouse position relative to the viewport.
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	FVector2D RelativeMousePosition = FVector2D::ZeroVector;
+
+	bool GetChildsOfActor(const AActor* Actor, TArray<UStaticMeshComponent*>& Result);
+	
+	TMap<UStaticMeshComponent*, float> OpacityValues;
+
+	UCapsuleComponent* ActiveCapsuleComponent;
+
+	UCameraComponent* ActiveCamera;
 
 #pragma region Move to destination
 	/**
@@ -77,6 +98,13 @@ private:
      * When the click duration is less that \ref ShortPressThreshold, the player will move to the destination, else stop.
 	 */
 	void SetDestinationReleased(const FInputActionValue& InputActionValue);
+
+	/**
+     * \brief Called when the player has reached the destination.
+     * \param RequestID Identifier of the request.
+     * \param Result The result of the path following.
+	 */
+	void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result);
 
 	/// \brief The action to set the player destination when clicking.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
