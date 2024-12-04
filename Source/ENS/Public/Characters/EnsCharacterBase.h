@@ -4,8 +4,9 @@
 
 #include "AbilitySystemInterface.h"
 #include "CoreMinimal.h"
-#include "EnsCharacterBase.generated.h"
 #include "GameFramework/Character.h"
+
+#include "EnsCharacterBase.generated.h"
 
 /**
  * \brief The base character in the game that can have abilities.
