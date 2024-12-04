@@ -3,8 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ENSGameMode.generated.h"
 #include "GameFramework/GameMode.h"
+
+#include "ENSGameMode.generated.h"
 
 /**
  * \brief Basic, default game mode for the project

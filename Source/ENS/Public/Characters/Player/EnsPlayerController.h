@@ -2,13 +2,11 @@
 
 #pragma once
 
-#include "AITypes.h"
 #include "CoreMinimal.h"
+#include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
 
 #include "EnsPlayerController.generated.h"
-#include "GameFramework/PlayerController.h"
-
 struct FPathFollowingResult;
 DECLARE_LOG_CATEGORY_EXTERN(LogPlayerCharacter, Log, All);
 
@@ -106,6 +104,7 @@ private:
 #pragma endregion
 
 #pragma region MeshVisibility
+
 public:
     /// \brief Speed at which meshes fade in when no longer occluding the camera.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Occlusion|Components")

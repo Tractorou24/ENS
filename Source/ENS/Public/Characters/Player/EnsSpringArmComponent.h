@@ -3,8 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EnsSpringArmComponent.generated.h"
 #include "GameFramework/SpringArmComponent.h"
+
+#include "EnsSpringArmComponent.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogSpringArmComponent, Log, All);
 

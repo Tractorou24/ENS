@@ -6,8 +6,9 @@
 #include "Interactions/EnsInteractable.h"
 
 #include "CoreMinimal.h"
-#include "EnsMouseInteractableComponent.generated.h"
 #include "GameFramework/Actor.h"
+
+#include "EnsMouseInteractableComponent.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogInteractions, Log, All);
 
