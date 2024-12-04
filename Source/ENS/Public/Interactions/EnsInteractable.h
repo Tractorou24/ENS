@@ -11,7 +11,7 @@
 UINTERFACE(MinimalAPI, Blueprintable)
 class UEnsInteractable : public UInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 };
 
 /**
@@ -19,13 +19,13 @@ class UEnsInteractable : public UInterface
  */
 class IEnsInteractable
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	/**
-	 * \brief Called when the object is interacted with.
-	 * \param SourceActor The actor that interacted with this object.
-	 */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
-	void Interact(AActor* SourceActor);
+    /**
+     * \brief Called when the object is interacted with.
+     * \param SourceActor The actor that interacted with this object.
+     */
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
+    void Interact(AActor* SourceActor);
 };

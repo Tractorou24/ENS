@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameMode.h"
 #include "ENSGameMode.generated.h"
+#include "GameFramework/GameMode.h"
 
 /**
  * \brief Basic, default game mode for the project
@@ -12,9 +12,9 @@
 UCLASS()
 class ENS_API AEnsGameMode : public AGameMode
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	/// \brief Sets up the game mode default classes.
-	explicit AEnsGameMode();
+    /// \brief Sets up the game mode default classes.
+    explicit AEnsGameMode();
 };

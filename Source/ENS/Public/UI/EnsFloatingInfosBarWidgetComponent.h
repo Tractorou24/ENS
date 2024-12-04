@@ -2,28 +2,28 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Components/WidgetComponent.h"
+#include "CoreMinimal.h"
 #include "EnsFloatingInfosBarWidgetComponent.generated.h"
 
 class UEnsFloatingInfosBarWidget;
 
 /**
- * 
+ *
  */
 UCLASS()
 class ENS_API UEnsFloatingInfosBarWidgetComponent : public UWidgetComponent
 {
-	GENERATED_BODY()
-	
-protected:
-	virtual void BeginPlay() override;
+    GENERATED_BODY()
 
-	UPROPERTY()
-	UEnsFloatingInfosBarWidget* FloatingInfosBarWidget;
+protected:
+    virtual void BeginPlay() override;
+
+    UPROPERTY()
+    UEnsFloatingInfosBarWidget* FloatingInfosBarWidget;
 
 public:
-	void AddWidget(TSubclassOf<UEnsFloatingInfosBarWidget> widgetClass);
+    void AddWidget(TSubclassOf<UEnsFloatingInfosBarWidget> widgetClass);
 
-	void SetHealthPercentage(float healthPercentage) const;
+    void SetHealthPercentage(float healthPercentage) const;
 };

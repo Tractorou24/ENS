@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Characters/EnsCharacterBase.h"
+#include "CoreMinimal.h"
 #include "EnsPlayerCharacter.generated.h"
 
 /**
@@ -15,53 +15,53 @@
 UCLASS()
 class ENS_API AEnsPlayerCharacter : public AEnsCharacterBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	/// \brief Called at the game start
-	virtual void BeginPlay() override;
+    /// \brief Called at the game start
+    virtual void BeginPlay() override;
 
-	/// \brief Constructs a character and setups its components.
-	explicit AEnsPlayerCharacter();
+    /// \brief Constructs a character and setups its components.
+    explicit AEnsPlayerCharacter();
 
-	/// \copydoc AEnsCharacterBase::Death
-	virtual void Death() override;
+    /// \copydoc AEnsCharacterBase::Death
+    virtual void Death() override;
 
-	/// \brief Gets the path following component of the character used to move on a navmesh.
-	[[nodiscard]] class UPathFollowingComponent* GetPathFollowingComponent() const;
+    /// \brief Gets the path following component of the character used to move on a navmesh.
+    [[nodiscard]] class UPathFollowingComponent* GetPathFollowingComponent() const;
 
-	/**
+    /**
      * \brief Moves the player character to a \p Location.
      * \param Location The location to move to.
-	 */
-	void MoveToLocation(const FVector& Location);
+     */
+    void MoveToLocation(const FVector& Location);
 
-	/**
+    /**
      * \brief Moves the player character to an \p Actor.
      * \param Actor The actor to move to.
-	 */
-	void MoveToActor(const AActor* Actor);
+     */
+    void MoveToActor(const AActor* Actor);
 
-	/// \brief Gets the camera component the player sees through.
-	[[nodiscard]] class UCameraComponent* GetCameraComponent() const;
-
-private:
-	void MoveTo(const struct FAIMoveRequest& MoveReq);
+    /// \brief Gets the camera component the player sees through.
+    [[nodiscard]] class UCameraComponent* GetCameraComponent() const;
 
 private:
-	/// \brief Camera boom positioning the camera above the character
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UEnsSpringArmComponent* CameraBoom;
+    void MoveTo(const struct FAIMoveRequest& MoveReq);
 
-	/// \brief The camera used for the top-down view.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* CameraComponent;
+private:
+    /// \brief Camera boom positioning the camera above the character
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+    class UEnsSpringArmComponent* CameraBoom;
 
-	/// \brief The component for movement using pathfinding
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
-	class UPathFollowingComponent* PathFollowingComponent;
+    /// \brief The camera used for the top-down view.
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+    class UCameraComponent* CameraComponent;
 
-	/// \brief The radius around the target point the character will stop at.
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	float AcceptanceRadius = 15.0f;
+    /// \brief The component for movement using pathfinding
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
+    class UPathFollowingComponent* PathFollowingComponent;
+
+    /// \brief The radius around the target point the character will stop at.
+    UPROPERTY(EditAnywhere, Category = "Movement")
+    float AcceptanceRadius = 15.0f;
 };
