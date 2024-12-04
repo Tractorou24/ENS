@@ -4,16 +4,26 @@
 
 #include "Characters/EnsCharacterBase.h"
 #include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
+
 #include "EnsEnemyBase.generated.h"
 
 UCLASS()
-class ENS_API AEnsEnemyBase : public AEnsCharacterBase
+class ENS_API AEnsEnemyBase : public AEnsCharacterBase, public IGenericTeamAgentInterface
 {
     GENERATED_BODY()
+
+    FGenericTeamId TeamId;
 
 public:
     // Sets default values for this character's properties
     AEnsEnemyBase();
+
+    UFUNCTION(BlueprintCallable)
+    virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
+
+    UFUNCTION(BlueprintCallable)
+    virtual FGenericTeamId GetGenericTeamId() const override;
 
 protected:
     // Called when the game starts or when spawned

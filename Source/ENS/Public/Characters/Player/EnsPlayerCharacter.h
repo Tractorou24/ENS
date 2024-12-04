@@ -3,7 +3,10 @@
 #pragma once
 
 #include "Characters/EnsCharacterBase.h"
+
 #include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
+
 #include "EnsPlayerCharacter.generated.h"
 
 /**
@@ -13,9 +16,11 @@
  * It is the default character in the \ref EnsGameMode.
  */
 UCLASS()
-class ENS_API AEnsPlayerCharacter : public AEnsCharacterBase
+class ENS_API AEnsPlayerCharacter : public AEnsCharacterBase, public IGenericTeamAgentInterface
 {
     GENERATED_BODY()
+
+    FGenericTeamId TeamId;
 
 public:
     /// \brief Called at the game start
@@ -44,6 +49,12 @@ public:
 
     /// \brief Gets the camera component the player sees through.
     [[nodiscard]] class UCameraComponent* GetCameraComponent() const;
+
+    UFUNCTION(BlueprintCallable)
+    virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
+
+    UFUNCTION(BlueprintCallable)
+    virtual FGenericTeamId GetGenericTeamId() const override;
 
 private:
     void MoveTo(const struct FAIMoveRequest& MoveReq);

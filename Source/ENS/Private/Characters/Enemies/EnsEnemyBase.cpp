@@ -27,6 +27,21 @@ AEnsEnemyBase::AEnsEnemyBase()
 
     MouseInteractableComponent = CreateDefaultSubobject<UEnsMouseInteractableComponent>(TEXT("Interactions"));
     MouseInteractableComponent->SetupInteractZone(InteractZone);
+
+    // Set up actor team
+    TeamId = FGenericTeamId(1);
+    TeamId.ResetAttitudeSolver();
+}
+
+void AEnsEnemyBase::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+    if (TeamId != NewTeamID)
+        TeamId = NewTeamID;
+}
+
+FGenericTeamId AEnsEnemyBase::GetGenericTeamId() const
+{
+    return TeamId;
 }
 
 // Called when the game starts or when spawned
