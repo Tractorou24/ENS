@@ -9,9 +9,7 @@
 #include "GameFramework/PlayerController.h"
 #include "EnsPlayerController.generated.h"
 
-class UCameraComponent;
-class UCapsuleComponent;
-class UStaticMeshComponent;
+
 struct FPathFollowingResult;
 DECLARE_LOG_CATEGORY_EXTERN(LogPlayerCharacter, Log, All);
 
@@ -110,38 +108,37 @@ private:
 	
 #pragma region MeshVisibility
 public:
-	/// @brief Speed at which meshes fade in when no longer occluding the camera.
-	UPROPERTY(BlueprintReadWrite, Category="Camera Occlusion|Components")
+	/// \brief Speed at which meshes fade in when no longer occluding the camera.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera Occlusion|Components")
 	float FadeInSpeed = 5.0f;
 
-	/// @brief Speed at which meshes fade out when occluding the camera.
-	UPROPERTY(BlueprintReadWrite, Category="Camera Occlusion|Components")
+	/// \brief Speed at which meshes fade out when occluding the camera.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera Occlusion|Components")
 	float FadeOutSpeed = 3.0f;
 
-	/// @brief Minimum opacity value for occluding meshes (0.0 = fully transparent, should be > 0 to remain visible).
-	UPROPERTY(BlueprintReadWrite, Category="Camera Occlusion|Components")
+	/// \brief Minimum opacity value for occluding meshes (0.0 = fully transparent, should be > 0 to remain visible).
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera Occlusion|Components")
 	float MinOpacity = 0.1f;
 
-	/// @brief Maximum opacity value for non-occluding meshes (1.0 = fully opaque)
-	UPROPERTY(BlueprintReadWrite, Category="Camera Occlusion|Components")
+	/// \brief Maximum opacity value for non-occluding meshes (1.0 = fully opaque)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera Occlusion|Components")
 	float MaxOpacity = 1.f;
 
 private:
-	/// @brief Recursively collects all StaticMeshComponents from an Actor and its children
-	/// @param Actor The root Actor to search from
-	/// @param Result Array to store found StaticMeshComponents
-	/// @return True if any components were found
-	bool GetChildsOfActor(const AActor* Actor, TArray<UStaticMeshComponent*>& Result);
+	/**
+	 * \brief Collects all StaticMeshComponents from the children of the specified actor
+	 * \param Actor The root Actor to search from
+	 * \return Array of StaticMeshComponents from the children of the specified actor
+	 */
+	TArray<class UStaticMeshComponent*> GetChildrenOfActor(const AActor* Actor);
 
-	/// @brief Maps StaticMeshComponents to their current opacity values
-	TMap<UStaticMeshComponent*, float> OpacityValues;
+	/**
+	 * \brief Handle the fading of objects between the player and camera
+	 * \param DeltaSeconds The delta time in seconds since the last frame.
+	 */
+	void FadeMesh(float DeltaSeconds);
 
-	/// @brief Reference to the active collision capsule used for occlusion detection
-	UCapsuleComponent* ActiveCapsuleComponent;
-
-	/// @brief Reference to the active camera component being checked for occlusion
-	UCameraComponent* ActiveCamera;
-	
+	/// \brief Maps StaticMeshComponents to their current opacity values
+	TMap<class UStaticMeshComponent*, float> OpacityValues;
 #pragma endregion
-	
 };

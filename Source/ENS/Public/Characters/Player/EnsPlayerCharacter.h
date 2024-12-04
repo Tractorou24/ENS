@@ -42,6 +42,9 @@ public:
 	 */
 	void MoveToActor(const AActor* Actor);
 
+	/// \brief Gets the camera component the player sees through.
+	[[nodiscard]] class UCameraComponent* GetCameraComponent() const;
+
 private:
 	void MoveTo(const struct FAIMoveRequest& MoveReq);
 

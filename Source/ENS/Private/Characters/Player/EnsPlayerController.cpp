@@ -25,8 +25,6 @@ AEnsPlayerController::AEnsPlayerController()
 void AEnsPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	ActiveCamera = Cast<UCameraComponent>(GetPawn()->GetComponentByClass(UCameraComponent::StaticClass()));
-	ActiveCapsuleComponent = Cast<UCapsuleComponent>(GetPawn()->GetComponentByClass(UCapsuleComponent::StaticClass()));
 }
 
 void AEnsPlayerController::OnPossess(APawn* InPawn)
@@ -41,6 +39,66 @@ void AEnsPlayerController::OnPossess(APawn* InPawn)
 	}
 
 	PlayerCharacter->GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerCharacter, InPawn);
+}
+
+void AEnsPlayerController::FadeMesh(const float DeltaSeconds)
+{
+	const UCameraComponent* ActiveCameraComponent = Cast<AEnsPlayerCharacter>(GetCharacter())->GetCameraComponent();
+	const UCapsuleComponent* ActiveCapsuleComponent = Cast<AEnsPlayerCharacter>(GetCharacter())->GetCapsuleComponent();
+	
+	TArray<FHitResult> OutHits;
+	const bool bGotHits = UKismetSystemLibrary::CapsuleTraceMultiForObjects(
+		GetWorld(),
+		ActiveCameraComponent->GetComponentLocation(),
+		GetPawn()->GetActorLocation(),
+		ActiveCapsuleComponent->GetScaledCapsuleRadius(),
+		ActiveCapsuleComponent->GetScaledCapsuleHalfHeight(),
+		{UEngineTypes::ConvertToObjectType(ECC_WorldStatic)},
+		true,
+		{},
+		EDrawDebugTrace::None,
+		OutHits,
+		true);
+
+	TSet<UStaticMeshComponent*> MeshesJustOccluded;
+	if (bGotHits)
+	{
+		for (FHitResult Hit : OutHits)
+		{
+			// Get all static mesh components from the hit actor's parent
+			TArray<UStaticMeshComponent*> GroupMeshes = GetChildrenOfActor(Hit.GetActor()->GetAttachParentActor());
+
+			for (UStaticMeshComponent* MeshComp : GroupMeshes)
+			{
+				// Skip if we've already processed this mesh this frame
+				if (MeshesJustOccluded.Contains(MeshComp))
+					continue;
+
+				// Fade the opacity to the minimum value
+				float CurrentOpacity = OpacityValues.Contains(MeshComp) ? OpacityValues[MeshComp] : MaxOpacity;
+				float NewOpacity = FMath::FInterpTo(CurrentOpacity, MinOpacity, DeltaSeconds, FadeInSpeed);
+				OpacityValues.Add(MeshComp, NewOpacity);
+				MeshComp->SetScalarParameterValueOnMaterials(FName(TEXT("Opacity")), NewOpacity);
+				MeshesJustOccluded.Add(MeshComp);
+			}
+		}
+	}
+
+	// Process all meshes that were previously fading but not hit this frame
+	for (auto& [Mesh, OpacityValue] : OpacityValues)
+	{
+		if (!MeshesJustOccluded.Contains(Mesh))
+		{
+			// Fade the opacity back to maximum
+			float NewOpacity = FMath::FInterpTo(OpacityValue, MaxOpacity, DeltaSeconds, FadeOutSpeed);
+			OpacityValue = NewOpacity;
+			Mesh->SetScalarParameterValueOnMaterials(FName(TEXT("Opacity")), NewOpacity);
+
+			// Remove the entry if opacity has returned to maximum
+			if (FMath::IsNearlyEqual(NewOpacity, MaxOpacity, 0.01f))
+				OpacityValues.Remove(Mesh);
+		}
+	}
 }
 
 void AEnsPlayerController::Tick(const float DeltaSeconds)
@@ -80,85 +138,9 @@ void AEnsPlayerController::Tick(const float DeltaSeconds)
 			PendingInteractObject = nullptr;
 		}
 	}
-	
-	FVector Start = ActiveCamera->GetComponentLocation();
-    FVector End = GetPawn()->GetActorLocation();
 
-    TArray<TEnumAsByte<EObjectTypeQuery>> CollisionObjectTypes;
-    CollisionObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
-
-    TArray<AActor*> ActorsToIgnore;
-    TArray<FHitResult> OutHits;
-
-    
-
-    bool bGotHits = UKismetSystemLibrary::CapsuleTraceMultiForObjects(
-        GetWorld(), Start, End, ActiveCapsuleComponent->GetScaledCapsuleRadius(),
-        ActiveCapsuleComponent->GetScaledCapsuleHalfHeight(), CollisionObjectTypes, true,
-        ActorsToIgnore,
-        EDrawDebugTrace::None,
-        OutHits, true);
-
-	if(bGotHits)
-    {
-        TSet<UStaticMeshComponent*> MeshesJustOccluded;
-        
-        for (FHitResult Hit : OutHits)
-        {
-            const AActor* HitActor = Cast<AActor>(Hit.GetActor());
-            if (!HitActor)
-            	continue;
-
-            TArray<UStaticMeshComponent*> GroupMeshes;
-        	GetChildsOfActor(HitActor, GroupMeshes);
-            
-            for (UStaticMeshComponent* MeshComp : GroupMeshes)
-            {
-                float CurrentOpacity = OpacityValues.Contains(MeshComp) ? OpacityValues[MeshComp] : MaxOpacity;
-                float NewOpacity = FMath::FInterpTo(CurrentOpacity, MinOpacity, DeltaSeconds, FadeInSpeed);
-                OpacityValues.Add(MeshComp, NewOpacity);
-                MeshComp->SetScalarParameterValueOnMaterials(FName(TEXT("Opacity")), NewOpacity);
-                MeshesJustOccluded.Add(MeshComp);
-            }
-        }
-        for (auto It = OpacityValues.CreateIterator(); It; ++It)
-        {
-            if (!MeshesJustOccluded.Contains(It.Key()))
-            {
-                float CurrentOpacity = It.Value();
-                float NewOpacity = FMath::FInterpTo(CurrentOpacity, MaxOpacity, DeltaSeconds, FadeOutSpeed);
-            	
-                if (FMath::IsNearlyEqual(NewOpacity, MaxOpacity, 0.01f))
-                {
-                    It.RemoveCurrent();
-                }
-                else
-                {
-                    It.Value() = NewOpacity;
-                    It.Key()->SetScalarParameterValueOnMaterials(FName(TEXT("Opacity")), NewOpacity);
-                }
-            }
-        }
-    }
-    else
-    {
-        for (auto It = OpacityValues.CreateIterator(); It; ++It)
-        {
-            float CurrentOpacity = It.Value();
-            float NewOpacity = FMath::FInterpTo(CurrentOpacity, MaxOpacity, DeltaSeconds, FadeOutSpeed);
-            
-            if (FMath::IsNearlyEqual(NewOpacity, MaxOpacity, 0.01f))
-            {
-                It.RemoveCurrent();
-            }
-            else
-            {
-                It.Value() = NewOpacity;
-                It.Key()->SetScalarParameterValueOnMaterials(FName(TEXT("Opacity")), NewOpacity);
-            }
-        }
-    }
-
+	// Handle meshes fading
+	FadeMesh(DeltaSeconds);
 }
 
 void AEnsPlayerController::SetupInputComponent()
@@ -239,38 +221,19 @@ void AEnsPlayerController::Interact()
 	}
 }
 
-bool AEnsPlayerController::GetChildsOfActor(const AActor* Actor, TArray<UStaticMeshComponent*>& Result)
+TArray<UStaticMeshComponent*> AEnsPlayerController::GetChildrenOfActor(const AActor* Actor)
 {
-	if (!Actor)
-		return false;
-	
-	AActor* Parent = Actor->GetAttachParentActor();
-	if (Parent)
-	{
-		// Add parent's mesh if it has one
-		if (UStaticMeshComponent* ParentMesh = Parent->FindComponentByClass<UStaticMeshComponent>())
-		{
-			Result.Add(ParentMesh);
-		}
+	TArray<UStaticMeshComponent*> Childs;
 
-		// Get all attached actors' meshes
-		TArray<AActor*> GroupedActors;
-		Parent->GetAttachedActors(GroupedActors);
-		for (AActor* tmp: GroupedActors)
-		{
-			if (UStaticMeshComponent* MeshComp = tmp->FindComponentByClass<UStaticMeshComponent>())
-			{
-				Result.Add(MeshComp);
-			}
-		}
-	}
-	else
-	{
-		// If not grouped, just add this actor's mesh
-		if (UStaticMeshComponent* MeshComp = Actor->FindComponentByClass<UStaticMeshComponent>())
-		{
-			Result.Add(MeshComp);
-		}
-	}
-	return true;
+	if (!Actor)
+		return Childs;
+
+	TArray<AActor*> GroupedActors;
+	Actor->GetAttachedActors(GroupedActors);
+
+	// Get all meshes of attached actors
+	for (AActor* tmp : GroupedActors)
+		if (UStaticMeshComponent* MeshComp = tmp->FindComponentByClass<UStaticMeshComponent>())
+			Childs.Add(MeshComp);
+	return Childs;
 }
