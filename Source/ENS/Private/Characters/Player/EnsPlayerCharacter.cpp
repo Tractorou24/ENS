@@ -96,6 +96,11 @@ void AEnsPlayerCharacter::MoveToActor(const AActor* Actor)
 	MoveTo(MoveReq);
 }
 
+class UCameraComponent* AEnsPlayerCharacter::GetCameraComponent() const
+{
+	return CameraComponent;
+}
+
 void AEnsPlayerCharacter::MoveTo(const FAIMoveRequest& MoveReq)
 {
 	FPathFindingQuery PFQuery;
