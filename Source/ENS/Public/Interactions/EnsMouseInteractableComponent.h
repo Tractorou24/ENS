@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include "Interactions/EnsInteractable.h"
 #include "Characters/Enemies/EnsEnemyBase.h"
+#include "Interactions/EnsInteractable.h"
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "EnsMouseInteractableComponent.generated.h"
+#include "GameFramework/Actor.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogInteractions, Log, All);
 
@@ -29,52 +29,52 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerExitZone);
 /**
  * \brief A component that triggers an interaction when clicking on it.
  */
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ENS_API UEnsMouseInteractableComponent : public UActorComponent, public IEnsInteractable
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	/// \brief Constructs the component and enables ticking.
-	explicit UEnsMouseInteractableComponent();
+    /// \brief Constructs the component and enables ticking.
+    explicit UEnsMouseInteractableComponent();
 
-	/**
-	 * \brief Checks if the player mouse is over the object.
+    /**
+     * \brief Checks if the player mouse is over the object.
      * \return `true` if the player's mouse is over the object, `false` otherwise.
-	 */
-	[[nodiscard]] bool IsMouseHovering() const;
+     */
+    [[nodiscard]] bool IsMouseHovering() const;
 
-	/**
-	 * \brief Checks if the player is in the interaction zone object.
+    /**
+     * \brief Checks if the player is in the interaction zone object.
      * \return `true` if the player is in the interaction zone, `false` otherwise.
-	 */
-	[[nodiscard]] bool IsPlayerInZone() const;
+     */
+    [[nodiscard]] bool IsPlayerInZone() const;
 
-	/**
+    /**
      * \brief Sets up the interaction zone.
      * @param BoxComponent The box component to use as the interaction zone.
-	 */
-	void SetupInteractZone(UBoxComponent* BoxComponent);
+     */
+    void SetupInteractZone(UBoxComponent* BoxComponent);
 
-	/**
+    /**
      * \brief Called every frame. Checks if the player's mouse is over the object.
      * \param DeltaTime The time since the last frame in seconds.
      * \param TickType The type of tick.
      * \param ThisTickFunction The tick function.
-	 */
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+     */
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	/// \brief Called when the player's mouse is over the object. (e.g. the player moved the mouse on the object)
-	UPROPERTY(BlueprintAssignable, Category = "Interaction")
-	FOnMouseHoverStart OnMouseHoverStart;
+    /// \brief Called when the player's mouse is over the object. (e.g. the player moved the mouse on the object)
+    UPROPERTY(BlueprintAssignable, Category = "Interaction")
+    FOnMouseHoverStart OnMouseHoverStart;
 
-	/// \brief Called when the player is interacting with the object. (e.g. the player clicked on the object)
-	UPROPERTY(BlueprintAssignable, Category = "Interaction")
-	FOnMouseInteract OnInteract;
+    /// \brief Called when the player is interacting with the object. (e.g. the player clicked on the object)
+    UPROPERTY(BlueprintAssignable, Category = "Interaction")
+    FOnMouseInteract OnInteract;
 
-	/// \brief Called when the player's mouse is no longer over the object. (e.g. the player moved the mouse away)
-	UPROPERTY(BlueprintAssignable, Category = "Interaction")
-	FOnMouseHoverEnd OnMouseHoverEnd;
+    /// \brief Called when the player's mouse is no longer over the object. (e.g. the player moved the mouse away)
+    UPROPERTY(BlueprintAssignable, Category = "Interaction")
+    FOnMouseHoverEnd OnMouseHoverEnd;
 
     /// \brief Called when the player enters the interaction zone.
     UPROPERTY(BlueprintAssignable, Category = "Interaction")
@@ -85,31 +85,31 @@ public:
     FOnPlayerExitZone OnPlayerExitZone;
 
 private:
-	virtual void Interact_Implementation(AActor* SourceActor) override;
+    virtual void Interact_Implementation(AActor* SourceActor) override;
 
-	/// \brief Called when an object is entering the interaction zone.
-	UFUNCTION()
-	void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
-	                    AActor* OtherActor,
-	                    UPrimitiveComponent* OtherComp,
-	                    int32 OtherBodyIndex,
-	                    bool bFromSweep,
-	                    const FHitResult& SweepResult);
+    /// \brief Called when an object is entering the interaction zone.
+    UFUNCTION()
+    void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
+                        AActor* OtherActor,
+                        UPrimitiveComponent* OtherComp,
+                        int32 OtherBodyIndex,
+                        bool bFromSweep,
+                        const FHitResult& SweepResult);
 
-	/// \brief Called when an object is exiting the interaction zone.
-	UFUNCTION()
-	void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+    /// \brief Called when an object is exiting the interaction zone.
+    UFUNCTION()
+    void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
-	/// \brief Whether the player's mouse is over the object.
-	UPROPERTY(BlueprintReadOnly, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
-	bool bIsMouseHovering = false;
+    /// \brief Whether the player's mouse is over the object.
+    UPROPERTY(BlueprintReadOnly, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
+    bool bIsMouseHovering = false;
 
-	/// \brief Whether the player's mouse is over the object.
-	UPROPERTY(BlueprintReadOnly, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
-	bool bIsPlayerInZone = false;
+    /// \brief Whether the player's mouse is over the object.
+    UPROPERTY(BlueprintReadOnly, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
+    bool bIsPlayerInZone = false;
 
-	/// \brief The bow the player must be in to interact with the object
-	UPROPERTY(BlueprintReadOnly, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
-	UBoxComponent* InteractZone = nullptr;
+    /// \brief The bow the player must be in to interact with the object
+    UPROPERTY(BlueprintReadOnly, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
+    UBoxComponent* InteractZone = nullptr;
 };

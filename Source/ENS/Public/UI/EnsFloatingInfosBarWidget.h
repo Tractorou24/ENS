@@ -2,23 +2,23 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "CoreMinimal.h"
 #include "EnsFloatingInfosBarWidget.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class ENS_API UEnsFloatingInfosBarWidget : public UUserWidget
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	/**
-	 * @brief Set the UI health bar value
-	 * @param HealthPercentage Ratio CurrentHealth/MaxHealth
-	 */
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetHealthPercentage(float HealthPercentage);
+    /**
+     * @brief Set the UI health bar value
+     * @param HealthPercentage Ratio CurrentHealth/MaxHealth
+     */
+    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+    void SetHealthPercentage(float HealthPercentage);
 };

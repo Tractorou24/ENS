@@ -7,12 +7,12 @@
 
 AEnsGameMode::AEnsGameMode()
 {
-	// Use custom PlayerController
-	PlayerControllerClass = AEnsPlayerController::StaticClass();
+    // Use custom PlayerController
+    PlayerControllerClass = AEnsPlayerController::StaticClass();
 
-	// Use blueprint character (which inherits from AEnsPlayerCharacter)
-	DefaultPawnClass = AEnsPlayerCharacter::StaticClass();
+    // Use blueprint character (which inherits from AEnsPlayerCharacter)
+    DefaultPawnClass = AEnsPlayerCharacter::StaticClass();
 
-	// Use blueprint controller (which inherits from AEnsPlayerController)
-	PlayerControllerClass = AEnsPlayerController::StaticClass();
+    // Use blueprint controller (which inherits from AEnsPlayerController)
+    PlayerControllerClass = AEnsPlayerController::StaticClass();
 }
