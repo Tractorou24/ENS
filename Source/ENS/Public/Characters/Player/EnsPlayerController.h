@@ -95,12 +95,18 @@ private:
     /// \brief Moves to and interacts with the object under the cursor if it exists.
     void Interact();
 
+    /// \brief Resets the interaction when the action is completed.
+    void ResetInteract();
+
     /// \brief The action to interact with the objects.
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
     UInputAction* InteractAction = nullptr;
 
     /// \brief The object the player is trying to interact with.
     UObject* PendingInteractObject = nullptr;
+
+    /// \brief `true` if an interaction was done in the frame so the player movement from click can be disabled.
+    bool bIsInInteractMode = false;
 #pragma endregion
 
 #pragma region MeshVisibility
