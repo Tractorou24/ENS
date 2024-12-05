@@ -11,7 +11,6 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Navigation/PathFollowingComponent.h"
 
 DEFINE_LOG_CATEGORY(LogPlayerCharacter);
 
@@ -164,11 +163,12 @@ void AEnsPlayerController::SetupInputComponent()
     EnhancedInputComponent->BindAction(SetDestinationAction, ETriggerEvent::Completed, this, &AEnsPlayerController::SetDestinationReleased);
 
     EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AEnsPlayerController::Interact);
+    EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &AEnsPlayerController::ResetInteract);
 }
 
 void AEnsPlayerController::SetDestinationTriggered(const FInputActionValue& InputActionValue)
 {
-    if (PendingInteractObject)
+    if (PendingInteractObject || bIsInInteractMode)
         return;
 
     DestinationFollowTime += GetWorld()->GetDeltaSeconds();
@@ -187,7 +187,7 @@ void AEnsPlayerController::SetDestinationTriggered(const FInputActionValue& Inpu
 
 void AEnsPlayerController::SetDestinationReleased(const FInputActionValue& InputActionValue)
 {
-    if (PendingInteractObject)
+    if (PendingInteractObject || bIsInInteractMode)
         return;
 
     // If it was a short press
@@ -215,11 +215,18 @@ void AEnsPlayerController::Interact()
         }
 
         // Move to the object
-        if (IsComponent)
-            Cast<AEnsPlayerCharacter>(GetCharacter())->MoveToActor(Cast<const UActorComponent>(PendingInteractObject)->GetOwner());
-        else
+        const auto* Component = Cast<UEnsMouseInteractableComponent>(PendingInteractObject);
+        if (IsComponent && !Component->IsPlayerInZone())
+            Cast<AEnsPlayerCharacter>(GetCharacter())->MoveToActor(Component->GetOwner());
+        else if (!IsComponent)
             Cast<AEnsPlayerCharacter>(GetCharacter())->MoveToActor(Hit.GetActor());
+        bIsInInteractMode = true;
     }
+}
+
+void AEnsPlayerController::ResetInteract()
+{
+    bIsInInteractMode = false;
 }
 
 TArray<UStaticMeshComponent*> AEnsPlayerController::GetChildrenOfActor(const AActor* Actor)
