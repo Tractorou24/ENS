@@ -166,12 +166,10 @@ void AEnsPlayerController::SetupInputComponent()
     EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &AEnsPlayerController::ResetInteract);
 }
 
-void AEnsPlayerController::SetDestinationTriggered(const FInputActionValue& InputActionValue)
+void AEnsPlayerController::SetDestinationTriggered()
 {
     if (PendingInteractObject || bIsInInteractMode)
         return;
-
-    DestinationFollowTime += GetWorld()->GetDeltaSeconds();
 
     // There is something valid below cursor
     if (FHitResult Hit; GetHitResultUnderCursor(ECustomCollisionChannel::ECC_Floor, true, Hit))
@@ -185,15 +183,14 @@ void AEnsPlayerController::SetDestinationTriggered(const FInputActionValue& Inpu
     }
 }
 
-void AEnsPlayerController::SetDestinationReleased(const FInputActionValue& InputActionValue)
+void AEnsPlayerController::SetDestinationReleased(const FInputActionInstance& InputActionInstance)
 {
     if (PendingInteractObject || bIsInInteractMode)
         return;
 
     // If it was a short press
-    if (DestinationFollowTime <= ShortPressThreshold)
+    if (InputActionInstance.GetElapsedTime() <= ShortPressThreshold)
         static_cast<AEnsPlayerCharacter*>(GetCharacter())->MoveToLocation(CachedDestination);
-    DestinationFollowTime = 0.0f;
 }
 
 void AEnsPlayerController::Interact()
