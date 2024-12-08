@@ -2,9 +2,11 @@
 
 #pragma once
 
-#include "Characters/EnsCharacterBase.h"
+
 #include "CoreMinimal.h"
 #include "GenericTeamAgentInterface.h"
+#include "Characters/EnsCharacterBase.h"
+#include "CoreMinimal.h"
 
 #include "EnsEnemyBase.generated.h"
 
@@ -35,13 +37,16 @@ protected:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ens|UI")
     class UEnsFloatingInfosBarWidgetComponent* FloatingInfosBarWidgetComponent;
 
-    // Attribute changed callbacks
-    virtual void HealthChanged(const FOnAttributeChangeData& Data) override;
-
 private:
     UPROPERTY(EditAnywhere, Category = "Interactions", meta = (AllowPrivateAccess = "true"))
     class UEnsMouseInteractableComponent* MouseInteractableComponent = nullptr;
 
     UPROPERTY(EditAnywhere, Category = "Interactions", meta = (AllowPrivateAccess = "true"))
     class UBoxComponent* InteractZone = nullptr;
+
+    FDelegateHandle HealthChangedDelegateHandle;
+    
+    // Attribute changed callbacks
+    virtual void HealthChanged(const struct FOnAttributeChangeData& Data);
+
 };

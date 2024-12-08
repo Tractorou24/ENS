@@ -2,10 +2,9 @@
 
 #pragma once
 
-#include "Characters/EnsCharacterBase.h"
-
 #include "CoreMinimal.h"
 #include "GenericTeamAgentInterface.h"
+#include "Characters/EnsCharacterBase.h"
 
 #include "EnsPlayerCharacter.generated.h"
 
@@ -21,7 +20,7 @@ class ENS_API AEnsPlayerCharacter : public AEnsCharacterBase, public IGenericTea
     GENERATED_BODY()
 
     FGenericTeamId TeamId;
-
+	
 public:
     /// \brief Called at the game start
     virtual void BeginPlay() override;
@@ -46,7 +45,7 @@ public:
      * \param Actor The actor to move to.
      */
     void MoveToActor(const AActor* Actor);
-
+    
     /// \brief Gets the camera component the player sees through.
     [[nodiscard]] class UCameraComponent* GetCameraComponent() const;
 
@@ -65,7 +64,7 @@ protected:
 
     // Attribute changed callbacks
     virtual void HealthChanged(const FOnAttributeChangeData& Data) override;
-    
+
 private:
     void MoveTo(const struct FAIMoveRequest& MoveReq);
     

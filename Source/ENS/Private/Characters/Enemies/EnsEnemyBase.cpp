@@ -1,13 +1,14 @@
 ﻿// Copyright (c) 2024-2025, Equipment'N Slash contributors. All rights reserved.
 
 #include "Characters/Enemies/EnsEnemyBase.h"
-
 #include "Components/BoxComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GAS/AttributeSets/EnsHealthAttributeSet.h"
 #include "GAS/EnsAbilitySystemComponent.h"
 #include "Interactions/EnsMouseInteractableComponent.h"
 #include "UI/EnsFloatingInfosBarWidget.h"
 #include "UI/EnsFloatingInfosBarWidgetComponent.h"
+
 
 // Sets default values
 AEnsEnemyBase::AEnsEnemyBase()
@@ -86,3 +87,4 @@ void AEnsEnemyBase::HealthChanged(const FOnAttributeChangeData& Data)
 
     // TODO: If died, handle death
 }
+

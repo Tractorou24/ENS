@@ -2,8 +2,6 @@
 
 #include "Characters/Player/EnsPlayerController.h"
 #include "Characters/Player/EnsPlayerCharacter.h"
-#include "Interactions/EnsInteractable.h"
-#include "Interactions/EnsMouseInteractableComponent.h"
 
 #include "AbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
@@ -12,6 +10,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Navigation/PathFollowingComponent.h"
+#include "Interactions/EnsInteractable.h"
+#include "Interactions/EnsMouseInteractableComponent.h"
 
 DEFINE_LOG_CATEGORY(LogPlayerCharacter);
 
@@ -25,6 +25,8 @@ AEnsPlayerController::AEnsPlayerController()
 void AEnsPlayerController::BeginPlay()
 {
     Super::BeginPlay();
+    ActiveCamera = Cast<UCameraComponent>(GetPawn()->GetComponentByClass(UCameraComponent::StaticClass()));
+    ActiveCapsuleComponent = Cast<UCapsuleComponent>(GetPawn()->GetComponentByClass(UCapsuleComponent::StaticClass()));
 }
 
 void AEnsPlayerController::OnPossess(APawn* InPawn)
@@ -37,19 +39,21 @@ void AEnsPlayerController::OnPossess(APawn* InPawn)
         UE_LOG(LogPlayerCharacter, Error, TEXT("Failed to get the player character for setting actor abilities."));
         return;
     }
-
+    
     PlayerCharacter->GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerCharacter, InPawn);
+    if (PlayerCharacter->GetPathFollowingComponent())
+        PlayerCharacter->GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &AEnsPlayerController::OnMoveCompleted);
 }
 
 void AEnsPlayerController::FadeMesh(const float DeltaSeconds)
 {
-    const UCameraComponent* ActiveCameraComponent = Cast<AEnsPlayerCharacter>(GetCharacter())->GetCameraComponent();
-    const UCapsuleComponent* ActiveCapsuleComponent = Cast<AEnsPlayerCharacter>(GetCharacter())->GetCapsuleComponent();
+    //const UCameraComponent* ActiveCameraComponent = Cast<AEnsPlayerCharacter>(GetCharacter())->GetCameraComponent();
+    //const UCapsuleComponent* ActiveCapsuleComponent = Cast<AEnsPlayerCharacter>(GetCharacter())->GetCapsuleComponent();
 
     TArray<FHitResult> OutHits;
     const bool bGotHits = UKismetSystemLibrary::CapsuleTraceMultiForObjects(
         GetWorld(),
-        ActiveCameraComponent->GetComponentLocation(),
+        ActiveCamera->GetComponentLocation(),
         GetPawn()->GetActorLocation(),
         ActiveCapsuleComponent->GetScaledCapsuleRadius(),
         ActiveCapsuleComponent->GetScaledCapsuleHalfHeight(),
@@ -116,7 +120,7 @@ void AEnsPlayerController::Tick(const float DeltaSeconds)
             return;
         }
         GEngine->GameViewport->GetViewportSize(ViewportSize);
-
+        
         GetMousePosition(RelativeMousePosition.X, RelativeMousePosition.Y);
         RelativeMousePosition /= ViewportSize;
     }
@@ -164,6 +168,51 @@ void AEnsPlayerController::SetupInputComponent()
     EnhancedInputComponent->BindAction(SetDestinationAction, ETriggerEvent::Completed, this, &AEnsPlayerController::SetDestinationReleased);
 
     EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AEnsPlayerController::Interact);
+}
+
+bool AEnsPlayerController::GetChildsOfActor(const AActor* Actor, TArray<UStaticMeshComponent*>& Result)
+{
+	if (!Actor)
+		return false;
+	
+	AActor* Parent = Actor->GetAttachParentActor();
+	if (Parent)
+	{
+		// Add parent's mesh if it has one
+		if (UStaticMeshComponent* ParentMesh = Parent->FindComponentByClass<UStaticMeshComponent>())
+		{
+			Result.Add(ParentMesh);
+		}
+
+		// Get all attached actors' meshes
+		TArray<AActor*> GroupedActors;
+		Parent->GetAttachedActors(GroupedActors);
+		for (AActor* tmp: GroupedActors)
+		{
+			if (UStaticMeshComponent* MeshComp = tmp->FindComponentByClass<UStaticMeshComponent>())
+			{
+				Result.Add(MeshComp);
+			}
+		}
+	}
+	else
+	{
+		// If not grouped, just add this actor's mesh
+		if (UStaticMeshComponent* MeshComp = Actor->FindComponentByClass<UStaticMeshComponent>())
+		{
+			Result.Add(MeshComp);
+		}
+	}
+	return true;
+};
+
+void AEnsPlayerController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
+{
+	if (Result.Code == EPathFollowingResult::Success && PendingInteractObject)
+		IEnsInteractable::Execute_Interact(PendingInteractObject, this);
+
+	// Clear pending interaction
+	PendingInteractObject = nullptr;
 }
 
 void AEnsPlayerController::SetDestinationTriggered(const FInputActionValue& InputActionValue)

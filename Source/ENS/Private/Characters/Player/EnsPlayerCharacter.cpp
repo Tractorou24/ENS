@@ -39,7 +39,7 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
     CameraBoom->SetupAttachment(RootComponent);
     CameraBoom->bUsePawnControlRotation = false; // Do not rotate with character
     CameraBoom->bDoCollisionTest = false;        // Do not pull the camera when colliding with objects
-
+    
     CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
     CameraComponent->SetupAttachment(CameraBoom, UEnsSpringArmComponent::SocketName);
     CameraComponent->bUsePawnControlRotation = false;

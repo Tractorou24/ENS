@@ -2,6 +2,7 @@
 
 #pragma once
 
+
 #include "AIController.h"
 #include "CoreMinimal.h"
 #include "EnsAIControllerBase.generated.h"

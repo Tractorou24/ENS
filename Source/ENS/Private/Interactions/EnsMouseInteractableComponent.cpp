@@ -3,7 +3,6 @@
 #include "Interactions/EnsMouseInteractableComponent.h"
 
 #include "Components/BoxComponent.h"
-#include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogInteractions)
@@ -13,11 +12,10 @@ UEnsMouseInteractableComponent::UEnsMouseInteractableComponent()
     PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UEnsMouseInteractableComponent::TickComponent(const float DeltaTime, const ELevelTick TickType,
-                                                   FActorComponentTickFunction* ThisTickFunction)
+void UEnsMouseInteractableComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+    
     // Check if the object is below the mouse cursor
     const auto* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
     if (FHitResult Hit; PlayerController->GetHitResultUnderCursor(ECC_Visibility, true, Hit))

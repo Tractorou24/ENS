@@ -4,9 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "AITypes.h"
 #include "InputActionValue.h"
-
 #include "EnsPlayerController.generated.h"
+
+class UCameraComponent;
+class UCapsuleComponent;
+class UStaticMeshComponent;
 struct FPathFollowingResult;
 DECLARE_LOG_CATEGORY_EXTERN(LogPlayerCharacter, Log, All);
 
@@ -46,6 +50,7 @@ public:
     /// \brief Returns the current mouse position relative to the viewport or the last known position.
     FVector2D GetRelativeMousePosition() const { return RelativeMousePosition; }
 
+
 protected:
     /// \brief Binds the inputs to the corresponding player actions.
     virtual void SetupInputComponent() override;
@@ -58,6 +63,12 @@ private:
     /// \brief The current mouse position relative to the viewport.
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
     FVector2D RelativeMousePosition = FVector2D::ZeroVector;
+
+	bool GetChildsOfActor(const AActor* Actor, TArray<UStaticMeshComponent*>& Result);
+
+	UCapsuleComponent* ActiveCapsuleComponent;
+
+	UCameraComponent* ActiveCamera;
 
 #pragma region Move to destination
     /**
@@ -75,9 +86,16 @@ private:
      * When the click duration is less that \ref ShortPressThreshold, the player will move to the destination, else stop.
      */
     void SetDestinationReleased(const FInputActionValue& InputActionValue);
+    
+    /**
+     * \brief Called when the player has reached the destination.
+     * \param RequestID Identifier of the request.
+     * \param Result The result of the path following.
+    */
+    void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result);
 
     /// \brief The action to set the player destination when clicking.
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
     class UInputAction* SetDestinationAction = nullptr;
 
     /// \brief The time threshold (in s) to determine if the click was short (move to when released) or long (stop when released).
