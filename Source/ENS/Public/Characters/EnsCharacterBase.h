@@ -36,6 +36,11 @@ protected:
     /// \brief Adds the startup effects to the character. (e.g. set attributes to default)
     virtual void AddStartupEffects();
 
+    FDelegateHandle HealthChangedDelegateHandle;
+
+    // Attribute changed callbacks
+    virtual void HealthChanged(const struct FOnAttributeChangeData& Data) {};
+
 protected:
     /// \brief The ability system component of the character using this state.
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS", meta = (AllowPrivateAccess = "true"))

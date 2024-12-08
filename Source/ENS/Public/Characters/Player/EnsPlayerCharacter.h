@@ -55,22 +55,31 @@ public:
 
     UFUNCTION(BlueprintCallable)
     virtual FGenericTeamId GetGenericTeamId() const override;
+    
+protected:
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ens|UI")
+    TSubclassOf<class UEnsPlayerInfosBarWidget> PlayerInfosBarWidgetClass;
 
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ens|UI")
+    class UEnsPlayerInfosBarWidgetComponent* PlayerInfosBarWidgetComponent;
+
+    // Attribute changed callbacks
+    virtual void HealthChanged(const FOnAttributeChangeData& Data) override;
+    
 private:
     void MoveTo(const struct FAIMoveRequest& MoveReq);
-
-private:
+    
     /// \brief Camera boom positioning the camera above the character
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
     class UEnsSpringArmComponent* CameraBoom;
 
     /// \brief The camera used for the top-down view.
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-    class UCameraComponent* CameraComponent;
+    UCameraComponent* CameraComponent;
 
     /// \brief The component for movement using pathfinding
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
-    class UPathFollowingComponent* PathFollowingComponent;
+    UPathFollowingComponent* PathFollowingComponent;
 
     /// \brief The radius around the target point the character will stop at.
     UPROPERTY(EditAnywhere, Category = "Movement")

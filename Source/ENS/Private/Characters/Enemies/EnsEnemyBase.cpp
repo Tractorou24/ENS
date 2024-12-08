@@ -16,7 +16,7 @@ AEnsEnemyBase::AEnsEnemyBase()
     PrimaryActorTick.bCanEverTick = true;
     // Add UI Component
     FloatingInfosBarWidgetComponent = CreateDefaultSubobject<UEnsFloatingInfosBarWidgetComponent>(
-        FName("FloatingStatusBarComponent"));
+        FName("FloatingInfosBarComponent"));
     FloatingInfosBarWidgetComponent->SetupAttachment(RootComponent);
     FloatingInfosBarWidgetComponent->SetRelativeLocation(FVector(0, 0, 120));
     FloatingInfosBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
@@ -54,17 +54,20 @@ void AEnsEnemyBase::BeginPlay()
         AbilitySystemComponent->InitAbilityActorInfo(this, this);
         AddStartupEffects();
 
-        FloatingInfosBarWidgetClass = StaticLoadClass(UObject::StaticClass(), nullptr,
-                                                      TEXT(
-                                                          "/Game/Developers/Fabian/WB_FloatingInfoBar.WB_FloatingInfoBar_C"));
+        // FloatingInfosBarWidgetClass = StaticLoadClass(UObject::StaticClass(), nullptr,
+        //                                               TEXT(
+        //                                                   "/Game/Developers/Dorian/WB_FloatingInfosBar.WB_FloatingInfosBar_C"));
         if (!FloatingInfosBarWidgetClass)
             UE_LOG(LogTemp, Error,
                    TEXT(
-                       "%s() Failed to find WB_FloatingInfoBar. If it was moved, please update the reference location in C++."),
+                       "%s() Failed to find WB_FloatingInfosBar. If it was moved, please update the reference location in C++."),
                    *FString(__FUNCTION__));
-
-        FloatingInfosBarWidgetComponent->AddWidget(FloatingInfosBarWidgetClass);
-        FloatingInfosBarWidgetComponent->SetHealthPercentage(1.f);
+        
+        if (FloatingInfosBarWidgetComponent)
+        {
+            FloatingInfosBarWidgetComponent->AddWidget(FloatingInfosBarWidgetClass);
+            FloatingInfosBarWidgetComponent->SetHealthPercentage(1.f);
+        }
     }
 
     // Attribute change callbacks

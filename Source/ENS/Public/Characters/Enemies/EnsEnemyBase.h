@@ -35,10 +35,8 @@ protected:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ens|UI")
     class UEnsFloatingInfosBarWidgetComponent* FloatingInfosBarWidgetComponent;
 
-    FDelegateHandle HealthChangedDelegateHandle;
-
     // Attribute changed callbacks
-    virtual void HealthChanged(const struct FOnAttributeChangeData& Data);
+    virtual void HealthChanged(const FOnAttributeChangeData& Data) override;
 
 private:
     UPROPERTY(EditAnywhere, Category = "Interactions", meta = (AllowPrivateAccess = "true"))
