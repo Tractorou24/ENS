@@ -38,7 +38,7 @@ class ENS_API UEnsMouseInteractableComponent : public UActorComponent, public IE
 public:
     /// \brief Constructs the component and enables ticking.
     explicit UEnsMouseInteractableComponent();
-
+    
     /**
      * \brief Checks if the player mouse is over the object.
      * \return `true` if the player's mouse is over the object, `false` otherwise.
@@ -84,9 +84,10 @@ public:
     /// \brief Called when the player exits the interaction zone.
     UPROPERTY(BlueprintAssignable, Category = "Interaction")
     FOnPlayerExitZone OnPlayerExitZone;
-
+    
 private:
     virtual void Interact_Implementation(AActor* SourceActor) override;
+
 
     /// \brief Called when an object is entering the interaction zone.
     UFUNCTION()
@@ -113,4 +114,5 @@ private:
     /// \brief The bow the player must be in to interact with the object
     UPROPERTY(BlueprintReadOnly, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
     UBoxComponent* InteractZone = nullptr;
+    
 };

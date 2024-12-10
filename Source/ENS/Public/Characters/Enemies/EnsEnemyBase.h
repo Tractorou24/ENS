@@ -2,18 +2,30 @@
 
 #pragma once
 
+
+#include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
 #include "Characters/EnsCharacterBase.h"
 #include "CoreMinimal.h"
+
 #include "EnsEnemyBase.generated.h"
 
 UCLASS()
-class ENS_API AEnsEnemyBase : public AEnsCharacterBase
+class ENS_API AEnsEnemyBase : public AEnsCharacterBase, public IGenericTeamAgentInterface
 {
     GENERATED_BODY()
+
+    FGenericTeamId TeamId;
 
 public:
     // Sets default values for this character's properties
     AEnsEnemyBase();
+
+    UFUNCTION(BlueprintCallable)
+    virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
+
+    UFUNCTION(BlueprintCallable)
+    virtual FGenericTeamId GetGenericTeamId() const override;
 
 protected:
     // Called when the game starts or when spawned
@@ -25,15 +37,16 @@ protected:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ens|UI")
     class UEnsFloatingInfosBarWidgetComponent* FloatingInfosBarWidgetComponent;
 
-    FDelegateHandle HealthChangedDelegateHandle;
-
-    // Attribute changed callbacks
-    virtual void HealthChanged(const struct FOnAttributeChangeData& Data);
-
 private:
     UPROPERTY(EditAnywhere, Category = "Interactions", meta = (AllowPrivateAccess = "true"))
     class UEnsMouseInteractableComponent* MouseInteractableComponent = nullptr;
 
     UPROPERTY(EditAnywhere, Category = "Interactions", meta = (AllowPrivateAccess = "true"))
     class UBoxComponent* InteractZone = nullptr;
+
+    FDelegateHandle HealthChangedDelegateHandle;
+    
+    // Attribute changed callbacks
+    virtual void HealthChanged(const struct FOnAttributeChangeData& Data);
+
 };

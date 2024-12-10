@@ -10,11 +10,10 @@
 #include "NavFilters/NavigationQueryFilter.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
-
-void AEnsPlayerCharacter::BeginPlay()
-{
-    Super::BeginPlay();
-}
+#include "GAS/EnsAbilitySystemComponent.h"
+#include "GAS/AttributeSets/EnsHealthAttributeSet.h"
+#include "UI/EnsPlayerInfosBarWidget.h"
+#include "UI/EnsPlayerInfosBarWidgetComponent.h"
 
 AEnsPlayerCharacter::AEnsPlayerCharacter()
 {
@@ -40,10 +39,53 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
     CameraBoom->SetupAttachment(RootComponent);
     CameraBoom->bUsePawnControlRotation = false; // Do not rotate with character
     CameraBoom->bDoCollisionTest = false;        // Do not pull the camera when colliding with objects
-
+    
     CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
     CameraComponent->SetupAttachment(CameraBoom, UEnsSpringArmComponent::SocketName);
     CameraComponent->bUsePawnControlRotation = false;
+
+    // Add UI Component
+    PlayerInfosBarWidgetComponent = CreateDefaultSubobject<UEnsPlayerInfosBarWidgetComponent>(
+        FName("PlayerInfosBarComponent"));
+    PlayerInfosBarWidgetComponent->SetupAttachment(RootComponent);
+    PlayerInfosBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+    
+    // Set up actor team
+    TeamId = FGenericTeamId(0);
+    TeamId.ResetAttitudeSolver();
+}
+
+void AEnsPlayerCharacter::BeginPlay()
+{
+    Super::BeginPlay();
+    if (AbilitySystemComponent)
+    {
+        AbilitySystemComponent->InitAbilityActorInfo(this, this);
+        AddStartupEffects();
+
+        const float maxHealth = HealthAttributeSet->GetMaxHealth();
+        // PlayerInfosBarWidgetClass = StaticLoadClass(UObject::StaticClass(), nullptr,
+        //                                               TEXT(
+        //                                                   "/Game/Developers/Dorian/WB_PlayerInfosBar.WB_PlayerInfosBar_C"));
+        
+        if (!PlayerInfosBarWidgetClass)
+        {
+            UE_LOG(LogTemp, Error,
+            TEXT(
+            "%s() Failed to find WB_FloatingInfosBar. If it was moved, please update the reference location in C++."),
+            *FString(__FUNCTION__));
+        }
+        if (PlayerInfosBarWidgetComponent)
+        {
+            PlayerInfosBarWidgetComponent->AddWidget(PlayerInfosBarWidgetClass);
+            PlayerInfosBarWidgetComponent->SetHealthPercentage(1.f);
+        }
+    }
+
+    // Attribute change callbacks
+    HealthChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+                                                            HealthAttributeSet->GetHealthAttribute())
+                                      .AddUObject(this, &AEnsPlayerCharacter::HealthChanged);
 }
 
 void AEnsPlayerCharacter::Death()
@@ -99,6 +141,30 @@ void AEnsPlayerCharacter::MoveToActor(const AActor* Actor)
 class UCameraComponent* AEnsPlayerCharacter::GetCameraComponent() const
 {
     return CameraComponent;
+}
+
+void AEnsPlayerCharacter::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+    if (TeamId != NewTeamID)
+    {
+        TeamId = NewTeamID;
+    }
+}
+
+FGenericTeamId AEnsPlayerCharacter::GetGenericTeamId() const
+{
+    return TeamId;
+}
+
+void AEnsPlayerCharacter::HealthChanged(const FOnAttributeChangeData& Data)
+{
+    const float Health = Data.NewValue;
+    const float maxHealth = HealthAttributeSet->GetMaxHealth();
+    // Update floating status bar
+    if (PlayerInfosBarWidgetComponent)
+        PlayerInfosBarWidgetComponent->SetHealthPercentage(Health / maxHealth);
+
+    // TODO: If died, handle death
 }
 
 void AEnsPlayerCharacter::MoveTo(const FAIMoveRequest& MoveReq)
