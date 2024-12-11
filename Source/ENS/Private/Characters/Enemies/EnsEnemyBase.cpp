@@ -64,7 +64,7 @@ void AEnsEnemyBase::BeginPlay()
                        "%s() Failed to find WB_FloatingInfosBar. If it was moved, please update the reference location in C++."),
                    *FString(__FUNCTION__));
         
-        if (FloatingInfosBarWidgetComponent)
+        if (FloatingInfosBarWidgetComponent && FloatingInfosBarWidgetClass)
         {
             FloatingInfosBarWidgetComponent->AddWidget(FloatingInfosBarWidgetClass);
             FloatingInfosBarWidgetComponent->SetHealthPercentage(1.f);
