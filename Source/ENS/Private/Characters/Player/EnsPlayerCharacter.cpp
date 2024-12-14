@@ -10,6 +10,7 @@
 #include "NavFilters/NavigationQueryFilter.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
+#include "Equipment/Inventory.h"
 #include "GAS/EnsAbilitySystemComponent.h"
 #include "GAS/AttributeSets/EnsHealthAttributeSet.h"
 #include "UI/EnsPlayerInfosBarWidget.h"
@@ -49,7 +50,8 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
         FName("PlayerInfosBarComponent"));
     PlayerInfosBarWidgetComponent->SetupAttachment(RootComponent);
     PlayerInfosBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
-    
+
+    Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
     // Set up actor team
     TeamId = FGenericTeamId(0);
     TeamId.ResetAttitudeSolver();

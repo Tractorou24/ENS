@@ -22,80 +22,104 @@ UInventory::UInventory()
 // Called when the game starts
 void UInventory::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
 
-	if (APawn* Pawn = Cast<APawn>(GetOwner()))
+    if (APawn* Pawn = Cast<APawn>(GetOwner()))
+    {
+	// Get the player controller
+	if (APlayerController* PlayerController = Cast<APlayerController>(Pawn->GetController()))
 	{
-		// Get the player controller
-		if (APlayerController* PlayerController = Cast<APlayerController>(Pawn->GetController()))
-		{
-			// Get the enhanced input component
-			if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerController->InputComponent))
-			{
-				// Bind the input action
-				EnhancedInputComponent->BindAction(ScrollAction, ETriggerEvent::Triggered, this, &UInventory::SwapWeapon);
-
-				EnhancedInputComponent->BindAction(MainAbilityAction, ETriggerEvent::Started, this, &UInventory::HandleMainAbility);
-            
-			}
-		}
+	    // Get the enhanced input component
+	    if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerController->InputComponent))
+	    {
+		// Bind the input action
+		EnhancedInputComponent->BindAction(ScrollAction, ETriggerEvent::Triggered, this, &UInventory::SwapWeapon);
+		EnhancedInputComponent->BindAction(MainAbilityAction, ETriggerEvent::Started, this, &UInventory::HandleMainAbility);
+	    }
 	}
-	UpdateEquippedWeapon();
-	
+    }
+    UpdateEquippedWeapon();
+}
+
+class ABaseWeapon* UInventory::GetCurrentWeapon()
+{
+    return AttachedWeapon;
+}
+
+FGameplayAbilitySpecHandle& UInventory::GetBaseAttackSpecHandle()
+{
+    return BaseAttackHandle;
+}
+
+FGameplayAbilitySpecHandle& UInventory::GetMainAbilitySpecHandle()
+{
+    return MainAbilityHandle;
 }
 
 void UInventory::SwapWeapon(const FInputActionValue& Value)
 {
-	CurrentWeapon = (CurrentWeapon + Weapons.Num() +(Value.Get<float>() > 0 ? 1 : -1)) % Weapons.Num();
+   
+    if ( ACharacter* Character = Cast<ACharacter>(GetOwner()))
+    {
+        if (USkeletalMeshComponent* Mesh = Character->GetMesh())
+        {
+            if (UAnimInstance* AnimInstance = Mesh->GetAnimInstance())
+            {
+                if (AnimInstance->Montage_IsPlaying(nullptr))
+                    return;
+            }
+        }
+    }
+    CurrentWeapon = (CurrentWeapon + Weapons.Num() +(Value.Get<float>() > 0 ? 1 : -1)) % Weapons.Num();
     UpdateEquippedWeapon();
 }
 
 void UInventory::UpdateEquippedWeapon()
 {
-	ACharacter* Character = Cast<ACharacter>(GetOwner());
-	if (!Character)
-		return;
+    ACharacter* Character = Cast<ACharacter>(GetOwner());
+    if (!Character)
+	    return;
 
-	// Destroy previous weapon if it exists
-	if (AttachedWeapon)
+    // Destroy previous weapon if it exists
+    if (AttachedWeapon)
+    {
+	// Remove abilities using stored handles
+	if (UAbilitySystemComponent* AbilitySystem = Character->FindComponentByClass<UAbilitySystemComponent>())
 	{
-		// Remove abilities using stored handles
-		if (UAbilitySystemComponent* AbilitySystem = Character->FindComponentByClass<UAbilitySystemComponent>())
-		{
-			if (BaseAttackHandle.IsValid())
-			{
-				AbilitySystem->ClearAbility(BaseAttackHandle);
-			}
-			if (MainAbilityHandle.IsValid())
-			{
-				AbilitySystem->ClearAbility(MainAbilityHandle);
-			}
-		}
-		Character->GetMesh()->MoveIgnoreActors.Remove(AttachedWeapon);
-		AttachedWeapon->Destroy();
-		AttachedWeapon = nullptr;
+	    if (BaseAttackHandle.IsValid())
+	    {
+		AbilitySystem->ClearAbility(BaseAttackHandle);
+	    }
+	    if (MainAbilityHandle.IsValid())
+	    {
+		AbilitySystem->ClearAbility(MainAbilityHandle);
+	    }
 	}
-	
-	// Spawn and attach new weapon
-	if (Weapons[CurrentWeapon])
+	Character->GetMesh()->MoveIgnoreActors.Remove(AttachedWeapon);
+	AttachedWeapon->Destroy();
+	AttachedWeapon = nullptr;
+    }
+    
+    // Spawn and attach new weapon
+    if (Weapons[CurrentWeapon])
+    {
+	AttachedWeapon = Cast<ABaseWeapon>(GetWorld()->SpawnActor<AActor>(Weapons[CurrentWeapon], FVector(0.0f, 0.0f, 0.0f), FRotator::ZeroRotator));
+	AttachedWeapon->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachedWeapon->SocketName);
+	Character->GetMesh()->MoveIgnoreActors.Add(AttachedWeapon);
+	if (UAbilitySystemComponent* AbilitySystem = Character->FindComponentByClass<UAbilitySystemComponent>())
 	{
-		AttachedWeapon = Cast<ABaseWeapon>(GetWorld()->SpawnActor<AActor>(Weapons[CurrentWeapon], FVector(0.0f, 0.0f, 0.0f), FRotator::ZeroRotator));
-		AttachedWeapon->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachedWeapon->SocketName);
-		Character->GetMesh()->MoveIgnoreActors.Add(AttachedWeapon);
-		if (UAbilitySystemComponent* AbilitySystem = Character->FindComponentByClass<UAbilitySystemComponent>())
-		{
-			if (AttachedWeapon->BaseAttack)
-			{
-				FGameplayAbilitySpec Spec(AttachedWeapon->BaseAttack);
-				BaseAttackHandle = AbilitySystem->GiveAbility(Spec);
-			}
-			if (AttachedWeapon->MainAbility)
-			{
-				FGameplayAbilitySpec Spec(AttachedWeapon->MainAbility);
-				MainAbilityHandle = AbilitySystem->GiveAbility(Spec);
-			}
-		}
+	    if (AttachedWeapon->BaseAttack)
+	    {
+		FGameplayAbilitySpec Spec(AttachedWeapon->BaseAttack);
+		BaseAttackHandle = AbilitySystem->GiveAbility(Spec);
+	    }
+	    if (AttachedWeapon->MainAbility)
+	    {
+		FGameplayAbilitySpec Spec(AttachedWeapon->MainAbility);
+		MainAbilityHandle = AbilitySystem->GiveAbility(Spec);
+	    }
 	}
+    }
 }
 
 void UInventory::HandleMainAbility(const FInputActionValue& InputActionValue)
@@ -108,4 +132,4 @@ void UInventory::HandleMainAbility(const FInputActionValue& InputActionValue)
     {
         AbilitySystem->TryActivateAbilityByClass(AttachedWeapon->MainAbility);
     }
-}
+}   
