@@ -4,7 +4,7 @@
 // Sets default values
 ABaseWeapon::ABaseWeapon()
 {
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+    Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 }
 
 
