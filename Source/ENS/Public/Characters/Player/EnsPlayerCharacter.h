@@ -4,6 +4,8 @@
 
 #include "Characters/EnsCharacterBase.h"
 #include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
+
 #include "EnsPlayerCharacter.generated.h"
 
 /**
@@ -13,9 +15,11 @@
  * It is the default character in the \ref EnsGameMode.
  */
 UCLASS()
-class ENS_API AEnsPlayerCharacter : public AEnsCharacterBase
+class ENS_API AEnsPlayerCharacter : public AEnsCharacterBase, public IGenericTeamAgentInterface
 {
     GENERATED_BODY()
+
+    FGenericTeamId TeamId;
 
 public:
     /// \brief Called at the game start
@@ -45,21 +49,36 @@ public:
     /// \brief Gets the camera component the player sees through.
     [[nodiscard]] class UCameraComponent* GetCameraComponent() const;
 
+    UFUNCTION(BlueprintCallable)
+    virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
+
+    UFUNCTION(BlueprintCallable)
+    virtual FGenericTeamId GetGenericTeamId() const override;
+
+protected:
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ens|UI")
+    TSubclassOf<class UEnsPlayerInfosBarWidget> PlayerInfosBarWidgetClass;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ens|UI")
+    class UEnsPlayerInfosBarWidgetComponent* PlayerInfosBarWidgetComponent;
+
+    // Attribute changed callbacks
+    virtual void HealthChanged(const FOnAttributeChangeData& Data) override;
+
 private:
     void MoveTo(const struct FAIMoveRequest& MoveReq);
 
-private:
     /// \brief Camera boom positioning the camera above the character
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
     class UEnsSpringArmComponent* CameraBoom;
 
     /// \brief The camera used for the top-down view.
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-    class UCameraComponent* CameraComponent;
+    UCameraComponent* CameraComponent;
 
     /// \brief The component for movement using pathfinding
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
-    class UPathFollowingComponent* PathFollowingComponent;
+    UPathFollowingComponent* PathFollowingComponent;
 
     /// \brief The radius around the target point the character will stop at.
     UPROPERTY(EditAnywhere, Category = "Movement")
