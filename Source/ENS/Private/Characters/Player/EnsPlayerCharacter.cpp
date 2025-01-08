@@ -2,6 +2,10 @@
 
 #include "Characters/Player/EnsPlayerCharacter.h"
 #include "Characters/Player/EnsSpringArmComponent.h"
+#include "GAS/AttributeSets/EnsHealthAttributeSet.h"
+#include "GAS/EnsAbilitySystemComponent.h"
+#include "UI/EnsPlayerInfosBarWidget.h"
+#include "UI/EnsPlayerInfosBarWidgetComponent.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -10,11 +14,6 @@
 #include "NavFilters/NavigationQueryFilter.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
-
-void AEnsPlayerCharacter::BeginPlay()
-{
-    Super::BeginPlay();
-}
 
 AEnsPlayerCharacter::AEnsPlayerCharacter()
 {
@@ -44,6 +43,43 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
     CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
     CameraComponent->SetupAttachment(CameraBoom, UEnsSpringArmComponent::SocketName);
     CameraComponent->bUsePawnControlRotation = false;
+
+    // Add UI Component
+    PlayerInfosBarWidgetComponent = CreateDefaultSubobject<UEnsPlayerInfosBarWidgetComponent>(
+        FName("PlayerInfosBarComponent"));
+    PlayerInfosBarWidgetComponent->SetupAttachment(RootComponent);
+    PlayerInfosBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+
+    // Set up actor team
+    TeamId = FGenericTeamId(0);
+    TeamId.ResetAttitudeSolver();
+}
+
+void AEnsPlayerCharacter::BeginPlay()
+{
+    Super::BeginPlay();
+    if (AbilitySystemComponent)
+    {
+        AbilitySystemComponent->InitAbilityActorInfo(this, this);
+        AddStartupEffects();
+
+        if (!PlayerInfosBarWidgetClass)
+            UE_LOG(LogTemp, Error,
+                   TEXT(
+                       "%s() Failed to find WB_FloatingInfosBar. If it was moved, please update the reference location in C++."),
+                   *FString(__FUNCTION__));
+
+        if (PlayerInfosBarWidgetComponent)
+        {
+            PlayerInfosBarWidgetComponent->AddWidget(PlayerInfosBarWidgetClass);
+            PlayerInfosBarWidgetComponent->SetHealthPercentage(1.f);
+        }
+    }
+
+    // Attribute change callbacks
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+                              HealthAttributeSet->GetHealthAttribute())
+        .AddUObject(this, &AEnsPlayerCharacter::HealthChanged);
 }
 
 void AEnsPlayerCharacter::Death()
@@ -99,6 +135,31 @@ void AEnsPlayerCharacter::MoveToActor(const AActor* Actor)
 class UCameraComponent* AEnsPlayerCharacter::GetCameraComponent() const
 {
     return CameraComponent;
+}
+
+void AEnsPlayerCharacter::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+    if (TeamId != NewTeamID)
+    {
+        TeamId = NewTeamID;
+    }
+}
+
+FGenericTeamId AEnsPlayerCharacter::GetGenericTeamId() const
+{
+    return TeamId;
+}
+
+void AEnsPlayerCharacter::HealthChanged(const FOnAttributeChangeData& Data)
+{
+    const float Health = Data.NewValue;
+    const float MaxHealth = HealthAttributeSet->GetMaxHealth();
+
+    // Update floating status bar
+    if (PlayerInfosBarWidgetComponent)
+        PlayerInfosBarWidgetComponent->SetHealthPercentage(Health / MaxHealth);
+
+    // TODO: If died, handle death
 }
 
 void AEnsPlayerCharacter::MoveTo(const FAIMoveRequest& MoveReq)

@@ -4,10 +4,11 @@
 
 #include "Blueprint/UserWidget.h"
 #include "CoreMinimal.h"
+
 #include "EnsFloatingInfosBarWidget.generated.h"
 
 /**
- *
+ * \brief The widget responsible to display the player information on screen.
  */
 UCLASS()
 class ENS_API UEnsFloatingInfosBarWidget : public UUserWidget
@@ -16,8 +17,8 @@ class ENS_API UEnsFloatingInfosBarWidget : public UUserWidget
 
 public:
     /**
-     * @brief Set the UI health bar value
-     * @param HealthPercentage Ratio CurrentHealth/MaxHealth
+     * \brief Set the health bar value.
+     * \param HealthPercentage The health ratio in range `[0;1]`, usually `CurrentHealth / MaxHealth`.
      */
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
     void SetHealthPercentage(float HealthPercentage);

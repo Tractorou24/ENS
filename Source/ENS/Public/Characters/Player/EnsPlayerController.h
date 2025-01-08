@@ -7,7 +7,7 @@
 #include "InputActionValue.h"
 
 #include "EnsPlayerController.generated.h"
-struct FPathFollowingResult;
+
 DECLARE_LOG_CATEGORY_EXTERN(LogPlayerCharacter, Log, All);
 
 /// \brief The custom collision channels used in the game.
