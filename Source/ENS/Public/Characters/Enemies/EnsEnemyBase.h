@@ -35,6 +35,9 @@ protected:
      */
     virtual void HealthChanged(const FOnAttributeChangeData& Data) override;
 
+    /// \brief Implement death of all enemies.
+    virtual void Death() override;
+
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ens|UI")
     TSubclassOf<class UEnsFloatingInfosBarWidget> FloatingInfosBarWidgetClass;
 

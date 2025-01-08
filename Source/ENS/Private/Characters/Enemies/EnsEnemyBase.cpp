@@ -81,6 +81,9 @@ void AEnsEnemyBase::HealthChanged(const FOnAttributeChangeData& Data)
     // Update floating status bar
     if (FloatingInfosBarWidgetComponent)
         FloatingInfosBarWidgetComponent->SetHealthPercentage(Health / HealthAttributeSet->GetMaxHealth());
+}
 
-    // TODO: If died, handle death
+void AEnsEnemyBase::Death()
+{
+    Destroy();
 }

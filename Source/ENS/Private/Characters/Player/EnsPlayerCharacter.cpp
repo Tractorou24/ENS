@@ -158,8 +158,6 @@ void AEnsPlayerCharacter::HealthChanged(const FOnAttributeChangeData& Data)
     // Update floating status bar
     if (PlayerInfosBarWidgetComponent)
         PlayerInfosBarWidgetComponent->SetHealthPercentage(Health / MaxHealth);
-
-    // TODO: If died, handle death
 }
 
 void AEnsPlayerCharacter::MoveTo(const FAIMoveRequest& MoveReq)
