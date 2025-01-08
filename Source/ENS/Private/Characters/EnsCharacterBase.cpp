@@ -19,7 +19,7 @@ AEnsCharacterBase::AEnsCharacterBase()
 
 void AEnsCharacterBase::Death()
 {
-    // Reset all attributes, so it can be teleported back to the spawn point
+    // Reset all attributes
     AddStartupEffects();
 }
 
