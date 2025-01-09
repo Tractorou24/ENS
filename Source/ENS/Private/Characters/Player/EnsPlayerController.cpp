@@ -8,6 +8,7 @@
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/NavMovementComponent.h"
 
 AEnsPlayerController::AEnsPlayerController()
 {
@@ -102,6 +103,12 @@ void AEnsPlayerController::SetDestinationTriggered()
 {
     if (PendingInteractObject || bIsInInteractMode)
         return;
+
+    UNavMovementComponent* NavMovementComponent = GetPawn()->GetComponentByClass<UNavMovementComponent>();
+    if (IsValid(NavMovementComponent))
+    {
+        NavMovementComponent->StopActiveMovement();
+    }
 
     // There is something valid below cursor
     if (FHitResult Hit; GetHitResultUnderCursor(ECustomCollisionChannel::ECC_Floor, true, Hit))
