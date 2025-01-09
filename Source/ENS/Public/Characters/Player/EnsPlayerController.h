@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "InputActionValue.h"
+#include "InputAction.h"
 
 #include "EnsPlayerController.generated.h"
 
@@ -62,19 +62,18 @@ private:
 #pragma region Move to destination
     /**
      * \brief Called while \ref SetDestinationAction is triggered/pressed.
-     * \param InputActionValue The input action value.
      *
      * Sets the new \ref CachedDestination and moves the player in direction it.
      */
-    void SetDestinationTriggered(const FInputActionValue& InputActionValue);
+    void SetDestinationTriggered();
 
     /**
      * \brief Called when \ref SetDestinationAction is released.
-     * \param InputActionValue The input action value.
+     * \param InputActionInstance The input action instance.
      *
      * When the click duration is less that \ref ShortPressThreshold, the player will move to the destination, else stop.
      */
-    void SetDestinationReleased(const FInputActionValue& InputActionValue);
+    void SetDestinationReleased(const FInputActionInstance& InputActionInstance);
 
     /// \brief The action to set the player destination when clicking.
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -86,14 +85,14 @@ private:
 
     /// \brief The destination the player will or has move to.
     FVector CachedDestination = FVector::ZeroVector;
-
-    /// \brief The time the player has been following the destination (in s).
-    float DestinationFollowTime = 0;
 #pragma endregion
 
 #pragma region Interactions
     /// \brief Moves to and interacts with the object under the cursor if it exists.
     void Interact();
+
+    /// \brief Resets the interaction when the action is completed.
+    void ResetInteract();
 
     /// \brief The action to interact with the objects.
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -101,6 +100,9 @@ private:
 
     /// \brief The object the player is trying to interact with.
     UObject* PendingInteractObject = nullptr;
+
+    /// \brief `true` if an interaction was done in the frame so the player movement from click can be disabled.
+    bool bIsInInteractMode = false;
 #pragma endregion
 
 #pragma region MeshVisibility
