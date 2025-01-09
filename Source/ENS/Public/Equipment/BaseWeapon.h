@@ -30,4 +30,11 @@ public:
     /// \brief Name of the socket where the weapon should be attached
     UPROPERTY(EditAnywhere)
     FName SocketName;
+
+    /// \brief Data for the different levels of the weapon
+    UPROPERTY(EditAnywhere)
+    class UDataTable* WeaponInfo;
+
+    /// \brief Level of the weapon
+    int Level = 0;
 };

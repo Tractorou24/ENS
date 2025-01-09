@@ -15,8 +15,8 @@ void UEnsPlayerInfosBarWidgetComponent::AddWidget(const TSubclassOf<UEnsPlayerIn
         UE_LOG(LogPlayerUI, Error, TEXT("Cannot configure player UI. Controller is not found in world."));
 
     PlayerInfosBarWidget = CreateWidget<UEnsPlayerInfosBarWidget>(PlayerController, CreatedWidgetClass);
-    if (PlayerInfosBarWidget)
-        SetWidget(PlayerInfosBarWidget);
+    PlayerInfosBarWidget->AddToViewport();
+        
 }
 
 void UEnsPlayerInfosBarWidgetComponent::SetHealthPercentage(const float HealthPercentage) const
