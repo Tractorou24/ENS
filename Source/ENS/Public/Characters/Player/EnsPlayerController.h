@@ -98,41 +98,4 @@ private:
     /// \brief `true` if an interaction was done in the frame so the player movement from click can be disabled.
     bool bIsInInteractMode = false;
 #pragma endregion
-
-#pragma region MeshVisibility
-
-public:
-    /// \brief Speed at which meshes fade in when no longer occluding the camera.
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Occlusion|Components")
-    float FadeInSpeed = 5.0f;
-
-    /// \brief Speed at which meshes fade out when occluding the camera.
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Occlusion|Components")
-    float FadeOutSpeed = 3.0f;
-
-    /// \brief Minimum opacity value for occluding meshes (0.0 = fully transparent, should be > 0 to remain visible).
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Occlusion|Components")
-    float MinOpacity = 0.1f;
-
-    /// \brief Maximum opacity value for non-occluding meshes (1.0 = fully opaque)
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Occlusion|Components")
-    float MaxOpacity = 1.f;
-
-private:
-    /**
-     * \brief Collects all StaticMeshComponents from the children of the specified actor
-     * \param Actor The root Actor to search from
-     * \return Array of StaticMeshComponents from the children of the specified actor
-     */
-    TArray<class UStaticMeshComponent*> GetChildrenOfActor(const AActor* Actor);
-
-    /**
-     * \brief Handle the fading of objects between the player and camera
-     * \param DeltaSeconds The delta time in seconds since the last frame.
-     */
-    void FadeMesh(float DeltaSeconds);
-
-    /// \brief Maps StaticMeshComponents to their current opacity values
-    TMap<class UStaticMeshComponent*, float> OpacityValues;
-#pragma endregion
 };
