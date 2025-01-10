@@ -16,6 +16,8 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
 
+DEFINE_LOG_CATEGORY(LogPlayerCharacter)
+
 AEnsPlayerCharacter::AEnsPlayerCharacter()
 {
     Tags.Add(FName("Player"));
@@ -66,31 +68,30 @@ void AEnsPlayerCharacter::BaseAttack(AEnsEnemyBase* Enemy)
 void AEnsPlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
-    if (AbilitySystemComponent)
+    if (!AbilitySystemComponent)
     {
-        AbilitySystemComponent->InitAbilityActorInfo(this, this);
-        AddStartupEffects();
-
-        if (!PlayerInfosBarWidgetClass)
-            UE_LOG(LogTemp, Error,
-                   TEXT(
-                       "%s() Failed to find WB_FloatingInfosBar. If it was moved, please update the reference location in C++."),
-                   *FString(__FUNCTION__));
-
-        if (PlayerInfosBarWidgetComponent)
-        {
-            PlayerInfosBarWidgetComponent->AddWidget(PlayerInfosBarWidgetClass);
-            PlayerInfosBarWidgetComponent->SetHealthPercentage(1.f);
-        }
+        UE_LOG(LogPlayerCharacter, Error, TEXT("Cannot initialize enemy %s with no AbilitySystemComponent"), *GetName());
+        return;
     }
 
-    // Attribute change callbacks
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-                              HealthAttributeSet->GetHealthAttribute())
+    AbilitySystemComponent->InitAbilityActorInfo(this, this);
+    AddStartupEffects();
+
+    if (!PlayerInfosBarWidgetClass)
+    {
+        UE_LOG(LogEnemy, Error, TEXT("Failed to configure UI for player %s. Check the UI class is selected in blueprint."), *GetName());
+        return;
+    }
+
+    PlayerInfosBarWidgetComponent->AddWidget(PlayerInfosBarWidgetClass);
+    PlayerInfosBarWidgetComponent->SetHealthPercentage(1.f);
+
+    // Callbacks
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute())
         .AddUObject(this, &AEnsPlayerCharacter::HealthChanged);
 }
 
-void AEnsPlayerCharacter::Death()
+void AEnsPlayerCharacter::OnDeath()
 {
     APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -105,7 +106,7 @@ void AEnsPlayerCharacter::Death()
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
     // Call the parent to reset the attributes
-    Super::Death();
+    Super::OnDeath();
 }
 
 UPathFollowingComponent* AEnsPlayerCharacter::GetPathFollowingComponent() const

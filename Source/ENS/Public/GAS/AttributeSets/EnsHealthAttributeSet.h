@@ -4,10 +4,16 @@
 
 #include "AbilitySystemComponent.h"
 #include "CoreMinimal.h"
+
 #include "EnsHealthAttributeSet.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogHealthAttributeSet, Log, All);
 
+/**
+ * \brief Defines an attribute in an attribute set. It helps create the getter and setter for the attribute.
+ * \param ClassName The class the attribute is set in.
+ * \param PropertyName The name of the attribute.
+ */
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName)           \
     GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
     GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName)               \

@@ -11,29 +11,28 @@
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
 
-// Sets default values
+DEFINE_LOG_CATEGORY(LogEnemy)
+
 AEnsEnemyBase::AEnsEnemyBase()
 {
-    // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-    PrimaryActorTick.bCanEverTick = true;
-    // Add UI Component
-    FloatingInfosBarWidgetComponent = CreateDefaultSubobject<UEnsFloatingInfosBarWidgetComponent>(
-        FName("FloatingStatusBarComponent"));
+    // Actor team
+    TeamId = FGenericTeamId(1);
+    TeamId.ResetAttitudeSolver();
+
+    // UI
+    FloatingInfosBarWidgetComponent = CreateDefaultSubobject<UEnsFloatingInfosBarWidgetComponent>(FName("FloatingStatusBarComponent"));
     FloatingInfosBarWidgetComponent->SetupAttachment(RootComponent);
     FloatingInfosBarWidgetComponent->SetRelativeLocation(FVector(0, 0, 120));
     FloatingInfosBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
     FloatingInfosBarWidgetComponent->SetDrawSize(FVector2d(500, 500));
 
+    // Interactions
     InteractZone = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
     InteractZone->SetupAttachment(RootComponent);
 
     MouseInteractableComponent = CreateDefaultSubobject<UEnsMouseInteractableComponent>(TEXT("Interactions"));
     MouseInteractableComponent->SetupInteractZone(InteractZone);
     MouseInteractableComponent->OnInteract.AddDynamic(this, &AEnsEnemyBase::Attacked);
-
-    // Set up actor team
-    TeamId = FGenericTeamId(1);
-    TeamId.ResetAttitudeSolver();
 }
 
 void AEnsEnemyBase::SetGenericTeamId(const FGenericTeamId& NewTeamID)
@@ -52,27 +51,26 @@ void AEnsEnemyBase::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (AbilitySystemComponent)
+    if (!AbilitySystemComponent)
     {
-        AbilitySystemComponent->InitAbilityActorInfo(this, this);
-        AddStartupEffects();
-
-        if (!FloatingInfosBarWidgetClass)
-            UE_LOG(LogTemp, Error,
-                   TEXT(
-                       "%s() Failed to find WB_FloatingInfosBar. If it was moved, please update the reference location in C++."),
-                   *FString(__FUNCTION__));
-
-        if (FloatingInfosBarWidgetComponent && FloatingInfosBarWidgetClass)
-        {
-            FloatingInfosBarWidgetComponent->AddWidget(FloatingInfosBarWidgetClass);
-            FloatingInfosBarWidgetComponent->SetHealthPercentage(1.f);
-        }
+        UE_LOG(LogEnemy, Error, TEXT("Cannot initialize enemy %s with no AbilitySystemComponent"), *GetName());
+        return;
     }
 
+    AbilitySystemComponent->InitAbilityActorInfo(this, this);
+    AddStartupEffects();
+
+    if (!FloatingInfosBarWidgetClass)
+    {
+        UE_LOG(LogEnemy, Error, TEXT("Failed to configure UI for enemy %s. Check the UI class is selected in blueprint."), *GetName());
+        return;
+    }
+
+    FloatingInfosBarWidgetComponent->AddWidget(FloatingInfosBarWidgetClass);
+    FloatingInfosBarWidgetComponent->SetHealthPercentage(1.f);
+
     // Attribute change callbacks
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-                              HealthAttributeSet->GetHealthAttribute())
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute())
         .AddUObject(this, &AEnsEnemyBase::HealthChanged);
 }
 
@@ -85,7 +83,7 @@ void AEnsEnemyBase::HealthChanged(const FOnAttributeChangeData& Data)
         FloatingInfosBarWidgetComponent->SetHealthPercentage(Health / HealthAttributeSet->GetMaxHealth());
 }
 
-void AEnsEnemyBase::Death()
+void AEnsEnemyBase::OnDeath()
 {
     Destroy();
 }

@@ -12,8 +12,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-DEFINE_LOG_CATEGORY(LogPlayerCharacter);
-
 AEnsPlayerController::AEnsPlayerController()
 {
     // Show mouse cursor, so we can click to move
@@ -33,7 +31,7 @@ void AEnsPlayerController::OnPossess(APawn* InPawn)
     auto* PlayerCharacter = Cast<AEnsPlayerCharacter>(GetCharacter());
     if (!PlayerCharacter)
     {
-        UE_LOG(LogPlayerCharacter, Error, TEXT("Failed to get the player character for setting actor abilities."));
+        UE_LOG(LogPlayerController, Error, TEXT("Failed to get the player character for setting actor abilities."));
         return;
     }
 
@@ -111,7 +109,7 @@ void AEnsPlayerController::Tick(const float DeltaSeconds)
         FVector2D ViewportSize;
         if (!GEngine && !GEngine->GameViewport)
         {
-            UE_LOG(LogPlayerCharacter, Error, TEXT("Failed to get the viewport size. No engine or viewport."));
+            UE_LOG(LogPlayerController, Error, TEXT("Failed to get the viewport size. No engine or viewport."));
             return;
         }
         GEngine->GameViewport->GetViewportSize(ViewportSize);
@@ -154,7 +152,7 @@ void AEnsPlayerController::SetupInputComponent()
     UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
     if (!EnhancedInputComponent)
     {
-        UE_LOG(LogPlayerCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input Component!"), *GetNameSafe(this));
+        UE_LOG(LogPlayerController, Error, TEXT("'%s' Failed to find an Enhanced Input Component!"), *GetNameSafe(this));
         return;
     }
 

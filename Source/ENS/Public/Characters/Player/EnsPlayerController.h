@@ -8,8 +8,6 @@
 
 #include "EnsPlayerController.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogPlayerCharacter, Log, All);
-
 /// \brief The custom collision channels used in the game.
 namespace ECustomCollisionChannel
 {
@@ -28,14 +26,7 @@ class ENS_API AEnsPlayerController : public APlayerController
     GENERATED_BODY()
 
 public:
-    /// \brief Constructs the controller.
     explicit AEnsPlayerController();
-
-    /// \brief Called when the game starts or when spawned.
-    virtual void BeginPlay() override;
-
-    /// \brief Called when the controller starts possessing a pawn.
-    virtual void OnPossess(APawn* InPawn) override;
 
     /**
      * \brief Called every frame.
@@ -47,6 +38,9 @@ public:
     FVector2D GetRelativeMousePosition() const { return RelativeMousePosition; }
 
 protected:
+    virtual void BeginPlay() override;
+    virtual void OnPossess(APawn* InPawn) override;
+
     /// \brief Binds the inputs to the corresponding player actions.
     virtual void SetupInputComponent() override;
 

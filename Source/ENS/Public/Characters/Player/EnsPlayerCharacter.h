@@ -8,6 +8,8 @@
 
 #include "EnsPlayerCharacter.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogPlayerCharacter, Log, All);
+
 /**
  * \brief The player character in the game.
  *
@@ -19,10 +21,7 @@ class ENS_API AEnsPlayerCharacter : public AEnsCharacterBase, public IGenericTea
 {
     GENERATED_BODY()
 
-    FGenericTeamId TeamId;
-
 public:
-    /// \brief Called at the game start
     virtual void BeginPlay() override;
 
     /// \brief Constructs a character and setups its components.
@@ -31,8 +30,8 @@ public:
     /// \copydoc AEnsCharacterBase::BaseAttack
     virtual void BaseAttack(AEnsEnemyBase* Enemy) override;
 
-    /// \copydoc AEnsCharacterBase::Death
-    virtual void Death() override;
+    /// \copydoc AEnsCharacterBase::OnDeath
+    virtual void OnDeath() override;
 
     /// \brief Gets the path following component of the character used to move on a navmesh.
     [[nodiscard]] class UPathFollowingComponent* GetPathFollowingComponent() const;
@@ -52,19 +51,18 @@ public:
     /// \brief Gets the camera component the player sees through.
     [[nodiscard]] class UCameraComponent* GetCameraComponent() const;
 
+    /**
+     * \brief Sets the team the current player is in.
+     * \param NewTeamID The id of the new team.
+     */
     UFUNCTION(BlueprintCallable)
     virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
 
+    /// \brief Gets the id of the team the player is currently in.
     UFUNCTION(BlueprintCallable)
     virtual FGenericTeamId GetGenericTeamId() const override;
 
 protected:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ens|UI")
-    TSubclassOf<class UEnsPlayerInfosBarWidget> PlayerInfosBarWidgetClass;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ens|UI")
-    class UEnsPlayerInfosBarWidgetComponent* PlayerInfosBarWidgetComponent;
-
     // Attribute changed callbacks
     virtual void HealthChanged(const FOnAttributeChangeData& Data) override;
 
@@ -78,6 +76,8 @@ protected:
 private:
     void MoveTo(const struct FAIMoveRequest& MoveReq);
 
+    FGenericTeamId TeamId;
+
     /// \brief Camera boom positioning the camera above the character
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
     class UEnsSpringArmComponent* CameraBoom;
@@ -85,6 +85,14 @@ private:
     /// \brief The camera used for the top-down view.
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
     UCameraComponent* CameraComponent;
+
+    /// \brief The widget class for the player interface.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI", meta = (AllowPrivateAccess = "true"))
+    TSubclassOf<class UEnsPlayerInfosBarWidget> PlayerInfosBarWidgetClass;
+
+    /// \brief The widget component for the player interface.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI", meta = (AllowPrivateAccess = "true"))
+    class UEnsPlayerInfosBarWidgetComponent* PlayerInfosBarWidgetComponent;
 
     /// \brief The component for movement using pathfinding
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))

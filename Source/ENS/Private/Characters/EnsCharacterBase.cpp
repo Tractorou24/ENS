@@ -17,7 +17,7 @@ AEnsCharacterBase::AEnsCharacterBase()
     HealthAttributeSet = CreateDefaultSubobject<UEnsHealthAttributeSet>(TEXT("HealthAttributeSet"));
 }
 
-void AEnsCharacterBase::Death()
+void AEnsCharacterBase::OnDeath()
 {
     // Reset all attributes
     AddStartupEffects();

@@ -4,6 +4,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "CoreMinimal.h"
+
 #include "EnsAbilitySystemComponent.generated.h"
 
 class UInputAction;

@@ -19,7 +19,6 @@ class ENS_API AEnsCharacterBase : public ACharacter, public IAbilitySystemInterf
     GENERATED_BODY()
 
 public:
-    /// \brief Constructs a character and setups the GAS with default attributes.
     explicit AEnsCharacterBase();
 
     /**
@@ -29,7 +28,7 @@ public:
     virtual void BaseAttack(class AEnsEnemyBase* Enemy) {}
 
     /// \brief Called when the character dies.
-    virtual void Death();
+    virtual void OnDeath();
 
     /// \brief Gets the ability system component stored the character.
     UFUNCTION(BlueprintCallable)
