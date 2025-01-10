@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2024-2025, Equipment'N Slash contributors. All rights reserved.
 
 #include "Characters/Enemies/EnsEnemyBase.h"
+#include "Characters/Player/EnsPlayerController.h"
 #include "GAS/AttributeSets/EnsHealthAttributeSet.h"
 #include "GAS/EnsAbilitySystemComponent.h"
 #include "Interactions/EnsMouseInteractableComponent.h"
@@ -28,6 +29,7 @@ AEnsEnemyBase::AEnsEnemyBase()
 
     MouseInteractableComponent = CreateDefaultSubobject<UEnsMouseInteractableComponent>(TEXT("Interactions"));
     MouseInteractableComponent->SetupInteractZone(InteractZone);
+    MouseInteractableComponent->OnInteract.AddDynamic(this, &AEnsEnemyBase::Attacked);
 
     // Set up actor team
     TeamId = FGenericTeamId(1);
@@ -86,4 +88,16 @@ void AEnsEnemyBase::HealthChanged(const FOnAttributeChangeData& Data)
 void AEnsEnemyBase::Death()
 {
     Destroy();
+}
+
+void AEnsEnemyBase::Attacked(AActor* Source)
+{
+    const auto* PlayerController = Cast<AEnsPlayerController>(Source);
+    if (!PlayerController)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Enemy %s attacked by something that is not a player. Ignoring."), *GetName());
+        return;
+    }
+
+    Cast<AEnsCharacterBase>(PlayerController->GetCharacter())->BaseAttack(this);
 }

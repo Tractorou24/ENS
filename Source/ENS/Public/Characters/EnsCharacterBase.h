@@ -22,6 +22,12 @@ public:
     /// \brief Constructs a character and setups the GAS with default attributes.
     explicit AEnsCharacterBase();
 
+    /**
+     * \brief Attacks the given \p Enemy using the currently selected weapon basic attack.
+     * \param Enemy The actor to attack.
+     */
+    virtual void BaseAttack(class AEnsEnemyBase* Enemy) {}
+
     /// \brief Called when the character dies.
     virtual void Death();
 

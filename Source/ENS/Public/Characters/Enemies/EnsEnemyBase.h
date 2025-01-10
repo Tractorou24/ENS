@@ -45,6 +45,13 @@ protected:
     class UEnsFloatingInfosBarWidgetComponent* FloatingInfosBarWidgetComponent;
 
 private:
+    /**
+     * \brief Called when the enemy is attacked.
+     * \param Source The actor that attacked.
+     */
+    UFUNCTION()
+    void Attacked(AActor* Source);
+
     UPROPERTY(EditAnywhere, Category = "Interactions", meta = (AllowPrivateAccess = "true"))
     class UEnsMouseInteractableComponent* MouseInteractableComponent = nullptr;
 

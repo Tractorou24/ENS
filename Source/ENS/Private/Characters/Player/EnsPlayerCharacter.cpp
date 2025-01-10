@@ -1,6 +1,7 @@
 // Copyright (c) 2024-2025, Equipment'N Slash contributors. All rights reserved.
 
 #include "Characters/Player/EnsPlayerCharacter.h"
+#include "Characters/Enemies/EnsEnemyBase.h"
 #include "Characters/Player/EnsSpringArmComponent.h"
 #include "GAS/AttributeSets/EnsHealthAttributeSet.h"
 #include "GAS/EnsAbilitySystemComponent.h"
@@ -53,6 +54,13 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
     // Set up actor team
     TeamId = FGenericTeamId(0);
     TeamId.ResetAttitudeSolver();
+}
+
+void AEnsPlayerCharacter::BaseAttack(AEnsEnemyBase* Enemy)
+{
+    FGameplayTagContainer Container;
+    Container.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.BaseAttack")));
+    GetAbilitySystemComponent()->TryActivateAbilitiesByTag(Container);
 }
 
 void AEnsPlayerCharacter::BeginPlay()
