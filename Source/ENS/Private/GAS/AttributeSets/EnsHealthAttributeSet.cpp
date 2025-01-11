@@ -24,7 +24,7 @@ void UEnsHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
             if (GetHealth() == 0)
             {
                 if (AEnsCharacterBase* Character = Cast<AEnsCharacterBase>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
-                    Character->Death();
+                    Character->OnDeath();
                 else
                     UE_LOG(LogHealthAttributeSet, Error, TEXT("Actor can't be killed."))
             }

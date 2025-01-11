@@ -53,9 +53,10 @@ public:
 
     /**
      * \brief Sets up the interaction zone.
-     * @param BoxComponent The box component to use as the interaction zone.
+     * \param InteractionZone The box component to use as the interaction zone.
+     * \param ClickZone The box component to use as the click zone.
      */
-    void SetupInteractZone(UBoxComponent* BoxComponent);
+    void SetupInteractZone(UBoxComponent* InteractionZone, UBoxComponent* ClickZone);
 
     /**
      * \brief Called every frame. Checks if the player's mouse is over the object.
@@ -110,7 +111,11 @@ private:
     UPROPERTY(BlueprintReadOnly, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
     bool bIsPlayerInZone = false;
 
-    /// \brief The bow the player must be in to interact with the object
+    /// \brief The box the player must be in to interact with the object
     UPROPERTY(BlueprintReadOnly, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
     UBoxComponent* InteractZone = nullptr;
+
+    /// \brief The box the player must click into to start an interaction
+    UPROPERTY(BlueprintReadOnly, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
+    UBoxComponent* InteractClickZone = nullptr;
 };

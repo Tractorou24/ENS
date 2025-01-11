@@ -1,6 +1,7 @@
 // Copyright (c) 2024-2025, Equipment'N Slash contributors. All rights reserved.
 
 #include "Characters/Player/EnsPlayerCharacter.h"
+#include "Characters/Enemies/EnsEnemyBase.h"
 #include "Characters/Player/EnsSpringArmComponent.h"
 #include "GAS/AttributeSets/EnsHealthAttributeSet.h"
 #include "GAS/EnsAbilitySystemComponent.h"
@@ -14,6 +15,8 @@
 #include "NavFilters/NavigationQueryFilter.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
+
+DEFINE_LOG_CATEGORY(LogPlayerCharacter)
 
 AEnsPlayerCharacter::AEnsPlayerCharacter()
 {
@@ -55,34 +58,40 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
     TeamId.ResetAttitudeSolver();
 }
 
+void AEnsPlayerCharacter::BaseAttack(AEnsEnemyBase* Enemy)
+{
+    FGameplayTagContainer Container;
+    Container.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.BaseAttack")));
+    GetAbilitySystemComponent()->TryActivateAbilitiesByTag(Container);
+}
+
 void AEnsPlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
-    if (AbilitySystemComponent)
+    if (!AbilitySystemComponent)
     {
-        AbilitySystemComponent->InitAbilityActorInfo(this, this);
-        AddStartupEffects();
-
-        if (!PlayerInfosBarWidgetClass)
-            UE_LOG(LogTemp, Error,
-                   TEXT(
-                       "%s() Failed to find WB_FloatingInfosBar. If it was moved, please update the reference location in C++."),
-                   *FString(__FUNCTION__));
-
-        if (PlayerInfosBarWidgetComponent)
-        {
-            PlayerInfosBarWidgetComponent->AddWidget(PlayerInfosBarWidgetClass);
-            PlayerInfosBarWidgetComponent->SetHealthPercentage(1.f);
-        }
+        UE_LOG(LogPlayerCharacter, Error, TEXT("Cannot initialize enemy %s with no AbilitySystemComponent"), *GetName());
+        return;
     }
 
-    // Attribute change callbacks
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-                              HealthAttributeSet->GetHealthAttribute())
+    AbilitySystemComponent->InitAbilityActorInfo(this, this);
+    AddStartupEffects();
+
+    if (!PlayerInfosBarWidgetClass)
+    {
+        UE_LOG(LogEnemy, Error, TEXT("Failed to configure UI for player %s. Check the UI class is selected in blueprint."), *GetName());
+        return;
+    }
+
+    PlayerInfosBarWidgetComponent->AddWidget(PlayerInfosBarWidgetClass);
+    PlayerInfosBarWidgetComponent->SetHealthPercentage(1.f);
+
+    // Callbacks
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute())
         .AddUObject(this, &AEnsPlayerCharacter::HealthChanged);
 }
 
-void AEnsPlayerCharacter::Death()
+void AEnsPlayerCharacter::OnDeath()
 {
     APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -97,7 +106,7 @@ void AEnsPlayerCharacter::Death()
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
     // Call the parent to reset the attributes
-    Super::Death();
+    Super::OnDeath();
 }
 
 UPathFollowingComponent* AEnsPlayerCharacter::GetPathFollowingComponent() const

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2024-2025, Equipment'N Slash contributors. All rights reserved.
 
 #include "Characters/Enemies/EnsEnemyBase.h"
+#include "Characters/Player/EnsPlayerController.h"
 #include "GAS/AttributeSets/EnsHealthAttributeSet.h"
 #include "GAS/EnsAbilitySystemComponent.h"
 #include "Interactions/EnsMouseInteractableComponent.h"
@@ -10,28 +11,30 @@
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
 
-// Sets default values
+DEFINE_LOG_CATEGORY(LogEnemy)
+
 AEnsEnemyBase::AEnsEnemyBase()
 {
-    // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-    PrimaryActorTick.bCanEverTick = true;
-    // Add UI Component
-    FloatingInfosBarWidgetComponent = CreateDefaultSubobject<UEnsFloatingInfosBarWidgetComponent>(
-        FName("FloatingStatusBarComponent"));
+    // Actor team
+    TeamId = FGenericTeamId(1);
+    TeamId.ResetAttitudeSolver();
+
+    // UI
+    FloatingInfosBarWidgetComponent = CreateDefaultSubobject<UEnsFloatingInfosBarWidgetComponent>(FName("FloatingStatusBarComponent"));
     FloatingInfosBarWidgetComponent->SetupAttachment(RootComponent);
     FloatingInfosBarWidgetComponent->SetRelativeLocation(FVector(0, 0, 120));
     FloatingInfosBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
     FloatingInfosBarWidgetComponent->SetDrawSize(FVector2d(500, 500));
 
-    InteractZone = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
+    // Interactions
+    InteractZone = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractCollider"));
     InteractZone->SetupAttachment(RootComponent);
 
-    MouseInteractableComponent = CreateDefaultSubobject<UEnsMouseInteractableComponent>(TEXT("Interactions"));
-    MouseInteractableComponent->SetupInteractZone(InteractZone);
+    InteractionClickZone = CreateDefaultSubobject<UBoxComponent>(TEXT("ClickCollider"));
+    InteractionClickZone->SetupAttachment(RootComponent);
 
-    // Set up actor team
-    TeamId = FGenericTeamId(1);
-    TeamId.ResetAttitudeSolver();
+    MouseInteractableComponent = CreateDefaultSubobject<UEnsMouseInteractableComponent>(TEXT("Interactions"));
+    MouseInteractableComponent->SetupInteractZone(InteractZone, InteractionClickZone);
 }
 
 void AEnsEnemyBase::SetGenericTeamId(const FGenericTeamId& NewTeamID)
@@ -50,27 +53,27 @@ void AEnsEnemyBase::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (AbilitySystemComponent)
+    if (!AbilitySystemComponent)
     {
-        AbilitySystemComponent->InitAbilityActorInfo(this, this);
-        AddStartupEffects();
-
-        if (!FloatingInfosBarWidgetClass)
-            UE_LOG(LogTemp, Error,
-                   TEXT(
-                       "%s() Failed to find WB_FloatingInfosBar. If it was moved, please update the reference location in C++."),
-                   *FString(__FUNCTION__));
-
-        if (FloatingInfosBarWidgetComponent && FloatingInfosBarWidgetClass)
-        {
-            FloatingInfosBarWidgetComponent->AddWidget(FloatingInfosBarWidgetClass);
-            FloatingInfosBarWidgetComponent->SetHealthPercentage(1.f);
-        }
+        UE_LOG(LogEnemy, Error, TEXT("Cannot initialize enemy %s with no AbilitySystemComponent"), *GetName());
+        return;
     }
 
-    // Attribute change callbacks
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-                              HealthAttributeSet->GetHealthAttribute())
+    AbilitySystemComponent->InitAbilityActorInfo(this, this);
+    AddStartupEffects();
+
+    if (!FloatingInfosBarWidgetClass)
+    {
+        UE_LOG(LogEnemy, Error, TEXT("Failed to configure UI for enemy %s. Check the UI class is selected in blueprint."), *GetName());
+        return;
+    }
+
+    FloatingInfosBarWidgetComponent->AddWidget(FloatingInfosBarWidgetClass);
+    FloatingInfosBarWidgetComponent->SetHealthPercentage(1.f);
+
+    // Callbacks
+    MouseInteractableComponent->OnInteract.AddDynamic(this, &AEnsEnemyBase::Attacked);
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute())
         .AddUObject(this, &AEnsEnemyBase::HealthChanged);
 }
 
@@ -83,7 +86,19 @@ void AEnsEnemyBase::HealthChanged(const FOnAttributeChangeData& Data)
         FloatingInfosBarWidgetComponent->SetHealthPercentage(Health / HealthAttributeSet->GetMaxHealth());
 }
 
-void AEnsEnemyBase::Death()
+void AEnsEnemyBase::OnDeath()
 {
     Destroy();
+}
+
+void AEnsEnemyBase::Attacked(AActor* Source)
+{
+    const auto* PlayerController = Cast<AEnsPlayerController>(Source);
+    if (!PlayerController)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Enemy %s attacked by something that is not a player. Ignoring."), *GetName());
+        return;
+    }
+
+    Cast<AEnsCharacterBase>(PlayerController->GetCharacter())->BaseAttack(this);
 }
