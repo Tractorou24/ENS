@@ -32,7 +32,6 @@ AEnsEnemyBase::AEnsEnemyBase()
 
     MouseInteractableComponent = CreateDefaultSubobject<UEnsMouseInteractableComponent>(TEXT("Interactions"));
     MouseInteractableComponent->SetupInteractZone(InteractZone);
-    MouseInteractableComponent->OnInteract.AddDynamic(this, &AEnsEnemyBase::Attacked);
 }
 
 void AEnsEnemyBase::SetGenericTeamId(const FGenericTeamId& NewTeamID)
@@ -69,7 +68,8 @@ void AEnsEnemyBase::BeginPlay()
     FloatingInfosBarWidgetComponent->AddWidget(FloatingInfosBarWidgetClass);
     FloatingInfosBarWidgetComponent->SetHealthPercentage(1.f);
 
-    // Attribute change callbacks
+    // Callbacks
+    MouseInteractableComponent->OnInteract.AddDynamic(this, &AEnsEnemyBase::Attacked);
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute())
         .AddUObject(this, &AEnsEnemyBase::HealthChanged);
 }
