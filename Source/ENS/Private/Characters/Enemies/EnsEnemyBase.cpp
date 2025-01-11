@@ -27,11 +27,14 @@ AEnsEnemyBase::AEnsEnemyBase()
     FloatingInfosBarWidgetComponent->SetDrawSize(FVector2d(500, 500));
 
     // Interactions
-    InteractZone = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
+    InteractZone = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractCollider"));
     InteractZone->SetupAttachment(RootComponent);
 
+    InteractionClickZone = CreateDefaultSubobject<UBoxComponent>(TEXT("ClickCollider"));
+    InteractionClickZone->SetupAttachment(RootComponent);
+
     MouseInteractableComponent = CreateDefaultSubobject<UEnsMouseInteractableComponent>(TEXT("Interactions"));
-    MouseInteractableComponent->SetupInteractZone(InteractZone);
+    MouseInteractableComponent->SetupInteractZone(InteractZone, InteractionClickZone);
 }
 
 void AEnsEnemyBase::SetGenericTeamId(const FGenericTeamId& NewTeamID)
