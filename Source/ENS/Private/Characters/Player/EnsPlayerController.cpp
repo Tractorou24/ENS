@@ -106,8 +106,11 @@ void AEnsPlayerController::SetDestinationTriggered()
     
     if (UNavMovementComponent* NavMvmtComp = GetPawn()->GetComponentByClass<UNavMovementComponent>())
     {
+        //Caching the velocity
         FVector cacheVelocity = NavMvmtComp->Velocity;
+        //Stoping all movements so player can switch between both movement systems
         NavMvmtComp->StopActiveMovement();
+        //Putting back velocity so movements do not look weird
         NavMvmtComp->Velocity = cacheVelocity;
     }
 
