@@ -66,13 +66,6 @@ protected:
     // Attribute changed callbacks
     virtual void HealthChanged(const FOnAttributeChangeData& Data) override;
 
-    /**
-     * \brief Attacks the given \p Target using the currently selected weapon.
-     * \param Target The actor to attack.
-     */
-    UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-    void BaseAttack(AEnsCharacterBase* Target);
-
 private:
     void MoveTo(const struct FAIMoveRequest& MoveReq);
 
