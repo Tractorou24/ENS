@@ -18,10 +18,10 @@ public:
     explicit ABaseArmor();
 
     /// \brief Component representing the armor's model.
-    UPROPERTY(VisibleAnywhere)
-    UStaticMeshComponent* Mesh;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UStaticMeshComponent* Mesh = nullptr;
 
     /// \brief Name of the socket where the armor should be attached.
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FName SocketName;
 };

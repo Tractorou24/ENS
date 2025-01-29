@@ -29,10 +29,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     [[nodiscard]] class ABaseWeapon* GetCurrentWeapon();
 
-    /// \brief Get the ability handle for base attack of current weapon.
-    UFUNCTION(BlueprintCallable, Category = "Inventory")
-    [[nodiscard]] FGameplayAbilitySpecHandle& GetBaseAttackSpecHandle();
-
     /// \brief Get the ability handle for main ability of current weapon.
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     [[nodiscard]] FGameplayAbilitySpecHandle& GetMainAbilitySpecHandle();
@@ -108,9 +104,6 @@ private:
 
     /// \brief Handles the main ability input event.
     void HandleMainAbility();
-
-    /// \brief Handle for the basic attack ability of the current weapon.
-    FGameplayAbilitySpecHandle BaseAttackHandle;
 
     /// \brief Handle for the main ability of the current set.
     FGameplayAbilitySpecHandle MainAbilityHandle;
