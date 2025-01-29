@@ -98,6 +98,10 @@ private:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
     UPathFollowingComponent* PathFollowingComponent;
 
+    /// \brief The component for managing inventory
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+    class UInventory* Inventory;
+
     /// \brief The radius around the target point the character will stop at.
     UPROPERTY(EditAnywhere, Category = "Movement")
     float AcceptanceRadius = 15.0f;

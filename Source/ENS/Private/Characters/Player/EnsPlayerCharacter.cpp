@@ -3,6 +3,7 @@
 #include "Characters/Player/EnsPlayerCharacter.h"
 #include "Characters/Enemies/EnsEnemyBase.h"
 #include "Characters/Player/EnsSpringArmComponent.h"
+#include "Equipment/Inventory.h"
 #include "GAS/AttributeSets/EnsHealthAttributeSet.h"
 #include "GAS/EnsAbilitySystemComponent.h"
 #include "UI/EnsPlayerInfosBarWidget.h"
@@ -52,6 +53,8 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
         FName("PlayerInfosBarComponent"));
     PlayerInfosBarWidgetComponent->SetupAttachment(RootComponent);
     PlayerInfosBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+
+    Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
 
     // Set up actor team
     TeamId = FGenericTeamId(0);
