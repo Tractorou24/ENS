@@ -1,0 +1,111 @@
+﻿// Copyright (c) 2024-2025, Equipment'N Slash contributors. All rights reserved.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameplayAbilitySpecHandle.h"
+
+#include "Inventory.generated.h"
+
+DECLARE_LOG_CATEGORY_EXTERN(LogInventory, Log, All);
+
+/**
+ * \brief Component that manages the player's inventory and equipment.
+ */
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+class ENS_API UInventory : public UActorComponent
+{
+    GENERATED_BODY()
+
+public:
+    explicit UInventory();
+
+protected:
+    virtual void BeginPlay() override;
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+public:
+    /// \brief Get currently attached weapon.
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    [[nodiscard]] class ABaseWeapon* GetCurrentWeapon();
+
+    /// \brief Get the ability handle for main ability of current weapon.
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    [[nodiscard]] FGameplayAbilitySpecHandle& GetMainAbilitySpecHandle();
+
+private:
+    /// \brief Weapon classes available in the inventory.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+    TArray<TSubclassOf<ABaseWeapon>> Weapons;
+
+    /// \brief Armor classes available in the inventory.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+    TArray<TSubclassOf<class ABaseArmor>> Armors;
+
+    /// \brief Index of the currently equipped weapon in the \ref Weapons.
+    uint8_t CurrentEquipmentIndex = 0;
+
+    /// \brief Currently attached weapon instance (or `nullptr `if none).
+    UPROPERTY(Transient)
+    ABaseWeapon* AttachedWeapon = nullptr;
+
+    /// \brief Currently attached armor instance (or `nullptr `if none).
+    UPROPERTY(Transient)
+    ABaseArmor* AttachedArmor = nullptr;
+
+    /**
+     * \brief Checks if player is currently playing an animation.
+     * \return `true` if player is playing an animation, `false` otherwise.
+     */
+    [[nodiscard]] bool IsPlayerPlayingAnimation();
+
+#pragma region Swap
+    /// \brief Cooldown between 2 swaps.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+    float SwapCooldown = 0.5f;
+
+    /// \brief Timer for swap cooldown
+    float SwapCooldownTimer = 0.0f;
+
+    /// \brief Input action for weapon scrolling/switching
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+    class UInputAction* ScrollAction = nullptr;
+
+    /// \brief Input action for switching to 1st weapon
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", meta = (AllowPrivateAccess = "true"))
+    UInputAction* LightSetAction = nullptr;
+
+    /// \brief Input action for switching to 2nd weapon
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", meta = (AllowPrivateAccess = "true"))
+    UInputAction* MediumSetAction = nullptr;
+
+    /// \brief Input action for switching to 3rd weapon
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", meta = (AllowPrivateAccess = "true"))
+    UInputAction* HeavySetAction = nullptr;
+
+    /// \brief Handles weapon switching logic when scroll input is received
+    void SwapEquipmentSet(const struct FInputActionValue& Value);
+
+    /// \brief Updates the currently equipped set
+    void UpdateEquippedSet();
+
+    /**
+     * \brief Switches to the set at index \p SetIndex.
+     * \param SetIndex The index of the set to switch to.
+     */
+    void HandleSet(uint8_t SetIndex);
+
+#pragma endregion
+
+#pragma region Attacks
+    /// \brief Input action for triggering the set's main ability
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", meta = (AllowPrivateAccess = "true"))
+    UInputAction* MainAbilityAction = nullptr;
+
+    /// \brief Handles the main ability input event.
+    void HandleMainAbility();
+
+    /// \brief Handle for the main ability of the current set.
+    FGameplayAbilitySpecHandle MainAbilityHandle;
+#pragma endregion
+};

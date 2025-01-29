@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Characters/EnsCharacterBase.h"
+
 #include "CoreMinimal.h"
 #include "GenericTeamAgentInterface.h"
 
@@ -66,13 +67,6 @@ protected:
     // Attribute changed callbacks
     virtual void HealthChanged(const FOnAttributeChangeData& Data) override;
 
-    /**
-     * \brief Attacks the given \p Target using the currently selected weapon.
-     * \param Target The actor to attack.
-     */
-    UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-    void BaseAttack(AEnsCharacterBase* Target);
-
 private:
     void MoveTo(const struct FAIMoveRequest& MoveReq);
 
@@ -97,6 +91,10 @@ private:
     /// \brief The component for movement using pathfinding
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
     UPathFollowingComponent* PathFollowingComponent;
+
+    /// \brief The component for managing inventory
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+    class UInventory* Inventory;
 
     /// \brief The radius around the target point the character will stop at.
     UPROPERTY(EditAnywhere, Category = "Movement")

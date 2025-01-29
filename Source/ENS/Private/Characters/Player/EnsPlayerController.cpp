@@ -8,6 +8,7 @@
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/NavMovementComponent.h"
 
 AEnsPlayerController::AEnsPlayerController()
 {
@@ -102,6 +103,16 @@ void AEnsPlayerController::SetDestinationTriggered()
 {
     if (PendingInteractObject || bIsInInteractMode)
         return;
+
+    if (UNavMovementComponent* NavMvmtComp = GetPawn()->GetComponentByClass<UNavMovementComponent>())
+    {
+        // Caching the velocity
+        FVector cacheVelocity = NavMvmtComp->Velocity;
+        // Stoping all movements so player can switch between both movement systems
+        NavMvmtComp->StopActiveMovement();
+        // Putting back velocity so movements do not look weird
+        NavMvmtComp->Velocity = cacheVelocity;
+    }
 
     // There is something valid below cursor
     if (FHitResult Hit; GetHitResultUnderCursor(ECustomCollisionChannel::ECC_Floor, true, Hit))
