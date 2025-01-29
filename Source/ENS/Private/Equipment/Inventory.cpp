@@ -64,11 +64,6 @@ ABaseWeapon* UInventory::GetCurrentWeapon()
     return AttachedWeapon;
 }
 
-FGameplayAbilitySpecHandle& UInventory::GetBaseAttackSpecHandle()
-{
-    return BaseAttackHandle;
-}
-
 FGameplayAbilitySpecHandle& UInventory::GetMainAbilitySpecHandle()
 {
     return MainAbilityHandle;
@@ -88,12 +83,9 @@ void UInventory::UpdateEquippedSet()
     {
         // Remove abilities using stored handles
         if (UAbilitySystemComponent* AbilitySystem = Character->FindComponentByClass<UAbilitySystemComponent>())
-        {
-            if (BaseAttackHandle.IsValid())
-                AbilitySystem->ClearAbility(BaseAttackHandle);
             if (MainAbilityHandle.IsValid())
                 AbilitySystem->ClearAbility(MainAbilityHandle);
-        }
+
         Character->GetMesh()->MoveIgnoreActors.Remove(AttachedWeapon);
         Character->GetMesh()->MoveIgnoreActors.Remove(AttachedArmor);
 
@@ -115,10 +107,7 @@ void UInventory::UpdateEquippedSet()
         Character->GetMesh()->MoveIgnoreActors.Add(AttachedWeapon);
         if (UAbilitySystemComponent* AbilitySystem = Character->FindComponentByClass<UAbilitySystemComponent>())
         {
-            ensure(AttachedWeapon->BaseAttack);
             ensure(AttachedWeapon->MainAbility);
-
-            BaseAttackHandle = AbilitySystem->GiveAbility(FGameplayAbilitySpec(AttachedWeapon->BaseAttack));
             MainAbilityHandle = AbilitySystem->GiveAbility(FGameplayAbilitySpec(AttachedWeapon->MainAbility));
         }
     }
