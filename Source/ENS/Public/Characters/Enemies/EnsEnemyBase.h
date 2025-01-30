@@ -11,6 +11,9 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogEnemy, Log, All);
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyDestroy);
+
 /**
  * \brief Base class for any enemy in the game.
  *
@@ -37,7 +40,8 @@ public:
     /// \brief Gets the id of the team the enemy is currently in.
     UFUNCTION(BlueprintCallable)
     virtual FGenericTeamId GetGenericTeamId() const override;
-
+    UPROPERTY(BlueprintAssignable)
+    FOnEnemyDestroy OnEnemyDestroyDelegate;
 protected:
     virtual void BeginPlay() override;
 
