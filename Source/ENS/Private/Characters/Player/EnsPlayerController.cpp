@@ -6,14 +6,9 @@
 #include "Interactions/EnsMouseInteractableComponent.h"
 
 #include "AbilitySystemComponent.h"
-#include "Camera/CameraComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Kismet/KismetSystemLibrary.h"
-#include "Navigation/PathFollowingComponent.h"
-
-DEFINE_LOG_CATEGORY(LogPlayerCharacter);
+#include "GameFramework/NavMovementComponent.h"
 
 AEnsPlayerController::AEnsPlayerController()
 {
@@ -34,71 +29,11 @@ void AEnsPlayerController::OnPossess(APawn* InPawn)
     auto* PlayerCharacter = Cast<AEnsPlayerCharacter>(GetCharacter());
     if (!PlayerCharacter)
     {
-        UE_LOG(LogPlayerCharacter, Error, TEXT("Failed to get the player character for setting actor abilities."));
+        UE_LOG(LogPlayerController, Error, TEXT("Failed to get the player character for setting actor abilities."));
         return;
     }
 
     PlayerCharacter->GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerCharacter, InPawn);
-}
-
-void AEnsPlayerController::FadeMesh(const float DeltaSeconds)
-{
-    const UCameraComponent* ActiveCameraComponent = Cast<AEnsPlayerCharacter>(GetCharacter())->GetCameraComponent();
-    const UCapsuleComponent* ActiveCapsuleComponent = Cast<AEnsPlayerCharacter>(GetCharacter())->GetCapsuleComponent();
-
-    TArray<FHitResult> OutHits;
-    const bool bGotHits = UKismetSystemLibrary::CapsuleTraceMultiForObjects(
-        GetWorld(),
-        ActiveCameraComponent->GetComponentLocation(),
-        GetPawn()->GetActorLocation(),
-        ActiveCapsuleComponent->GetScaledCapsuleRadius(),
-        ActiveCapsuleComponent->GetScaledCapsuleHalfHeight(),
-        {UEngineTypes::ConvertToObjectType(ECC_WorldStatic)},
-        true,
-        {},
-        EDrawDebugTrace::None,
-        OutHits,
-        true);
-
-    TSet<UStaticMeshComponent*> MeshesJustOccluded;
-    if (bGotHits)
-    {
-        for (FHitResult Hit : OutHits)
-        {
-            // Get all static mesh components from the hit actor's parent
-            TArray<UStaticMeshComponent*> GroupMeshes = GetChildrenOfActor(Hit.GetActor()->GetAttachParentActor());
-
-            for (UStaticMeshComponent* MeshComp : GroupMeshes)
-            {
-                // Skip if we've already processed this mesh this frame
-                if (MeshesJustOccluded.Contains(MeshComp))
-                    continue;
-
-                // Fade the opacity to the minimum value
-                float CurrentOpacity = OpacityValues.Contains(MeshComp) ? OpacityValues[MeshComp] : MaxOpacity;
-                float NewOpacity = FMath::FInterpTo(CurrentOpacity, MinOpacity, DeltaSeconds, FadeInSpeed);
-                OpacityValues.Add(MeshComp, NewOpacity);
-                MeshComp->SetScalarParameterValueOnMaterials(FName(TEXT("Opacity")), NewOpacity);
-                MeshesJustOccluded.Add(MeshComp);
-            }
-        }
-    }
-
-    // Process all meshes that were previously fading but not hit this frame
-    for (auto& [Mesh, OpacityValue] : OpacityValues)
-    {
-        if (!MeshesJustOccluded.Contains(Mesh))
-        {
-            // Fade the opacity back to maximum
-            float NewOpacity = FMath::FInterpTo(OpacityValue, MaxOpacity, DeltaSeconds, FadeOutSpeed);
-            OpacityValue = NewOpacity;
-            Mesh->SetScalarParameterValueOnMaterials(FName(TEXT("Opacity")), NewOpacity);
-
-            // Remove the entry if opacity has returned to maximum
-            if (FMath::IsNearlyEqual(NewOpacity, MaxOpacity, 0.01f))
-                OpacityValues.Remove(Mesh);
-        }
-    }
 }
 
 void AEnsPlayerController::Tick(const float DeltaSeconds)
@@ -112,7 +47,7 @@ void AEnsPlayerController::Tick(const float DeltaSeconds)
         FVector2D ViewportSize;
         if (!GEngine && !GEngine->GameViewport)
         {
-            UE_LOG(LogPlayerCharacter, Error, TEXT("Failed to get the viewport size. No engine or viewport."));
+            UE_LOG(LogPlayerController, Error, TEXT("Failed to get the viewport size. No engine or viewport."));
             return;
         }
         GEngine->GameViewport->GetViewportSize(ViewportSize);
@@ -139,9 +74,6 @@ void AEnsPlayerController::Tick(const float DeltaSeconds)
             PendingInteractObject = nullptr;
         }
     }
-
-    // Handle meshes fading
-    FadeMesh(DeltaSeconds);
 }
 
 void AEnsPlayerController::SetupInputComponent()
@@ -155,7 +87,7 @@ void AEnsPlayerController::SetupInputComponent()
     UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
     if (!EnhancedInputComponent)
     {
-        UE_LOG(LogPlayerCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input Component!"), *GetNameSafe(this));
+        UE_LOG(LogPlayerController, Error, TEXT("'%s' Failed to find an Enhanced Input Component!"), *GetNameSafe(this));
         return;
     }
 
@@ -164,14 +96,23 @@ void AEnsPlayerController::SetupInputComponent()
     EnhancedInputComponent->BindAction(SetDestinationAction, ETriggerEvent::Completed, this, &AEnsPlayerController::SetDestinationReleased);
 
     EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AEnsPlayerController::Interact);
+    EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &AEnsPlayerController::ResetInteract);
 }
 
-void AEnsPlayerController::SetDestinationTriggered(const FInputActionValue& InputActionValue)
+void AEnsPlayerController::SetDestinationTriggered()
 {
-    if (PendingInteractObject)
+    if (PendingInteractObject || bIsInInteractMode)
         return;
 
-    DestinationFollowTime += GetWorld()->GetDeltaSeconds();
+    if (UNavMovementComponent* NavMvmtComp = GetPawn()->GetComponentByClass<UNavMovementComponent>())
+    {
+        // Caching the velocity
+        FVector cacheVelocity = NavMvmtComp->Velocity;
+        // Stoping all movements so player can switch between both movement systems
+        NavMvmtComp->StopActiveMovement();
+        // Putting back velocity so movements do not look weird
+        NavMvmtComp->Velocity = cacheVelocity;
+    }
 
     // There is something valid below cursor
     if (FHitResult Hit; GetHitResultUnderCursor(ECustomCollisionChannel::ECC_Floor, true, Hit))
@@ -185,15 +126,14 @@ void AEnsPlayerController::SetDestinationTriggered(const FInputActionValue& Inpu
     }
 }
 
-void AEnsPlayerController::SetDestinationReleased(const FInputActionValue& InputActionValue)
+void AEnsPlayerController::SetDestinationReleased(const FInputActionInstance& InputActionInstance)
 {
-    if (PendingInteractObject)
+    if (PendingInteractObject || bIsInInteractMode)
         return;
 
     // If it was a short press
-    if (DestinationFollowTime <= ShortPressThreshold)
+    if (InputActionInstance.GetElapsedTime() <= ShortPressThreshold)
         static_cast<AEnsPlayerCharacter*>(GetCharacter())->MoveToLocation(CachedDestination);
-    DestinationFollowTime = 0.0f;
 }
 
 void AEnsPlayerController::Interact()
@@ -215,26 +155,16 @@ void AEnsPlayerController::Interact()
         }
 
         // Move to the object
-        if (IsComponent)
-            Cast<AEnsPlayerCharacter>(GetCharacter())->MoveToActor(Cast<const UActorComponent>(PendingInteractObject)->GetOwner());
-        else
+        const auto* Component = Cast<UEnsMouseInteractableComponent>(PendingInteractObject);
+        if (IsComponent && !Component->IsPlayerInZone())
+            Cast<AEnsPlayerCharacter>(GetCharacter())->MoveToActor(Component->GetOwner());
+        else if (!IsComponent)
             Cast<AEnsPlayerCharacter>(GetCharacter())->MoveToActor(Hit.GetActor());
+        bIsInInteractMode = true;
     }
 }
 
-TArray<UStaticMeshComponent*> AEnsPlayerController::GetChildrenOfActor(const AActor* Actor)
+void AEnsPlayerController::ResetInteract()
 {
-    TArray<UStaticMeshComponent*> Childs;
-
-    if (!Actor)
-        return Childs;
-
-    TArray<AActor*> GroupedActors;
-    Actor->GetAttachedActors(GroupedActors);
-
-    // Get all meshes of attached actors
-    for (AActor* tmp : GroupedActors)
-        if (UStaticMeshComponent* MeshComp = tmp->FindComponentByClass<UStaticMeshComponent>())
-            Childs.Add(MeshComp);
-    return Childs;
+    bIsInInteractMode = false;
 }
