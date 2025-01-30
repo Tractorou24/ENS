@@ -23,6 +23,7 @@ protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
     void SpawnEnemy(int32 number, TSubclassOf<class AEnsEnemyBase> enemyClass);
+    bool IsInFrustum(const FVector& point);
 
 public:
     UPROPERTY(EditAnywhere)
@@ -31,10 +32,13 @@ public:
     // Called every frame
     virtual void Tick(float DeltaTime) override;
     UPROPERTY(EditAnywhere)
-    UDataTable* spawnData;
+    UDataTable* spawnData; 
+
+    UPROPERTY(EditAnywhere)
     float cd = 10;
     float timer = 0;
+    UPROPERTY(EditAnywhere)
     int ennemies = 20;
-    int wave = 1;
-
+    int wave = 0;
+    int ennemyCount = 0;
 };

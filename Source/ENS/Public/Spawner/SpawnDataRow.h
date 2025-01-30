@@ -4,8 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "Characters/Enemies/EnsEnemyBase.h"
+#include "Containers/Map.h"
 #include "SpawnDataRow.generated.h"
 
+USTRUCT()
+struct FMobinfo
+{
+    GENERATED_BODY()
+public:
+    UPROPERTY(EditAnywhere)
+    TSubclassOf<AEnsEnemyBase> enemyClass;
+    UPROPERTY(EditAnywhere  )
+    int32 percentage;
+};
 /**
  * 
  */
@@ -14,23 +25,10 @@ struct ENS_API FSpawnDataRow : public FTableRowBase
 {
 	GENERATED_BODY()
 public:
-    UPROPERTY(EditAnywhere)
-    TSubclassOf<AEnsEnemyBase> IA_1 = nullptr;
 
     UPROPERTY(EditAnywhere)
-    int p_1 = 40;
+    TArray<FMobinfo> mobs;
 
-    UPROPERTY(EditAnywhere)
-    TSubclassOf<AEnsEnemyBase> IA_2 = nullptr;
-
-    UPROPERTY(EditAnywhere)
-    int p_2 = 30;
-
-    UPROPERTY(EditAnywhere)
-    TSubclassOf<AEnsEnemyBase> IA_3 = nullptr;
-
-    UPROPERTY(EditAnywhere)
-    int p_3 = 30;
 
     
 };

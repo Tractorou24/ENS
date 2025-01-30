@@ -4,10 +4,9 @@
 #include "Spawner/Spawner.h"
 
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Spawner/SpawnDataRow.h"
-
-#include <string>
 
 // Sets default values
 ASpawner::ASpawner()
@@ -18,12 +17,21 @@ ASpawner::ASpawner()
 
 }
 
-void ASpawner::EnemyDestroyed() {}
+void ASpawner::EnemyDestroyed()
+{
+    ennemyCount--;
+    if(ennemyCount == 0)
+    {
+        Spawn();
+        
+    }
+}
 
 // Called when the game starts or when spawned
 void ASpawner::BeginPlay()
 {
     Super::BeginPlay();
+    // Spawn();
 	
 }
 
@@ -32,11 +40,32 @@ void ASpawner::SpawnEnemy(int32 number, TSubclassOf<class AEnsEnemyBase> enemyCl
     for(int32 i = 0; i < number; ++i )
     {
         FVector pos = UKismetMathLibrary::RandomPointInBoundingBox_Box(SpawnRange->Bounds.GetBox());
+        while(IsInFrustum(pos))
+        {
+            pos = UKismetMathLibrary::RandomPointInBoundingBox_Box(SpawnRange->Bounds.GetBox());
+        }
+        
         FRotator rotation(0.0f, 0.0f, 0.0f);
         FActorSpawnParameters SpawnInfo;
         AEnsEnemyBase* enemy = GetWorld()->SpawnActor<AEnsEnemyBase>(enemyClass, pos, rotation, SpawnInfo);
         enemy->OnEnemyDestroyDelegate.AddUniqueDynamic(this, &ASpawner::EnemyDestroyed);
     }
+}
+bool ASpawner::IsInFrustum( const FVector& point)
+{
+    const APlayerController* const PlayerController = Cast<const APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(),0));
+
+    FVector2D ScreenLocation;
+    PlayerController->ProjectWorldLocationToScreen(point, ScreenLocation);
+
+    int32 ScreenWidth = 0;
+    int32 ScreenHeight = 0;
+    PlayerController->GetViewportSize(ScreenWidth, ScreenHeight);
+
+    int32 ScreenX = (int32)ScreenLocation.X;
+    int32 ScreenY = (int32)ScreenLocation.Y;
+
+    return ScreenX >= 0 && ScreenY >= 0 && ScreenX < ScreenWidth && ScreenY < ScreenHeight;
 }
 
 void ASpawner::Spawn()
@@ -44,17 +73,15 @@ void ASpawner::Spawn()
     int skull = 0;
     int imp = 0;
     int kam = 0;
-    FSpawnDataRow* row =spawnData->FindRow<FSpawnDataRow>(FName(FString::FromInt(wave)),"");
-    if(row)
+    FSpawnDataRow* row =spawnData->FindRow<FSpawnDataRow>(FName(FString::FromInt(wave + 1 )),"");
+    int32 c = 0;
+    for(auto& r : row->mobs)
     {
-        imp = ennemies * row->p_1 / 100;
-        kam = ennemies * row->p_2 / 100;
-        skull = ennemies * row->p_3 / 100;
-        
-        SpawnEnemy(imp, row->IA_1);
-        SpawnEnemy(kam, row->IA_2);
-        SpawnEnemy(skull, row->IA_3);
+        c += ennemies * r.percentage / 100;
+        SpawnEnemy(ennemies * r.percentage / 100, r.enemyClass);
     }
+    ennemyCount += skull + imp + kam;
+    wave+= 1;
 }
 
 // Called every frame
@@ -67,7 +94,5 @@ void ASpawner::Tick(float DeltaTime)
         timer = 0;
         Spawn();
     }
-    
-
 }
 
