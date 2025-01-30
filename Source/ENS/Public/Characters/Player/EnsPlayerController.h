@@ -99,6 +99,7 @@ private:
     UInputAction* InteractAction = nullptr;
 
     /// \brief The object the player is trying to interact with.
+    UPROPERTY(Transient, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
     UObject* PendingInteractObject = nullptr;
 
     /// \brief `true` if an interaction was done in the frame so the player movement from click can be disabled.
