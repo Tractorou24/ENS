@@ -21,14 +21,15 @@ void UEnsHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
             // Apply damage to health
             const float NewHealth = GetHealth() - DamageAmount;
             SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
+            AEnsCharacterBase* Character = Cast<AEnsCharacterBase>(GetOwningAbilitySystemComponent()->GetAvatarActor());
             if (GetHealth() == 0)
             {
-                if (AEnsCharacterBase* Character = Cast<AEnsCharacterBase>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
+                if (Character)
                     Character->OnDeath();
                 else
                     UE_LOG(LogHealthAttributeSet, Error, TEXT("Actor can't be killed."))
             }
-            UE_LOG(LogHealthAttributeSet, Display, TEXT("Updated Health : %f"), Health.GetCurrentValue())
+            UE_LOG(LogHealthAttributeSet, Display, TEXT("Updated health of actor %s : %f/%f"), *Character->GetName(), Health.GetCurrentValue(), MaxHealth.GetCurrentValue())
         }
     }
 }
