@@ -87,8 +87,12 @@ private:
     /// \brief Moves to and interacts with the object under the cursor if it exists.
     void Interact();
 
-    /// \brief Resets the interaction when the action is completed.
-    void ResetInteract();
+    /**
+     * \brief Resets the interaction when the action is completed.
+     * \param bResetMovement `true` to reset the player movement, `false` otherwise.
+     */
+    UFUNCTION(BlueprintCallable)
+    void ResetInteract(bool bResetMovement = false);
 
     /// \brief The action to interact with the objects.
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))

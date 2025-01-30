@@ -96,23 +96,14 @@ void AEnsPlayerController::SetupInputComponent()
     EnhancedInputComponent->BindAction(SetDestinationAction, ETriggerEvent::Completed, this, &AEnsPlayerController::SetDestinationReleased);
 
     EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AEnsPlayerController::Interact);
-    EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &AEnsPlayerController::ResetInteract);
+    EnhancedInputComponent->BindActionValueLambda(InteractAction, ETriggerEvent::Completed, [&](auto _) { bIsInInteractMode = false; });
 }
 
 void AEnsPlayerController::SetDestinationTriggered()
 {
-    if (PendingInteractObject || bIsInInteractMode)
+    if (bIsInInteractMode)
         return;
-
-    if (UNavMovementComponent* NavMvmtComp = GetPawn()->GetComponentByClass<UNavMovementComponent>())
-    {
-        // Caching the velocity
-        FVector cacheVelocity = NavMvmtComp->Velocity;
-        // Stoping all movements so player can switch between both movement systems
-        NavMvmtComp->StopActiveMovement();
-        // Putting back velocity so movements do not look weird
-        NavMvmtComp->Velocity = cacheVelocity;
-    }
+    ResetInteract(true);
 
     // There is something valid below cursor
     if (FHitResult Hit; GetHitResultUnderCursor(ECustomCollisionChannel::ECC_Floor, true, Hit))
@@ -128,8 +119,9 @@ void AEnsPlayerController::SetDestinationTriggered()
 
 void AEnsPlayerController::SetDestinationReleased(const FInputActionInstance& InputActionInstance)
 {
-    if (PendingInteractObject || bIsInInteractMode)
+    if (bIsInInteractMode)
         return;
+    ResetInteract();
 
     // If it was a short press
     if (InputActionInstance.GetElapsedTime() <= ShortPressThreshold)
@@ -164,7 +156,22 @@ void AEnsPlayerController::Interact()
     }
 }
 
-void AEnsPlayerController::ResetInteract()
+void AEnsPlayerController::ResetInteract(const bool bResetMovement)
 {
     bIsInInteractMode = false;
+    PendingInteractObject = nullptr;
+
+    if (bResetMovement)
+    {
+        if (UNavMovementComponent* NavMovementComponent = GetPawn()->GetComponentByClass<UNavMovementComponent>())
+        {
+            // Cache the velocity
+            const FVector CachedVelocity = NavMovementComponent->Velocity;
+
+            // Stop all movements so player can switch between both movement systems
+            NavMovementComponent->StopActiveMovement();
+            // Put back velocity so movements do not look weird
+            NavMovementComponent->Velocity = CachedVelocity;
+        }
+    }
 }
