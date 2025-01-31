@@ -64,6 +64,11 @@ ABaseWeapon* UInventory::GetCurrentWeapon()
     return AttachedWeapon;
 }
 
+ABaseArmor* UInventory::GetCurrentArmor()
+{
+    return AttachedArmor;
+}
+
 FGameplayAbilitySpecHandle& UInventory::GetMainAbilitySpecHandle()
 {
     return MainAbilityHandle;
