@@ -79,7 +79,7 @@ void UInventory::UpdateEquippedSet()
     ACharacter* Character = Cast<ACharacter>(GetOwner());
 
     // Destroy previous weapon if it exists
-    if (AttachedWeapon)
+    if (AttachedWeapon || AttachedArmor)
     {
         // Remove abilities using stored handles
         if (UAbilitySystemComponent* AbilitySystem = Character->FindComponentByClass<UAbilitySystemComponent>())
@@ -110,6 +110,8 @@ void UInventory::UpdateEquippedSet()
             ensure(AttachedWeapon->MainAbility);
             MainAbilityHandle = AbilitySystem->GiveAbility(FGameplayAbilitySpec(AttachedWeapon->MainAbility));
         }
+
+        UE_LOG(LogInventory, Log, TEXT("Equipped weapon: %s"), *WeaponClass->GetName());
     }
 
     if (auto& ArmorClass = Armors[CurrentEquipmentIndex])
@@ -120,6 +122,7 @@ void UInventory::UpdateEquippedSet()
             UE_LOG(LogInventory, Error, TEXT("Failed to attach armor to the character mesh."));
 
         Character->GetMesh()->MoveIgnoreActors.Add(AttachedArmor);
+        UE_LOG(LogInventory, Log, TEXT("Equipped armor: %s"), *ArmorClass->GetName());
     }
 }
 
