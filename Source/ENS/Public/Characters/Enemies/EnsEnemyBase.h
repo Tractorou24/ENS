@@ -50,6 +50,13 @@ protected:
     /// \brief Kills the enemy.
     virtual void OnDeath() override;
 
+    /**
+     * @brief OnDeath blueprint event called by OnDeath native class
+     * Unreal does not accepts Blueprint Implementable/Native events to be virtual
+     */
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnDeath_Blueprint();
+
 private:
     /**
      * \brief Called when the enemy is attacked.
