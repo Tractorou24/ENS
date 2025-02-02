@@ -88,6 +88,7 @@ void AEnsEnemyBase::HealthChanged(const FOnAttributeChangeData& Data)
 
 void AEnsEnemyBase::OnDeath()
 {
+    OnDeath_Blueprint();
     Destroy();
 }
 

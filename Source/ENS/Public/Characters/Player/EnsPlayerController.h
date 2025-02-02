@@ -16,7 +16,7 @@ namespace ECustomCollisionChannel
     /// \brief The channel for the player character's abilities.
     static constexpr ECollisionChannel ECC_Interactable = ECC_GameTraceChannel2;
     /// \brief The channel for the enemies in the game.
-    static constexpr ECollisionChannel ECC_Enemy = ECC_GameTraceChannel3;
+    static constexpr ECollisionChannel ECC_Player = ECC_GameTraceChannel3;
 } // namespace ECustomCollisionChannel
 
 /**
