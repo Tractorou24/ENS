@@ -54,4 +54,9 @@ public:
     UPROPERTY(BlueprintReadOnly)
     FGameplayAttributeData Damage;
     ATTRIBUTE_ACCESSORS(UEnsHealthAttributeSet, Damage)
+
+    /// \brief A meta attribute that will be used to calculate the heal to apply to \ref Health
+    UPROPERTY(BlueprintReadOnly)
+    FGameplayAttributeData Heal;
+    ATTRIBUTE_ACCESSORS(UEnsHealthAttributeSet, Heal)
 };
