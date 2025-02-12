@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2024-2025, Equipment'N Slash contributors. All rights reserved.
 
 #include "GAS/AttributeSets/EnsPotionAttributeSet.h"
-#include "Characters/EnsCharacterBase.h"
 #include "GameplayEffectExtension.h"
 
 DEFINE_LOG_CATEGORY(LogPotionAttributeSet);
