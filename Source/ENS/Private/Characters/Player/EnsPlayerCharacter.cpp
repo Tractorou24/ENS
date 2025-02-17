@@ -16,6 +16,7 @@
 #include "NavFilters/NavigationQueryFilter.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
+#include "GAS/AttributeSets/EnsPotionAttributeSet.h"
 
 DEFINE_LOG_CATEGORY(LogPlayerCharacter)
 
@@ -55,6 +56,8 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
     PlayerInfosBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 
     Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
+
+    PotionAttributeSet = CreateDefaultSubobject<UEnsPotionAttributeSet>(TEXT("PotionAttributeSet"));
 
     // Set up actor team
     TeamId = FGenericTeamId(0);

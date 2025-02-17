@@ -22,7 +22,7 @@ public:
     FGameplayTagContainer CooldownTags;
 
     /// \brief Sets the cooldown duration to use in \ref ApplyCooldown().
-    UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Cooldowns")
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Cooldowns")
     FScalableFloat CooldownDuration;
 
     /**
