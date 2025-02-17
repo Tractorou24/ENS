@@ -19,5 +19,6 @@ UCLASS()
 class ENS_API UEnsAttributeSetBase : public UAttributeSet
 {
     GENERATED_BODY()
+public :
     UEnsAttributeSetBase();
 };

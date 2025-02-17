@@ -96,6 +96,10 @@ private:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
     class UInventory* Inventory;
 
+    /// \brief The attribute set to hold potions data.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+    class UEnsPotionAttributeSet* PotionAttributeSet;
+
     /// \brief The radius around the target point the character will stop at.
     UPROPERTY(EditAnywhere, Category = "Movement")
     float AcceptanceRadius = 15.0f;

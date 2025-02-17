@@ -9,7 +9,7 @@ DEFINE_LOG_CATEGORY(LogHealthAttributeSet);
 void UEnsHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
     Super::PostGameplayEffectExecute(Data);
-
+    AEnsCharacterBase* Character = Cast<AEnsCharacterBase>(GetOwningAbilitySystemComponent()->GetAvatarActor());
     if (Data.EvaluatedData.Attribute == GetDamageAttribute())
     {
         // Get the damage and reset the meta attribute
@@ -21,7 +21,7 @@ void UEnsHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
             // Apply damage to health
             const float NewHealth = GetHealth() - DamageAmount;
             SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
-            AEnsCharacterBase* Character = Cast<AEnsCharacterBase>(GetOwningAbilitySystemComponent()->GetAvatarActor());
+           
             if (GetHealth() == 0)
             {
                 if (Character)
@@ -29,6 +29,19 @@ void UEnsHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
                 else
                     UE_LOG(LogHealthAttributeSet, Error, TEXT("Actor can't be killed."))
             }
+            UE_LOG(LogHealthAttributeSet, Display, TEXT("Updated health of actor %s : %f/%f"), *Character->GetName(), Health.GetCurrentValue(), MaxHealth.GetCurrentValue())
+        }
+    }
+    else if (Data.EvaluatedData.Attribute == GetHealAttribute())
+    {
+        const float HealAmount = GetHeal();
+        SetHeal(0.f);
+
+        if (HealAmount > 0.f)
+        {
+            // Apply damage to health
+            const float NewHealth = GetHealth() + HealAmount;
+            SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
             UE_LOG(LogHealthAttributeSet, Display, TEXT("Updated health of actor %s : %f/%f"), *Character->GetName(), Health.GetCurrentValue(), MaxHealth.GetCurrentValue())
         }
     }
