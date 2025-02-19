@@ -29,6 +29,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     [[nodiscard]] class ABaseWeapon* GetCurrentWeapon();
 
+    /// \brief Get currently attached armor.
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    [[nodiscard]] class ABaseArmor* GetCurrentArmor();
+
     /// \brief Get the ability handle for main ability of current weapon.
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     [[nodiscard]] FGameplayAbilitySpecHandle& GetMainAbilitySpecHandle();
