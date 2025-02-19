@@ -145,6 +145,13 @@ void UInventory::HandleSet(const uint8_t SetIndex)
     if (SwapCooldownTimer <= SwapCooldown || CurrentEquipmentIndex == SetIndex || IsPlayerPlayingAnimation())
         return;
 
+    // Cancel the current attack if any
+    if (UAbilitySystemComponent* AbilitySystem = Cast<ACharacter>(GetOwner())->FindComponentByClass<UAbilitySystemComponent>())
+    {
+        const FGameplayTagContainer Container(FGameplayTag::RequestGameplayTag(FName("Ability.BaseAttack")));
+        AbilitySystem->CancelAbilities(&Container);
+    }
+
     SwapCooldownTimer = 0;
     CurrentEquipmentIndex = SetIndex;
     UpdateEquippedSet();
