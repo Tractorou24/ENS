@@ -20,15 +20,7 @@ public:
 #pragma region BaseAttack
     /// \brief The weapon's basic attack ability.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attack");
-    TSubclassOf<class UEnsGameplayAbilityBase> BaseAttack;
-
-    /// \brief The type of actor to spawn (defines collision & range)
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attack");
-    TSubclassOf<AActor> CollisionActor;
-
-    /// \brief The damage applied to the target during the attack.
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attack");
-    float Damage = 10.f;
+    TSubclassOf<class UEnsSkillBase> BaseAttack;
 
     /// \brief The time at which the collision actor spawns after the ability is activated.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attack");
@@ -39,10 +31,14 @@ public:
     float DestroyTime = 2.f;
 #pragma endregion
 
-#pragma region Ability
-    /// \brief The weapon's main special ability.
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities");
-    TSubclassOf<UEnsGameplayAbilityBase> MainAbility;
+#pragma region Skills
+    /// \brief The weapon current level
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skills", meta = (ClampMin = "1", ClampMax = "3"))
+    uint8 Level = 1;
+
+    /// \brief The weapon special ability.
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skills");
+    TSubclassOf<class UEnsSkillBase> MainSkill;
 #pragma endregion
 
     /// \brief Component representing the weapon model.
