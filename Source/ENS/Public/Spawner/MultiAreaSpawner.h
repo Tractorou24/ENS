@@ -100,7 +100,7 @@ protected:
     float SpawnDistance = 500.0f;
 
     /// \brief Array containing all box components representing spawn areas of the spawner.
-    UPROPERTY(BlueprintReadOnly, Category = "Spawning")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Spawning")
     TArray<UBoxComponent*> SpawnAreas;
 #pragma endregion
 
@@ -110,7 +110,7 @@ protected:
     bool bHasTrigger;
 
     /// \brief Trigger box used to activate the spawner.
-    UPROPERTY(BlueprintReadOnly, Category = "Spawning")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Spawning")
     UBoxComponent* TriggerBox;
 #pragma endregion
 
