@@ -90,6 +90,7 @@ void AEnsEnemyBase::OnDeath()
 {
     OnDeath_Blueprint();
     Destroy();
+    OnEnemyDestroyed.Broadcast();
 }
 
 void AEnsEnemyBase::Attacked(AActor* Source)
