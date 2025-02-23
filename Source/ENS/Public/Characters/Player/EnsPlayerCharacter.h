@@ -31,6 +31,17 @@ public:
     /// \copydoc AEnsCharacterBase::BaseAttack
     virtual void BaseAttack(AEnsEnemyBase* Enemy) override;
 
+    /// \brief Called when the player attack an enemy
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnBaseAttack();
+
+    /**
+    * \brief Called when the player changes equipment
+    * \param NewWeapon The new weapon the player equipped
+    */
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnSwapWeapon(ABaseWeapon* NewWeapon);
+
     /// \copydoc AEnsCharacterBase::OnDeath
     virtual void OnDeath() override;
 
