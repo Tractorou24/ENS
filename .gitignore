@@ -203,6 +203,9 @@ SourceArt/**/*.tga
 
 # Binary Files
 Plugins/*/Binaries/*
+Binaries/Mac/*
+Binaries/ENS (Mac)*
+.DS_Store
 
 # Builds
 Build/*

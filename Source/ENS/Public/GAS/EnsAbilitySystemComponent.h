@@ -93,5 +93,5 @@ private:
 
     /// \brief The enhanced input component.
     UPROPERTY(Transient)
-    UEnhancedInputComponent* EnhancedInputComponent;
+    class UEnhancedInputComponent* EnhancedInputComponent;
 };
