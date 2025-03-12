@@ -77,7 +77,6 @@ FGameplayAbilitySpecHandle& UInventory::GetMainAbilitySpecHandle()
 void UInventory::SwapEquipmentSet(const FInputActionValue& Value)
 {
     HandleSet((CurrentEquipmentIndex + Weapons.Num() + (Value.Get<float>() > 0 ? 1 : -1)) % Weapons.Num());
-    OnSwapWeapon.Broadcast(GetCurrentWeapon());
 }
 
 void UInventory::UpdateEquippedSet()
@@ -118,6 +117,7 @@ void UInventory::UpdateEquippedSet()
         }
 
         UE_LOG(LogInventory, Log, TEXT("Equipped weapon: %s"), *WeaponClass->GetName());
+        OnSwapWeapon.Broadcast(GetCurrentWeapon());
     }
 
     if (auto& ArmorClass = Armors[CurrentEquipmentIndex])
