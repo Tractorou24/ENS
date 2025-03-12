@@ -9,10 +9,12 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogInventory, Log, All);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSwapWeapon, ABaseWeapon*, NewWeapon);
+
 /**
  * \brief Component that manages the player's inventory and equipment.
  */
-UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+UCLASS()
 class ENS_API UInventory : public UActorComponent
 {
     GENERATED_BODY()
@@ -37,6 +39,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     [[nodiscard]] FGameplayAbilitySpecHandle& GetMainAbilitySpecHandle();
 
+    /// \brief Called when a weapon is swapped, with the new weapon.
+    FOnSwapWeapon OnSwapWeapon;
+    
 private:
     /// \brief Weapon classes available in the inventory.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))

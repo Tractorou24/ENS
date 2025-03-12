@@ -56,7 +56,8 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
     PlayerInfosBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 
     Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
-
+    Inventory->OnSwapWeapon.AddUniqueDynamic(this, &AEnsPlayerCharacter::OnSwapWeapon);
+    
     PotionAttributeSet = CreateDefaultSubobject<UEnsPotionAttributeSet>(TEXT("PotionAttributeSet"));
 
     // Set up actor team

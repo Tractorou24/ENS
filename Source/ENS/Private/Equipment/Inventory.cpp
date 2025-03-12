@@ -77,6 +77,7 @@ FGameplayAbilitySpecHandle& UInventory::GetMainAbilitySpecHandle()
 void UInventory::SwapEquipmentSet(const FInputActionValue& Value)
 {
     HandleSet((CurrentEquipmentIndex + Weapons.Num() + (Value.Get<float>() > 0 ? 1 : -1)) % Weapons.Num());
+    OnSwapWeapon.Broadcast(GetCurrentWeapon());
 }
 
 void UInventory::UpdateEquippedSet()
