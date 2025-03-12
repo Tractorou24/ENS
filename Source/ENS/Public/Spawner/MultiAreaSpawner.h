@@ -66,8 +66,6 @@ public:
     void OnEnemyDestroyed();
 
     /// \brief `true` if the spawner is active, `false` otherwise.
-    // TODO(Kevin): Merge with hasTrigger.
-    UPROPERTY(EditAnywhere, Category = "Spawning")
     bool bIsActive;
 
     /// \brief Data table containing data for spawning waves of enemies.
@@ -100,7 +98,7 @@ protected:
     float SpawnDistance = 500.0f;
 
     /// \brief Array containing all box components representing spawn areas of the spawner.
-    UPROPERTY(BlueprintReadOnly, Category = "Spawning")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Spawning")
     TArray<UBoxComponent*> SpawnAreas;
 #pragma endregion
 
@@ -110,7 +108,7 @@ protected:
     bool bHasTrigger;
 
     /// \brief Trigger box used to activate the spawner.
-    UPROPERTY(BlueprintReadOnly, Category = "Spawning")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Spawning")
     UBoxComponent* TriggerBox;
 #pragma endregion
 
