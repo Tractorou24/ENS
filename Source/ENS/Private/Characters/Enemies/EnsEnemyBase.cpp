@@ -102,5 +102,5 @@ void AEnsEnemyBase::Attacked(AActor* Source)
         return;
     }
 
-    Cast<AEnsCharacterBase>(PlayerController->GetCharacter())->BaseAttack(this);
+    Cast<AEnsCharacterBase>(PlayerController->GetCharacter())->BaseAttack();
 }

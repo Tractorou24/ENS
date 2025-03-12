@@ -26,6 +26,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attack");
     TSubclassOf<AActor> CollisionActor;
 
+    /// \brief The animation montage to play when the base attack is activated.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attack");
+    UAnimMontage* BaseAttackAnimationMontage;
+
     /// \brief The damage applied to the target during the attack.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attack");
     float Damage = 10.f;

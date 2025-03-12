@@ -123,10 +123,10 @@ void AEnsPlayerController::SetDestinationReleased(const FInputActionInstance& In
 {
     if (IsInputKeyDown(EKeys::LeftShift))
     {
-        Cast<AEnsPlayerCharacter>(GetCharacter())->BaseAttack(nullptr);
+        Cast<AEnsPlayerCharacter>(GetCharacter())->BaseAttack();
         return;
     }
-    
+
     if (bIsInInteractMode)
         return;
     ResetInteract();

@@ -40,8 +40,9 @@ public:
     [[nodiscard]] FGameplayAbilitySpecHandle& GetMainAbilitySpecHandle();
 
     /// \brief Called when a weapon is swapped, with the new weapon.
+    UPROPERTY(BlueprintAssignable, Category = "Inventory")
     FOnSwapWeapon OnSwapWeapon;
-    
+
 private:
     /// \brief Weapon classes available in the inventory.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
