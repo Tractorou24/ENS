@@ -82,7 +82,18 @@ void AMultiAreaSpawner::UpdateSpawnAreas()
 
 FVector AMultiAreaSpawner::GetRandomLocationInSpecificArea(const int32 AreaIndex) const
 {
-    return UKismetMathLibrary::RandomPointInBoundingBox_Box(SpawnAreas[AreaIndex]->Bounds.GetBox());
+    // Get Box Extents (Half-Size of the Box in Local Space)
+    FVector BoxExtent = SpawnAreas[AreaIndex]->GetUnscaledBoxExtent();
+
+    // Generate Random Local Position inside the Box Extent
+    FVector LocalRandomPoint = FVector(
+        FMath::RandRange(-BoxExtent.X, BoxExtent.X),
+        FMath::RandRange(-BoxExtent.Y, BoxExtent.Y),
+        FMath::RandRange(-BoxExtent.Z, BoxExtent.Z)
+    );
+
+    // Transform Local Point to World Space
+    return SpawnAreas[AreaIndex]->GetComponentTransform().TransformPosition(LocalRandomPoint);
 }
 
 void AMultiAreaSpawner::OnConstruction(const FTransform& Transform)
@@ -101,9 +112,9 @@ void AMultiAreaSpawner::Tick(float DeltaTime)
     if (bShowDebugBounds)
     {
         if (TriggerBox)
-            DrawDebugBox(GetWorld(), TriggerBox->GetComponentLocation(), TriggerBox->GetScaledBoxExtent(), FColor::Blue, false, 0.0f, 0, 5.0f);
+            DrawDebugBox(GetWorld(), TriggerBox->GetComponentLocation(), TriggerBox->GetScaledBoxExtent(), TriggerBox->GetComponentQuat(), FColor::Blue, false, 0.0f, 0, 5.0f);
         for (int i = 0; i < SpawnAreas.Num(); ++i)
-            DrawDebugBox(GetWorld(), SpawnAreas[i]->GetComponentLocation(), SpawnAreas[i]->GetScaledBoxExtent(), ActiveSpawnAreas.Contains(i) && bIsActive ? FColor::Green : FColor::Red, false, 0.0f, 0, 5.0f);
+            DrawDebugBox(GetWorld(), SpawnAreas[i]->GetComponentLocation(), SpawnAreas[i]->GetScaledBoxExtent(), SpawnAreas[i]->GetComponentQuat(), ActiveSpawnAreas.Contains(i) && bIsActive ? FColor::Green : FColor::Red, false, 0.0f, 0, 5.0f);
     }
 
     if (!bIsActive)
@@ -148,10 +159,11 @@ void AMultiAreaSpawner::BeginPlay()
     Super::BeginPlay();
 
     if (bHasTrigger)
+    {
         TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AMultiAreaSpawner::OnTriggerOverlapBegin);
-
-    if (!bIsActive)
         return;
+    }
+    
     SpawnWave();
 }
 
