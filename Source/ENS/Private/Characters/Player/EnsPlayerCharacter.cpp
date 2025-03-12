@@ -64,7 +64,7 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
     TeamId.ResetAttitudeSolver();
 }
 
-void AEnsPlayerCharacter::BaseAttack(AEnsEnemyBase* Enemy)
+void AEnsPlayerCharacter::BaseAttack()
 {
     if (!bIsAttacking)
     {
@@ -76,7 +76,7 @@ void AEnsPlayerCharacter::BaseAttack(AEnsEnemyBase* Enemy)
     if (bCanBuffer)
     {
         bIsAttackBuffered = true;
-    }
+}
 }
 
 void AEnsPlayerCharacter::BeginPlay()

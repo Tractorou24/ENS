@@ -23,9 +23,8 @@ public:
 
     /**
      * \brief Attacks the given \p Enemy using the currently selected weapon basic attack.
-     * \param Enemy The actor to attack.
      */
-    virtual void BaseAttack(class AEnsEnemyBase* Enemy) {}
+    virtual void BaseAttack() {}
 
     /// \brief Called when the character dies.
     virtual void OnDeath();
