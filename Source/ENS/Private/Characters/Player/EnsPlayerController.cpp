@@ -101,6 +101,8 @@ void AEnsPlayerController::SetupInputComponent()
 
 void AEnsPlayerController::SetDestinationTriggered()
 {
+    if (IsInputKeyDown(EKeys::LeftShift))
+        return;
     if (bIsInInteractMode)
         return;
     ResetInteract(true);
@@ -119,6 +121,12 @@ void AEnsPlayerController::SetDestinationTriggered()
 
 void AEnsPlayerController::SetDestinationReleased(const FInputActionInstance& InputActionInstance)
 {
+    if (IsInputKeyDown(EKeys::LeftShift))
+    {
+        Cast<AEnsPlayerCharacter>(GetCharacter())->BaseAttack(nullptr);
+        return;
+    }
+    
     if (bIsInInteractMode)
         return;
     ResetInteract();

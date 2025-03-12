@@ -36,9 +36,9 @@ public:
     void OnBaseAttack();
 
     /**
-    * \brief Called when the player changes equipment
-    * \param NewWeapon The new weapon the player equipped
-    */
+     * \brief Called when the player changes equipment
+     * \param NewWeapon The new weapon the player equipped
+     */
     UFUNCTION(BlueprintImplementableEvent)
     void OnSwapWeapon(ABaseWeapon* NewWeapon);
 
@@ -114,4 +114,18 @@ private:
     /// \brief The radius around the target point the character will stop at.
     UPROPERTY(EditAnywhere, Category = "Movement")
     float AcceptanceRadius = 15.0f;
+
+#pragma region BaseAttck
+    /// \brief Whether the player is attacking or not.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Base Attack", meta = (AllowPrivateAccess = "true"))
+    bool bIsAttacking = false;
+
+    /// \brief Whether an attack is buffered or not.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Base Attack", meta = (AllowPrivateAccess = "true"))
+    bool bIsAttackBuffered = false;
+
+    /// \brief Whether an attack can be buffered or not. (e.g. between collision is spawned and destroyed)
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Base Attack", meta = (AllowPrivateAccess = "true"))
+    bool bCanBuffer = false;
+#pragma endregion
 };
