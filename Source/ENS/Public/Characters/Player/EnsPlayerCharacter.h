@@ -29,7 +29,8 @@ public:
     explicit AEnsPlayerCharacter();
 
     /// \copydoc AEnsCharacterBase::BaseAttack
-    virtual void BaseAttack(AEnsEnemyBase* Enemy) override;
+    UFUNCTION(BlueprintCallable)
+    virtual void BaseAttack() override;
 
     /// \brief Called when the player attack an enemy
     UFUNCTION(BlueprintImplementableEvent)

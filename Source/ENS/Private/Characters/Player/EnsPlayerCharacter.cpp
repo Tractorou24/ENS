@@ -73,10 +73,8 @@ void AEnsPlayerCharacter::BaseAttack()
         GetAbilitySystemComponent()->TryActivateAbilitiesByTag(Container);
         bIsAttacking = true;
     }
-    if (bCanBuffer)
-    {
+    else if (bCanBuffer)
         bIsAttackBuffered = true;
-}
 }
 
 void AEnsPlayerCharacter::BeginPlay()
