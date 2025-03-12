@@ -11,12 +11,12 @@
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GAS/AttributeSets/EnsPotionAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "NavFilters/NavigationQueryFilter.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
-#include "GAS/AttributeSets/EnsPotionAttributeSet.h"
 
 DEFINE_LOG_CATEGORY(LogPlayerCharacter)
 
@@ -56,8 +56,7 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
     PlayerInfosBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 
     Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
-    Inventory->OnSwapWeapon.AddUniqueDynamic(this, &AEnsPlayerCharacter::OnSwapWeapon);
-    
+
     PotionAttributeSet = CreateDefaultSubobject<UEnsPotionAttributeSet>(TEXT("PotionAttributeSet"));
 
     // Set up actor team

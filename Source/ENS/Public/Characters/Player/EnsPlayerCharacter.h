@@ -35,13 +35,6 @@ public:
     UFUNCTION(BlueprintImplementableEvent)
     void OnBaseAttack();
 
-    /**
-     * \brief Called when the player changes equipment
-     * \param NewWeapon The new weapon the player equipped
-     */
-    UFUNCTION(BlueprintImplementableEvent)
-    void OnSwapWeapon(ABaseWeapon* NewWeapon);
-
     /// \copydoc AEnsCharacterBase::OnDeath
     virtual void OnDeath() override;
 
