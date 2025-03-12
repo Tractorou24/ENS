@@ -70,7 +70,11 @@ void AEnsPlayerCharacter::BaseAttack()
     {
         FGameplayTagContainer Container;
         Container.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.BaseAttack")));
-        GetAbilitySystemComponent()->TryActivateAbilitiesByTag(Container);
+
+        const bool IsActivated = GetAbilitySystemComponent()->TryActivateAbilitiesByTag(Container);
+        if (IsActivated)
+            OnBaseAttack();
+
         bIsAttacking = true;
     }
     else if (bCanBuffer)
