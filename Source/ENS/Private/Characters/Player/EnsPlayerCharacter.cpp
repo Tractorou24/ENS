@@ -67,9 +67,17 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
 
 void AEnsPlayerCharacter::BaseAttack(AEnsEnemyBase* Enemy)
 {
-    FGameplayTagContainer Container;
-    Container.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.BaseAttack")));
-    GetAbilitySystemComponent()->TryActivateAbilitiesByTag(Container);
+    if (!bIsAttacking)
+    {
+        FGameplayTagContainer Container;
+        Container.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.BaseAttack")));
+        GetAbilitySystemComponent()->TryActivateAbilitiesByTag(Container);
+        bIsAttacking = true;
+    }
+    if (bCanBuffer)
+    {
+        bIsAttackBuffered = true;
+    }
 }
 
 void AEnsPlayerCharacter::BeginPlay()
