@@ -43,10 +43,14 @@ void UInventory::BeginPlay()
     if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerController->InputComponent))
     {
         EnhancedInputComponent->BindAction(ScrollAction, ETriggerEvent::Triggered, this, &UInventory::SwapEquipmentSet);
+
         EnhancedInputComponent->BindActionValueLambda(LightSetAction, ETriggerEvent::Started, [&](const FInputActionValue&) { HandleSet(0); });
         EnhancedInputComponent->BindActionValueLambda(MediumSetAction, ETriggerEvent::Started, [&](const FInputActionValue&) { HandleSet(1); });
         EnhancedInputComponent->BindActionValueLambda(HeavySetAction, ETriggerEvent::Started, [&](const FInputActionValue&) { HandleSet(2); });
-        EnhancedInputComponent->BindAction(MainAbilityAction, ETriggerEvent::Started, this, &UInventory::HandleMainAbility);
+
+        EnhancedInputComponent->BindActionValueLambda(LightSetSkill, ETriggerEvent::Started, [&](const FInputActionValue&) { HandleSet(0); HandleMainAbility(); });
+        EnhancedInputComponent->BindActionValueLambda(MediumSetSkill, ETriggerEvent::Started, [&](const FInputActionValue&) { HandleSet(1); HandleMainAbility(); });
+        EnhancedInputComponent->BindActionValueLambda(HeavySetSkill, ETriggerEvent::Started, [&](const FInputActionValue&) { HandleSet(2); HandleMainAbility(); });
     }
 
     // Initialize the equipment set (at index 0)

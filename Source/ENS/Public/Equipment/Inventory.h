@@ -104,13 +104,20 @@ private:
      * \param SetIndex The index of the set to switch to.
      */
     void HandleSet(uint8_t SetIndex);
-
 #pragma endregion
 
 #pragma region Attacks
-    /// \brief Input action for triggering the set's main ability
+    /// \brief Input action for switching to 1st weapon and launching the skill
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", meta = (AllowPrivateAccess = "true"))
-    UInputAction* MainAbilityAction = nullptr;
+    UInputAction* LightSetSkill = nullptr;
+
+    /// \brief Input action for switching to 2nd weapon and launching the skill
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", meta = (AllowPrivateAccess = "true"))
+    UInputAction* MediumSetSkill = nullptr;
+
+    /// \brief Input action for switching to 3rd weapon and launching the skill
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", meta = (AllowPrivateAccess = "true"))
+    UInputAction* HeavySetSkill = nullptr;
 
     /// \brief Handles the main ability input event.
     void HandleMainAbility();

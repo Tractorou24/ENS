@@ -5,11 +5,8 @@
 #include "GAS/AttributeSets/EnsHealthAttributeSet.h"
 #include "GAS/EnsAbilitySystemComponent.h"
 #include "Interactions/EnsMouseInteractableComponent.h"
-#include "UI/EnsFloatingInfosBarWidget.h"
-#include "UI/EnsFloatingInfosBarWidgetComponent.h"
 
 #include "Components/BoxComponent.h"
-#include "Components/WidgetComponent.h"
 
 DEFINE_LOG_CATEGORY(LogEnemy)
 
@@ -18,13 +15,6 @@ AEnsEnemyBase::AEnsEnemyBase()
     // Actor team
     TeamId = FGenericTeamId(1);
     TeamId.ResetAttitudeSolver();
-
-    // UI
-    FloatingInfosBarWidgetComponent = CreateDefaultSubobject<UEnsFloatingInfosBarWidgetComponent>(FName("FloatingStatusBarComponent"));
-    FloatingInfosBarWidgetComponent->SetupAttachment(RootComponent);
-    FloatingInfosBarWidgetComponent->SetRelativeLocation(FVector(0, 0, 120));
-    FloatingInfosBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
-    FloatingInfosBarWidgetComponent->SetDrawSize(FVector2d(500, 500));
 
     // Interactions
     InteractZone = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractCollider"));
@@ -62,28 +52,8 @@ void AEnsEnemyBase::BeginPlay()
     AbilitySystemComponent->InitAbilityActorInfo(this, this);
     AddStartupEffects();
 
-    if (!FloatingInfosBarWidgetClass)
-    {
-        UE_LOG(LogEnemy, Error, TEXT("Failed to configure UI for enemy %s. Check the UI class is selected in blueprint."), *GetName());
-        return;
-    }
-
-    FloatingInfosBarWidgetComponent->AddWidget(FloatingInfosBarWidgetClass);
-    FloatingInfosBarWidgetComponent->SetHealthPercentage(1.f);
-
     // Callbacks
     MouseInteractableComponent->OnInteract.AddDynamic(this, &AEnsEnemyBase::Attacked);
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute())
-        .AddUObject(this, &AEnsEnemyBase::HealthChanged);
-}
-
-void AEnsEnemyBase::HealthChanged(const FOnAttributeChangeData& Data)
-{
-    const float Health = Data.NewValue;
-
-    // Update floating status bar
-    if (FloatingInfosBarWidgetComponent)
-        FloatingInfosBarWidgetComponent->SetHealthPercentage(Health / HealthAttributeSet->GetMaxHealth());
 }
 
 void AEnsEnemyBase::OnDeath()

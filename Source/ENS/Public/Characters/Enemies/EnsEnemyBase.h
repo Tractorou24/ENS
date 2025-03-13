@@ -48,12 +48,6 @@ public:
 protected:
     virtual void BeginPlay() override;
 
-    /**
-     * \brief Called when the health attribute changes.
-     * \param Data The data of the attribute change.
-     */
-    virtual void HealthChanged(const FOnAttributeChangeData& Data) override;
-
     /// \brief Kills the enemy.
     virtual void OnDeath() override;
 
@@ -73,14 +67,6 @@ private:
     void Attacked(AActor* Source);
 
     FGenericTeamId TeamId;
-
-    /// \brief The widget class of the enemy.
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI", meta = (AllowPrivateAccess = "true"))
-    TSubclassOf<class UEnsFloatingInfosBarWidget> FloatingInfosBarWidgetClass;
-
-    /// \brief The widget component of the enemy.
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI", meta = (AllowPrivateAccess = "true"))
-    class UEnsFloatingInfosBarWidgetComponent* FloatingInfosBarWidgetComponent;
 
     /// \brief The interaction component.
     UPROPERTY(EditAnywhere, Category = "Interactions", meta = (AllowPrivateAccess = "true"))

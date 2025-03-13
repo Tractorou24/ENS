@@ -73,10 +73,6 @@ public:
     UFUNCTION(BlueprintCallable)
     virtual FGenericTeamId GetGenericTeamId() const override;
 
-protected:
-    // Attribute changed callbacks
-    virtual void HealthChanged(const FOnAttributeChangeData& Data) override;
-
 private:
     void MoveTo(const struct FAIMoveRequest& MoveReq);
 
@@ -89,14 +85,6 @@ private:
     /// \brief The camera used for the top-down view.
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
     UCameraComponent* CameraComponent;
-
-    /// \brief The widget class for the player interface.
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI", meta = (AllowPrivateAccess = "true"))
-    TSubclassOf<class UEnsPlayerInfosBarWidget> PlayerInfosBarWidgetClass;
-
-    /// \brief The widget component for the player interface.
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI", meta = (AllowPrivateAccess = "true"))
-    class UEnsPlayerInfosBarWidgetComponent* PlayerInfosBarWidgetComponent;
 
     /// \brief The component for movement using pathfinding
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
