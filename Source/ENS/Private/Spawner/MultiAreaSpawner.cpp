@@ -14,6 +14,7 @@ DEFINE_LOG_CATEGORY(LogSpawners);
 AMultiAreaSpawner::AMultiAreaSpawner()
 {
     PrimaryActorTick.bCanEverTick = true;
+    GlobalWaveNumber = 0;
     RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 }
 
@@ -89,8 +90,7 @@ FVector AMultiAreaSpawner::GetRandomLocationInSpecificArea(const int32 AreaIndex
     FVector LocalRandomPoint = FVector(
         FMath::RandRange(-BoxExtent.X, BoxExtent.X),
         FMath::RandRange(-BoxExtent.Y, BoxExtent.Y),
-        FMath::RandRange(-BoxExtent.Z, BoxExtent.Z)
-    );
+        FMath::RandRange(-BoxExtent.Z, BoxExtent.Z));
 
     // Transform Local Point to World Space
     return SpawnAreas[AreaIndex]->GetComponentTransform().TransformPosition(LocalRandomPoint);
@@ -163,7 +163,7 @@ void AMultiAreaSpawner::BeginPlay()
         TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AMultiAreaSpawner::OnTriggerOverlapBegin);
         return;
     }
-    
+
     SpawnWave();
 }
 
@@ -263,6 +263,9 @@ void AMultiAreaSpawner::SpawnWave()
     }
     CurrentEnemies += Row->Imps + Row->SkullFire + Row->SkullKamikaze;
     Timer = Row->Time;
+
+    GlobalWaveNumber++;
+    OnNewWave.Broadcast(GlobalWaveNumber);
 }
 
 void AMultiAreaSpawner::SpawnEnemies(const TSubclassOf<AEnsEnemyBase>& ActorToSpawn, const int32 AreaIndex, const int32 Count)
