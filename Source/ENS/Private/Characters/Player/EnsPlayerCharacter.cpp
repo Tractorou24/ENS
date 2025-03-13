@@ -4,10 +4,7 @@
 #include "Characters/Enemies/EnsEnemyBase.h"
 #include "Characters/Player/EnsSpringArmComponent.h"
 #include "Equipment/Inventory.h"
-#include "GAS/AttributeSets/EnsHealthAttributeSet.h"
 #include "GAS/EnsAbilitySystemComponent.h"
-#include "UI/EnsPlayerInfosBarWidget.h"
-#include "UI/EnsPlayerInfosBarWidgetComponent.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -49,12 +46,6 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
     CameraComponent->SetupAttachment(CameraBoom, UEnsSpringArmComponent::SocketName);
     CameraComponent->bUsePawnControlRotation = false;
 
-    // Add UI Component
-    PlayerInfosBarWidgetComponent = CreateDefaultSubobject<UEnsPlayerInfosBarWidgetComponent>(
-        FName("PlayerInfosBarComponent"));
-    PlayerInfosBarWidgetComponent->SetupAttachment(RootComponent);
-    PlayerInfosBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
-
     Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
 
     PotionAttributeSet = CreateDefaultSubobject<UEnsPotionAttributeSet>(TEXT("PotionAttributeSet"));
@@ -91,19 +82,6 @@ void AEnsPlayerCharacter::BeginPlay()
 
     AbilitySystemComponent->InitAbilityActorInfo(this, this);
     AddStartupEffects();
-
-    if (!PlayerInfosBarWidgetClass)
-    {
-        UE_LOG(LogEnemy, Error, TEXT("Failed to configure UI for player %s. Check the UI class is selected in blueprint."), *GetName());
-        return;
-    }
-
-    PlayerInfosBarWidgetComponent->AddWidget(PlayerInfosBarWidgetClass);
-    PlayerInfosBarWidgetComponent->SetHealthPercentage(1.f);
-
-    // Callbacks
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute())
-        .AddUObject(this, &AEnsPlayerCharacter::HealthChanged);
 }
 
 void AEnsPlayerCharacter::CancelCurrentAbilities(FGameplayTagContainer WithTags)
@@ -179,16 +157,6 @@ void AEnsPlayerCharacter::SetGenericTeamId(const FGenericTeamId& NewTeamID)
 FGenericTeamId AEnsPlayerCharacter::GetGenericTeamId() const
 {
     return TeamId;
-}
-
-void AEnsPlayerCharacter::HealthChanged(const FOnAttributeChangeData& Data)
-{
-    const float Health = Data.NewValue;
-    const float MaxHealth = HealthAttributeSet->GetMaxHealth();
-
-    // Update floating status bar
-    if (PlayerInfosBarWidgetComponent)
-        PlayerInfosBarWidgetComponent->SetHealthPercentage(Health / MaxHealth);
 }
 
 void AEnsPlayerCharacter::MoveTo(const FAIMoveRequest& MoveReq)

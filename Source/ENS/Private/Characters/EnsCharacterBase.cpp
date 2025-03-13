@@ -15,6 +15,8 @@ AEnsCharacterBase::AEnsCharacterBase()
     // Init GAS (creating the attribute set as sub-object auto-registers it with the AbilitySystemComponent)
     AbilitySystemComponent = CreateDefaultSubobject<UEnsAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
     HealthAttributeSet = CreateDefaultSubobject<UEnsHealthAttributeSet>(TEXT("HealthAttributeSet"));
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute())
+        .AddUObject(this, &AEnsCharacterBase::HealthChanged);
 }
 
 void AEnsCharacterBase::OnDeath()
