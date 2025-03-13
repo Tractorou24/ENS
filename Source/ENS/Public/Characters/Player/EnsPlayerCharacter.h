@@ -5,6 +5,7 @@
 #include "Characters/EnsCharacterBase.h"
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "GenericTeamAgentInterface.h"
 
 #include "EnsPlayerCharacter.generated.h"
@@ -35,6 +36,10 @@ public:
     /// \brief Called when the player attack an enemy
     UFUNCTION(BlueprintImplementableEvent)
     void OnBaseAttack();
+
+    /// \brief Cancel the abilities with passed tags
+    UFUNCTION(BlueprintCallable)
+    void CancelCurrentAbilities(FGameplayTagContainer WithTags);
 
     /// \copydoc AEnsCharacterBase::OnDeath
     virtual void OnDeath() override;

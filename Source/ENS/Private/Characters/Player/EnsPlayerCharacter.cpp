@@ -70,7 +70,6 @@ void AEnsPlayerCharacter::BaseAttack()
     {
         FGameplayTagContainer Container;
         Container.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.BaseAttack")));
-
         const bool IsActivated = GetAbilitySystemComponent()->TryActivateAbilitiesByTag(Container);
         if (IsActivated)
             OnBaseAttack();
@@ -105,6 +104,13 @@ void AEnsPlayerCharacter::BeginPlay()
     // Callbacks
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute())
         .AddUObject(this, &AEnsPlayerCharacter::HealthChanged);
+}
+
+void AEnsPlayerCharacter::CancelCurrentAbilities(FGameplayTagContainer WithTags)
+{
+    auto ASC = GetAbilitySystemComponent();
+    if (ASC)
+        ASC->CancelAbilities(&WithTags);
 }
 
 void AEnsPlayerCharacter::OnDeath()
