@@ -78,14 +78,6 @@ private:
 
     FGenericTeamId TeamId;
 
-    /// \brief Camera boom positioning the camera above the character
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-    class UEnsSpringArmComponent* CameraBoom;
-
-    /// \brief The camera used for the top-down view.
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-    UCameraComponent* CameraComponent;
-
     /// \brief The component for movement using pathfinding
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
     UPathFollowingComponent* PathFollowingComponent;
