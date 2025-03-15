@@ -2,7 +2,6 @@
 
 #include "Characters/Player/EnsPlayerCharacter.h"
 #include "Characters/Enemies/EnsEnemyBase.h"
-#include "Characters/Player/EnsSpringArmComponent.h"
 #include "Equipment/Inventory.h"
 #include "GAS/EnsAbilitySystemComponent.h"
 
@@ -35,16 +34,6 @@ AEnsPlayerCharacter::AEnsPlayerCharacter()
     GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
     PathFollowingComponent = CreateDefaultSubobject<UPathFollowingComponent>(TEXT("PathFollowingComponent"));
-
-    // Init camera
-    CameraBoom = CreateDefaultSubobject<UEnsSpringArmComponent>(TEXT("CameraBoom"));
-    CameraBoom->SetupAttachment(RootComponent);
-    CameraBoom->bUsePawnControlRotation = false; // Do not rotate with character
-    CameraBoom->bDoCollisionTest = false;        // Do not pull the camera when colliding with objects
-
-    CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
-    CameraComponent->SetupAttachment(CameraBoom, UEnsSpringArmComponent::SocketName);
-    CameraComponent->bUsePawnControlRotation = false;
 
     Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
 
@@ -139,11 +128,6 @@ void AEnsPlayerCharacter::MoveToActor(const AActor* Actor)
     MoveReq.SetReachTestIncludesAgentRadius(true);
     MoveReq.SetCanStrafe(true);
     MoveTo(MoveReq);
-}
-
-class UCameraComponent* AEnsPlayerCharacter::GetCameraComponent() const
-{
-    return CameraComponent;
 }
 
 void AEnsPlayerCharacter::SetGenericTeamId(const FGenericTeamId& NewTeamID)
