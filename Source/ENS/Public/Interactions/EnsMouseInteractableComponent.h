@@ -56,6 +56,7 @@ public:
      * \param InteractionZone The box component to use as the interaction zone.
      * \param ClickZone The box component to use as the click zone.
      */
+    UFUNCTION(BlueprintCallable)
     void SetupInteractZone(UBoxComponent* InteractionZone, UBoxComponent* ClickZone);
 
     /**
