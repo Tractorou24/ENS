@@ -21,6 +21,7 @@ AEnsCharacterBase::AEnsCharacterBase()
 
 void AEnsCharacterBase::OnDeath()
 {
+    OnDeathDelegate.Broadcast();
     // Reset all attributes
     AddStartupEffects();
 }

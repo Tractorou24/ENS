@@ -43,9 +43,24 @@ protected:
     virtual void BeginPlay() override;
     virtual void OnPossess(APawn* InPawn) override;
 
+    /// \brief Method bound to Player death 
+    UFUNCTION(BlueprintNativeEvent)
+    void OnDeath();
+
+    /// \brief Called by OnDeath() if player has no lives left
+    UFUNCTION(BlueprintImplementableEvent)
+    void Restart();
+
+    /// \brief Called by OnDeath() if player has lives remaining
+    UFUNCTION(BlueprintImplementableEvent)
+    void LostLife();
+    
     /// \brief Binds the inputs to the corresponding player actions.
     virtual void SetupInputComponent() override;
 
+    UPROPERTY(BlueprintReadWrite)
+    int Lives = 1;
+    
 private:
     /// \brief The default mapping context.
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
