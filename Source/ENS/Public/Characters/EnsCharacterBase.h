@@ -8,6 +8,8 @@
 
 #include "EnsCharacterBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
+
 /**
  * \brief The base character in the game that can have abilities.
  *
@@ -28,6 +30,9 @@ public:
 
     /// \brief Called when the character dies.
     virtual void OnDeath();
+
+    UPROPERTY(BlueprintAssignable)
+    FOnDeathSignature OnDeathDelegate;
 
     /// \brief Gets the ability system component stored the character.
     UFUNCTION(BlueprintCallable)

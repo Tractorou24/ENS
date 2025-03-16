@@ -34,6 +34,19 @@ void AEnsPlayerController::OnPossess(APawn* InPawn)
     }
 
     PlayerCharacter->GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerCharacter, InPawn);
+
+    PlayerCharacter->OnDeathDelegate.AddUniqueDynamic(this, &AEnsPlayerController::OnDeath);
+}
+
+void AEnsPlayerController::OnDeath_Implementation()
+{
+    if (Lives > 1)
+    {
+        Lives--;
+        LostLife();
+    }
+    else
+        Restart();
 }
 
 void AEnsPlayerController::Tick(const float DeltaSeconds)
