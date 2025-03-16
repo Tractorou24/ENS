@@ -39,6 +39,14 @@ public:
     /// \brief Returns the current mouse position relative to the viewport or the last known position.
     FVector2D GetRelativeMousePosition() const { return RelativeMousePosition; }
 
+    /// \brief Player lives count
+    UPROPERTY(BlueprintReadWrite, Category="Gameplay")
+    int Lives = 1;
+
+    /// \brief Interaction radius on click
+    UPROPERTY(BlueprintReadWrite, Category="Interaction")
+    float InteractionRadius = 50.0f;
+
 protected:
     virtual void BeginPlay() override;
     virtual void OnPossess(APawn* InPawn) override;
@@ -57,9 +65,6 @@ protected:
     
     /// \brief Binds the inputs to the corresponding player actions.
     virtual void SetupInputComponent() override;
-
-    UPROPERTY(BlueprintReadWrite)
-    int Lives = 1;
     
 private:
     /// \brief The default mapping context.
