@@ -9,6 +9,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/NavMovementComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 AEnsPlayerController::AEnsPlayerController()
 {
@@ -151,28 +152,54 @@ void AEnsPlayerController::SetDestinationReleased(const FInputActionInstance& In
 
 void AEnsPlayerController::Interact()
 {
-    if (FHitResult Hit; GetHitResultUnderCursor(ECustomCollisionChannel::ECC_Interactable, true, Hit))
+    FVector CursorWorldLocation;
+    FVector CursorWorldDirection;
+    if (DeprojectMousePositionToWorld(CursorWorldLocation, CursorWorldDirection))
     {
+        constexpr float TraceDistance = 1000.0f;
+        const FVector TraceEnd = CursorWorldLocation + (CursorWorldDirection * TraceDistance);
+
+        TArray<FHitResult> HitResults;
+        FCollisionQueryParams QueryParams;
+        QueryParams.AddIgnoredActor(GetPawn()); // Ignore the player
+
+        // Perform the sphere trace
+
+        if (const bool bHit = GetWorld()->SweepMultiByChannel(
+            HitResults, 
+            CursorWorldLocation, 
+            TraceEnd, 
+            FQuat::Identity, 
+            ECustomCollisionChannel::ECC_Interactable, 
+            FCollisionShape::MakeSphere(InteractionRadius), 
+            QueryParams
+            ); !bHit)
+            return;
+
+        HitResults.Sort([CursorWorldLocation](const FHitResult& hit1, const FHitResult& hit2) {
+            return  FVector::DistXY(hit1.Location, CursorWorldLocation) < FVector::DistXY(hit2.Location, CursorWorldLocation);
+        });
+
+        const FHitResult& ClosestResult = HitResults[0];
+
         bool IsComponent = false;
         // Is the object interactable directly
-        if (Hit.GetActor()->Implements<UEnsInteractable>())
-            PendingInteractObject = Hit.GetActor();
+        if (ClosestResult.GetActor()->Implements<UEnsInteractable>())
+            PendingInteractObject = ClosestResult.GetActor();
         else
         // Is the object interactable by a component
         {
-            const auto InteractableComponents = Hit.GetActor()->GetComponentsByInterface(UEnsInteractable::StaticClass());
-            for (auto* Component : InteractableComponents)
+            for (const auto InteractableComponents = ClosestResult.GetActor()->GetComponentsByInterface(UEnsInteractable::StaticClass()); auto* Component : InteractableComponents)
                 if (Component->Implements<UEnsInteractable>())
                     PendingInteractObject = Component;
             IsComponent = true;
         }
-
+        
         // Move to the object
-        const auto* Component = Cast<UEnsMouseInteractableComponent>(PendingInteractObject);
-        if (IsComponent && !Component->IsPlayerInZone())
+        if (const auto* Component = Cast<UEnsMouseInteractableComponent>(PendingInteractObject); IsComponent && !Component->IsPlayerInZone())
             Cast<AEnsPlayerCharacter>(GetCharacter())->MoveToActor(Component->GetOwner());
         else if (!IsComponent)
-            Cast<AEnsPlayerCharacter>(GetCharacter())->MoveToActor(Hit.GetActor());
+            Cast<AEnsPlayerCharacter>(GetCharacter())->MoveToActor(ClosestResult.GetActor());
         bIsInInteractMode = true;
     }
 }
