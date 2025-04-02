@@ -9,6 +9,7 @@
 #include "EnsCharacterBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHitSignature, float, DamageAmount);
 
 /**
  * \brief The base character in the game that can have abilities.
@@ -28,11 +29,17 @@ public:
      */
     virtual void BaseAttack() {}
 
+    /// \brief Called when the character is hit.
+    virtual void OnHit(float DamageAmount);
+
     /// \brief Called when the character dies.
     virtual void OnDeath();
 
     UPROPERTY(BlueprintAssignable)
     FOnDeathSignature OnDeathDelegate;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnHitSignature OnHitDelegate;
 
     /// \brief Gets the ability system component stored the character.
     UFUNCTION(BlueprintCallable)

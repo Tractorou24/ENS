@@ -21,7 +21,8 @@ void UEnsHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
             // Apply damage to health
             const float NewHealth = GetHealth() - DamageAmount;
             SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
-           
+            Character->OnHit(DamageAmount);
+
             if (GetHealth() == 0)
             {
                 if (Character)

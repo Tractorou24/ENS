@@ -19,6 +19,11 @@ AEnsCharacterBase::AEnsCharacterBase()
         .AddUObject(this, &AEnsCharacterBase::HealthChanged);
 }
 
+void AEnsCharacterBase::OnHit(const float DamageAmount)
+{
+    OnHitDelegate.Broadcast(DamageAmount);
+}
+
 void AEnsCharacterBase::OnDeath()
 {
     OnDeathDelegate.Broadcast();
