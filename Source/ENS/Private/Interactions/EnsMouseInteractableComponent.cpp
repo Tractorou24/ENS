@@ -37,6 +37,11 @@ void UEnsMouseInteractableComponent::TickComponent(const float DeltaTime, const 
             OnMouseHoverEnd.Broadcast();
         }
     }
+    else if (bIsMouseHovering)
+    {
+        bIsMouseHovering = false;
+        OnMouseHoverEnd.Broadcast();
+    }
 }
 
 void UEnsMouseInteractableComponent::Interact_Implementation(AActor* SourceActor)
