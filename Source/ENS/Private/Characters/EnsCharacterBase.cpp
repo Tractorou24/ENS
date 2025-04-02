@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2024-2025, Equipment'N Slash contributors. All rights reserved.
+﻿// Copyright (c) 2024-2025, BloodTear contributors. All rights reserved.
 
 #include "Characters/EnsCharacterBase.h"
 #include "GAS/AttributeSets/EnsHealthAttributeSet.h"
@@ -17,6 +17,11 @@ AEnsCharacterBase::AEnsCharacterBase()
     HealthAttributeSet = CreateDefaultSubobject<UEnsHealthAttributeSet>(TEXT("HealthAttributeSet"));
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute())
         .AddUObject(this, &AEnsCharacterBase::HealthChanged);
+}
+
+void AEnsCharacterBase::OnHit(const float DamageAmount)
+{
+    OnHitDelegate.Broadcast(DamageAmount);
 }
 
 void AEnsCharacterBase::OnDeath()

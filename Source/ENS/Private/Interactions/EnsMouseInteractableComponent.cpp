@@ -1,4 +1,4 @@
-// Copyright (c) 2024-2025, Equipment'N Slash contributors. All rights reserved.
+// Copyright (c) 2024-2025, BloodTear contributors. All rights reserved.
 
 #include "Interactions/EnsMouseInteractableComponent.h"
 
@@ -36,6 +36,11 @@ void UEnsMouseInteractableComponent::TickComponent(const float DeltaTime, const 
             bIsMouseHovering = false;
             OnMouseHoverEnd.Broadcast();
         }
+    }
+    else if (bIsMouseHovering)
+    {
+        bIsMouseHovering = false;
+        OnMouseHoverEnd.Broadcast();
     }
 }
 

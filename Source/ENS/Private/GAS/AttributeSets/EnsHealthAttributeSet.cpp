@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2024-2025, Equipment'N Slash contributors. All rights reserved.
+﻿// Copyright (c) 2024-2025, BloodTear contributors. All rights reserved.
 
 #include "GAS/AttributeSets/EnsHealthAttributeSet.h"
 #include "Characters/EnsCharacterBase.h"
@@ -21,7 +21,8 @@ void UEnsHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
             // Apply damage to health
             const float NewHealth = GetHealth() - DamageAmount;
             SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
-           
+            Character->OnHit(DamageAmount);
+
             if (GetHealth() == 0)
             {
                 if (Character)
