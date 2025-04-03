@@ -130,6 +130,11 @@ void AEnsPlayerCharacter::MoveToActor(const AActor* Actor)
     MoveTo(MoveReq);
 }
 
+UInventory* AEnsPlayerCharacter::GetInventoryComponent() const
+{
+    return Inventory;
+}
+
 void AEnsPlayerCharacter::SetGenericTeamId(const FGenericTeamId& NewTeamID)
 {
     if (TeamId != NewTeamID)

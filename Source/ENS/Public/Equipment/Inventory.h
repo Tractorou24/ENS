@@ -4,12 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameplayAbilitySpecHandle.h"
+#include "Interactions/EnsPickableObject.h"
 
 #include "Inventory.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogInventory, Log, All);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSwapWeapon, ABaseWeapon*, NewWeapon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemPicked, const AEnsPickableObject*, NewObject);
 
 /**
  * \brief Component that manages the player's inventory and equipment.
@@ -27,6 +29,13 @@ protected:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
+    /**
+     * \brief Picks the item \p Object and adds it to the inventory.
+     * \param Object The object to pick.
+     * \return `true` if the item was picked, `false` otherwise.
+     */
+    bool PickItem(const AEnsPickableObject* Object);
+
     /// \brief Get currently attached weapon.
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     [[nodiscard]] class ABaseWeapon* GetCurrentWeapon();
@@ -42,6 +51,10 @@ public:
     /// \brief Called when a weapon is swapped, with the new weapon.
     UPROPERTY(BlueprintAssignable, Category = "Inventory")
     FOnSwapWeapon OnSwapWeapon;
+
+    /// \brief Called when an item is picked, with the new object before it is destroyed.
+    UPROPERTY(BlueprintAssignable, Category = "Inventory")
+    FOnItemPicked OnItemPicked;
 
 private:
     /// \brief Weapon classes available in the inventory.
@@ -68,6 +81,12 @@ private:
      * \return `true` if player is playing an animation, `false` otherwise.
      */
     [[nodiscard]] bool IsPlayerPlayingAnimation();
+
+#pragma region Objects
+    /// \brief Currently picked items.
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    TMap<TSubclassOf<AEnsPickableObject>, int32> PickedItems;
+#pragma endregion
 
 #pragma region Swap
     /// \brief Cooldown between 2 swaps.

@@ -44,9 +44,6 @@ public:
     /// \copydoc AEnsCharacterBase::OnDeath
     virtual void OnDeath() override;
 
-    /// \brief Gets the path following component of the character used to move on a navmesh.
-    [[nodiscard]] class UPathFollowingComponent* GetPathFollowingComponent() const;
-
     /**
      * \brief Moves the player character to a \p Location.
      * \param Location The location to move to.
@@ -59,8 +56,11 @@ public:
      */
     void MoveToActor(const AActor* Actor);
 
-    /// \brief Gets the camera component the player sees through.
-    [[nodiscard]] class UCameraComponent* GetCameraComponent() const;
+    /// \brief Gets the path following component of the character used to move on a navmesh.
+    [[nodiscard]] class UPathFollowingComponent* GetPathFollowingComponent() const;
+
+    /// \brief Gets the inventory component of the player.
+    [[nodiscard]] class UInventory* GetInventoryComponent() const;
 
     /**
      * \brief Sets the team the current player is in.

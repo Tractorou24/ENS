@@ -63,6 +63,31 @@ void UInventory::TickComponent(const float DeltaTime, const ELevelTick TickType,
     SwapCooldownTimer += DeltaTime;
 }
 
+bool UInventory::PickItem(const AEnsPickableObject* Object)
+{
+    if (!Object)
+    {
+        UE_LOG(LogInventory, Error, TEXT("Cannot pick item, object is null."));
+        return false;
+    }
+
+    auto& Found = PickedItems.FindOrAdd(Object->GetClass());
+
+    // Not stackable and already in the inventory
+    if (!Object->IsStackable() && Found > 0)
+    {
+        UE_LOG(LogInventory, Log, TEXT("Ignoring picking of %s"), *Object->GetName());
+        return false;
+    }
+
+    // Pick it
+    Found++;
+    OnItemPicked.Broadcast(Object);
+
+    UE_LOG(LogInventory, Log, TEXT("Picked %s, now count of %d"), *Object->GetName(), Found);
+    return true;
+}
+
 ABaseWeapon* UInventory::GetCurrentWeapon()
 {
     return AttachedWeapon;
