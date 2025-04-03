@@ -43,6 +43,7 @@ void AMultiAreaSpawner::OnTriggerOverlapBegin(UPrimitiveComponent* OverlappedCom
 
     bIsActive = true;
     TriggerBox->OnComponentBeginOverlap.Remove(this, "OnTriggerOverlapBegin");
+    TriggerBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     SpawnWave();
 }
 
