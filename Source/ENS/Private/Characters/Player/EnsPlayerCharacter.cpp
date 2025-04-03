@@ -2,12 +2,12 @@
 
 #include "Characters/Player/EnsPlayerCharacter.h"
 #include "Characters/Enemies/EnsEnemyBase.h"
+#include "Equipment/BaseWeapon.h"
 #include "Equipment/Inventory.h"
+#include "GAS/AttributeSets/EnsPotionAttributeSet.h"
 #include "GAS/EnsAbilitySystemComponent.h"
 
-#include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GAS/AttributeSets/EnsPotionAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "NavFilters/NavigationQueryFilter.h"
@@ -111,7 +111,7 @@ void AEnsPlayerCharacter::MoveToLocation(const FVector& Location)
     MoveReq.SetAllowPartialPath(true);
     MoveReq.SetProjectGoalLocation(false);
     MoveReq.SetNavigationFilter(DefaultNavigationFilterClass);
-    MoveReq.SetAcceptanceRadius(AcceptanceRadius);
+    MoveReq.SetAcceptanceRadius(GetInventoryComponent()->GetCurrentWeapon()->BaseAttackRange);
     MoveReq.SetReachTestIncludesAgentRadius(false);
     MoveReq.SetCanStrafe(true);
     MoveTo(MoveReq);
@@ -124,7 +124,7 @@ void AEnsPlayerCharacter::MoveToActor(const AActor* Actor)
     MoveReq.SetUsePathfinding(true);
     MoveReq.SetAllowPartialPath(true);
     MoveReq.SetNavigationFilter(DefaultNavigationFilterClass);
-    MoveReq.SetAcceptanceRadius(AcceptanceRadius);
+    MoveReq.SetAcceptanceRadius(GetInventoryComponent()->GetCurrentWeapon()->BaseAttackRange);
     MoveReq.SetReachTestIncludesAgentRadius(true);
     MoveReq.SetCanStrafe(true);
     MoveTo(MoveReq);

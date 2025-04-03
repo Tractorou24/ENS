@@ -41,6 +41,10 @@ public:
     /// \brief The time at which the collision actor is deleted after the ability is activated.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attack");
     float BaseAttackDestroyTime = 2.f;
+
+    /// \brief The range of the attack. (i.e. the distance at which the player stops moving and attacks)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base Attack");
+    float BaseAttackRange = 20.f;
 #pragma endregion
 
 #pragma region Skills
