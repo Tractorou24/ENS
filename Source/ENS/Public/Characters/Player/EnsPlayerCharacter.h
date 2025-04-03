@@ -90,10 +90,6 @@ private:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS", meta = (AllowPrivateAccess = "true"))
     class UEnsPotionAttributeSet* PotionAttributeSet;
 
-    /// \brief The radius around the target point the character will stop at.
-    UPROPERTY(EditAnywhere, Category = "Movement")
-    float AcceptanceRadius = 15.0f;
-
 #pragma region BaseAttck
     /// \brief Whether the player is attacking or not.
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Base Attack", meta = (AllowPrivateAccess = "true"))
