@@ -152,7 +152,12 @@ void AMultiAreaSpawner::OnEnemyDestroyed()
 {
     --CurrentEnemies;
     if (CurrentEnemies == 0)
+    {
+        if (WaveNumber >= SpawnData->GetRowMap().Num())
+            OnSpawnerFinished.Broadcast();
         SpawnWave();
+    }
+    
 }
 
 void AMultiAreaSpawner::BeginPlay()

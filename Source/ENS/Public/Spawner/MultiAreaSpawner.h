@@ -14,6 +14,7 @@ class UBoxComponent;
 DECLARE_LOG_CATEGORY_EXTERN(LogSpawners, Log, All);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewWave, int, WaveNumber);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSpawnerFinished);
 
 /**
  * \brief Distribution of enemies to spawn on a specific area.
@@ -70,6 +71,10 @@ public:
     /// \brief Event called when a new wave of enemies is spawned. (with the wave number)
     UPROPERTY(BlueprintAssignable, Category = "Spawning")
     FOnNewWave OnNewWave;
+
+    /// \brief Event called when all enemies of the last wave are killed.
+    UPROPERTY(BlueprintAssignable, Category = "Spawning")
+    FOnSpawnerFinished OnSpawnerFinished;
 
     /// \brief `true` if the spawner is active, `false` otherwise.
     bool bIsActive;
