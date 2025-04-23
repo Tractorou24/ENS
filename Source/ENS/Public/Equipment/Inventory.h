@@ -112,6 +112,13 @@ private:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", meta = (AllowPrivateAccess = "true"))
     UInputAction* HeavySetAction = nullptr;
 
+    /**
+     * \brief Called when the player level up. It must give the ability with the new level.
+     * \param NewLevel The nex player level.
+     */
+    UFUNCTION()
+    void OnLevelUp(int64 NewLevel);
+    
     /// \brief Handles weapon switching logic when scroll input is received
     void SwapEquipmentSet(const struct FInputActionValue& Value);
 

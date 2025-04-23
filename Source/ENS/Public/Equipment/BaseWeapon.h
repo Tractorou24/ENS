@@ -48,10 +48,6 @@ public:
 #pragma endregion
 
 #pragma region Skills
-    /// \brief The weapon current level
-    UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Skills", meta = (ClampMin = "1", ClampMax = "3"))
-    uint8 Level = 1;
-
     /// \brief The weapon special ability.
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skills");
     TSubclassOf<class UEnsSkillBase> MainSkill;
