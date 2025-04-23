@@ -12,6 +12,9 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogPlayerCharacter, Log, All);
 
+/// \brief Delegate used when a player reaches a new level.
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUp, int64, NewLevel);
+
 /**
  * \brief The player character in the game.
  *
@@ -38,7 +41,7 @@ public:
     void OnBaseAttack();
 
     /// \copydoc AEnsCharacterBase::OnDeath
-    virtual void OnDeath() override;
+    virtual void OnDeath(AEnsCharacterBase* SourceActor) override;
 
     /**
      * \brief Moves the player character to a \p Location.
@@ -51,6 +54,21 @@ public:
      * \param Actor The actor to move to.
      */
     void MoveToActor(const AActor* Actor);
+
+    /**
+     * \brief Adds \p Amount to the player experience and level-up if required.
+     * \param Amount The number of experience points to add.
+     */
+    UFUNCTION(BlueprintCallable)
+    void IncreaseXp(int64 Amount);
+
+    /// \brief Gets the current level of the player.
+    UFUNCTION(BlueprintCallable)
+    [[nodiscard]] int64 GetCurrentLevel() const;
+
+    /// \brief Called when the player levels up (with the new level).
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUp OnLevelUp;
 
     /// \brief Gets the path following component of the character used to move on a navmesh.
     [[nodiscard]] class UPathFollowingComponent* GetPathFollowingComponent() const;
@@ -98,5 +116,15 @@ private:
     /// \brief Whether an attack can be buffered or not. (e.g. between collision is spawned and destroyed)
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Base Attack", meta = (AllowPrivateAccess = "true"))
     bool bCanBuffer = false;
+#pragma endregion
+
+#pragma region Levels
+    /// \brief The current player experience.
+    UPROPERTY(BlueprintReadOnly, Category = "Levels", meta = (AllowPrivateAccess = "true"))
+    int64 CurrentExperience = 0;
+
+    /// \brief The number of points at which the level `index + 1` is reached.
+    UPROPERTY(EditDefaultsOnly, Category = "Levels", meta = (AllowPrivateAccess = "true"))
+    TArray<int64> ExperienceLevelTransitions;
 #pragma endregion
 };

@@ -24,7 +24,7 @@ void AEnsCharacterBase::OnHit(const float DamageAmount)
     OnHitDelegate.Broadcast(DamageAmount);
 }
 
-void AEnsCharacterBase::OnDeath()
+void AEnsCharacterBase::OnDeath(AEnsCharacterBase* SourceActor)
 {
     OnDeathDelegate.Broadcast();
     // Reset all attributes

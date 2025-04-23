@@ -1,5 +1,6 @@
 ﻿// Copyright (c) 2024-2025, BloodTear contributors. All rights reserved.
 
+#include "Characters/Player/EnsPlayerCharacter.h"
 #include "Equipment/Inventory.h"
 #include "Equipment/BaseArmor.h"
 #include "Equipment/BaseWeapon.h"
@@ -25,7 +26,7 @@ void UInventory::BeginPlay()
     ensure(Weapons.Num() > 0);
     ensure(Weapons.Num() == Armors.Num());
 
-    const APawn* Pawn = Cast<APawn>(GetOwner());
+    APawn* Pawn = Cast<APawn>(GetOwner());
     if (!Pawn)
     {
         UE_LOG(LogInventory, Error, TEXT("Inventory component must be attached to a pawn."));
@@ -52,6 +53,11 @@ void UInventory::BeginPlay()
         EnhancedInputComponent->BindActionValueLambda(MediumSetSkill, ETriggerEvent::Started, [&](const FInputActionValue&) { HandleSet(1); HandleMainAbility(); });
         EnhancedInputComponent->BindActionValueLambda(HeavySetSkill, ETriggerEvent::Started, [&](const FInputActionValue&) { HandleSet(2); HandleMainAbility(); });
     }
+
+    if (AEnsPlayerCharacter* PlayerCharacter = Cast<AEnsPlayerCharacter>(Pawn))
+        PlayerCharacter->OnLevelUp.AddDynamic(this, &UInventory::OnLevelUp);
+    else
+        UE_LOG(LogInventory, Error, TEXT("Inventory component must be attached to a player."));
 
     // Initialize the equipment set (at index 0)
     UpdateEquippedSet();
@@ -103,6 +109,11 @@ FGameplayAbilitySpecHandle& UInventory::GetMainAbilitySpecHandle()
     return MainAbilityHandle;
 }
 
+void UInventory::OnLevelUp(const int64 /*NewLevel*/)
+{
+    UpdateEquippedSet();
+}
+
 void UInventory::SwapEquipmentSet(const FInputActionValue& Value)
 {
     HandleSet((CurrentEquipmentIndex + Weapons.Num() + (Value.Get<float>() > 0 ? 1 : -1)) % Weapons.Num());
@@ -110,7 +121,8 @@ void UInventory::SwapEquipmentSet(const FInputActionValue& Value)
 
 void UInventory::UpdateEquippedSet()
 {
-    ACharacter* Character = Cast<ACharacter>(GetOwner());
+    const AEnsPlayerCharacter* Character = Cast<AEnsPlayerCharacter>(GetOwner());
+    ensure(Character && "Cannot get inventory owner as our custom player character");
 
     // Destroy previous weapon if it exists
     if (AttachedWeapon || AttachedArmor)
@@ -140,7 +152,7 @@ void UInventory::UpdateEquippedSet()
 
         Character->GetMesh()->MoveIgnoreActors.Add(AttachedWeapon);
         if (UAbilitySystemComponent* AbilitySystem = Character->FindComponentByClass<UAbilitySystemComponent>())
-            MainAbilityHandle = AbilitySystem->GiveAbility(FGameplayAbilitySpec(AttachedWeapon->MainSkill, AttachedWeapon->Level, 0));
+            MainAbilityHandle = AbilitySystem->GiveAbility(FGameplayAbilitySpec(AttachedWeapon->MainSkill, Character->GetCurrentLevel(), 0));
 
         UE_LOG(LogInventory, Log, TEXT("Equipped weapon: %s"), *WeaponClass->GetName());
         OnSwapWeapon.Broadcast(GetCurrentWeapon());

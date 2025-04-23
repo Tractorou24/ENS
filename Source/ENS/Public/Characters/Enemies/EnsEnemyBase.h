@@ -49,7 +49,7 @@ protected:
     virtual void BeginPlay() override;
 
     /// \brief Kills the enemy.
-    virtual void OnDeath() override;
+    virtual void OnDeath(AEnsCharacterBase* SourceActor) override;
 
     /**
      * @brief OnDeath blueprint event called by OnDeath native class
@@ -79,4 +79,8 @@ private:
     /// \brief The zone the player can click into to interact with the enemy.
     UPROPERTY(EditAnywhere, Category = "Interactions", meta = (AllowPrivateAccess = "true"))
     class UBoxComponent* InteractionClickZone = nullptr;
+
+    /// \brief The number of XP points gained by killing this enemy.
+    UPROPERTY(EditDefaultsOnly, Category = "Levels", meta = (AllowPrivateAccess = "true"))
+    int64 GivenExperience = 10;
 };

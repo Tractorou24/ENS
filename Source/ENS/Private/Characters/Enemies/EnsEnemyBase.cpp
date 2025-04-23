@@ -1,8 +1,8 @@
 ﻿// Copyright (c) 2024-2025, BloodTear contributors. All rights reserved.
 
 #include "Characters/Enemies/EnsEnemyBase.h"
+#include "Characters/Player/EnsPlayerCharacter.h"
 #include "Characters/Player/EnsPlayerController.h"
-#include "GAS/AttributeSets/EnsHealthAttributeSet.h"
 #include "GAS/EnsAbilitySystemComponent.h"
 #include "Interactions/EnsMouseInteractableComponent.h"
 
@@ -56,8 +56,12 @@ void AEnsEnemyBase::BeginPlay()
     MouseInteractableComponent->OnInteract.AddDynamic(this, &AEnsEnemyBase::Attacked);
 }
 
-void AEnsEnemyBase::OnDeath()
+void AEnsEnemyBase::OnDeath(AEnsCharacterBase* SourceActor)
 {
+    // Try to increase xp if the source actor is a player
+    if (auto* PlayerCharacter = Cast<AEnsPlayerCharacter>(SourceActor))
+        PlayerCharacter->IncreaseXp(GivenExperience);
+
     OnDeath_Blueprint();
     Destroy();
     OnEnemyDestroyed.Broadcast();

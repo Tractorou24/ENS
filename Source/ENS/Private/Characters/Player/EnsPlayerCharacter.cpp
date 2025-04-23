@@ -69,12 +69,17 @@ void AEnsPlayerCharacter::BeginPlay()
         return;
     }
 
+    // Check the level up array and validate it
+    auto SortedXp = ExperienceLevelTransitions;
+    SortedXp.Sort();
+    ensure(SortedXp == ExperienceLevelTransitions && "The experience value to transition between levels must be in ascending order.");
+
     AbilitySystemComponent->InitAbilityActorInfo(this, this);
     AddStartupEffects();
 }
 
 
-void AEnsPlayerCharacter::OnDeath()
+void AEnsPlayerCharacter::OnDeath(AEnsCharacterBase* SourceActor)
 {
     APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -89,7 +94,7 @@ void AEnsPlayerCharacter::OnDeath()
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
     // Call the parent to reset the attributes
-    Super::OnDeath();
+    Super::OnDeath(SourceActor);
 }
 
 UPathFollowingComponent* AEnsPlayerCharacter::GetPathFollowingComponent() const
@@ -122,6 +127,31 @@ void AEnsPlayerCharacter::MoveToActor(const AActor* Actor)
     MoveReq.SetReachTestIncludesAgentRadius(true);
     MoveReq.SetCanStrafe(true);
     MoveTo(MoveReq);
+}
+
+void AEnsPlayerCharacter::IncreaseXp(const int64 Amount)
+{
+    ensure(Amount > 0 && "Cannot add a negative experience amount.");
+
+    const auto OldLevel = GetCurrentLevel();
+    CurrentExperience += Amount;
+    UE_LOG(LogPlayerCharacter, Log, TEXT("Added %lld xp to player %s, it now gave %lld xp points."), Amount, *GetName(), CurrentExperience);
+
+    const auto NewLevel = GetCurrentLevel();
+    if (NewLevel != OldLevel)
+    {
+        UE_LOG(LogPlayerCharacter, Log, TEXT("Leveling up player %s from level %lld to %lld"), *GetName(), OldLevel, NewLevel);
+        OnLevelUp.Broadcast(NewLevel);
+    }
+}
+
+int64 AEnsPlayerCharacter::GetCurrentLevel() const
+{
+    std::size_t Index;
+    for (Index = 0; Index < ExperienceLevelTransitions.Num(); Index++)
+        if (CurrentExperience < ExperienceLevelTransitions[Index])
+            break;
+    return Index + 1;
 }
 
 UInventory* AEnsPlayerCharacter::GetInventoryComponent() const
