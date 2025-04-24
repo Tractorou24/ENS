@@ -30,6 +30,10 @@ class ENS_API AEnsPlayerController : public APlayerController
 public:
     explicit AEnsPlayerController();
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+    UInputAction* MoveAction;
+
+    void Move(const FInputActionValue& Value);
     /**
      * \brief Called every frame.
      * \param DeltaSeconds The time since the last frame in seconds.

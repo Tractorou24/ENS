@@ -50,6 +50,12 @@ void AEnsPlayerController::OnDeath_Implementation()
         Restart();
 }
 
+void AEnsPlayerController::Move(const FInputActionValue& Value)
+{
+    auto* PlayerCharacter = Cast<AEnsPlayerCharacter>(GetCharacter());
+    PlayerCharacter->Move(Value);
+}
+
 void AEnsPlayerController::Tick(const float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
@@ -108,13 +114,14 @@ void AEnsPlayerController::SetupInputComponent()
     EnhancedInputComponent->BindAction(SetDestinationAction, ETriggerEvent::Started, this, &AEnsPlayerController::StopMovement);
     EnhancedInputComponent->BindAction(SetDestinationAction, ETriggerEvent::Triggered, this, &AEnsPlayerController::SetDestinationTriggered);
     EnhancedInputComponent->BindAction(SetDestinationAction, ETriggerEvent::Completed, this, &AEnsPlayerController::SetDestinationReleased);
-
+    EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEnsPlayerController::Move);
     EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AEnsPlayerController::Interact);
     EnhancedInputComponent->BindActionValueLambda(InteractAction, ETriggerEvent::Completed, [&](auto _) { bIsInInteractMode = false; });
 }
 
 void AEnsPlayerController::SetDestinationTriggered()
 {
+    return;
     if (IsInputKeyDown(EKeys::LeftShift))
         return;
     if (bIsInInteractMode)
@@ -135,9 +142,11 @@ void AEnsPlayerController::SetDestinationTriggered()
 
 void AEnsPlayerController::SetDestinationReleased(const FInputActionInstance& InputActionInstance)
 {
+    Cast<AEnsPlayerCharacter>(GetCharacter())->BaseAttack();
+    return;
     if (IsInputKeyDown(EKeys::LeftShift))
     {
-        Cast<AEnsPlayerCharacter>(GetCharacter())->BaseAttack();
+        
         return;
     }
 

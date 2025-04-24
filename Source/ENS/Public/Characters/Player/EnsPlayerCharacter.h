@@ -7,6 +7,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "GenericTeamAgentInterface.h"
+#include "InputActionValue.h"
 
 #include "EnsPlayerCharacter.generated.h"
 
@@ -29,6 +30,7 @@ class ENS_API AEnsPlayerCharacter : public AEnsCharacterBase, public IGenericTea
 public:
     virtual void BeginPlay() override;
 
+    
     /// \brief Constructs a character and setups its components.
     explicit AEnsPlayerCharacter();
 
@@ -43,6 +45,8 @@ public:
     /// \copydoc AEnsCharacterBase::OnDeath
     virtual void OnDeath(AEnsCharacterBase* SourceActor) override;
 
+    void Move(const FInputActionValue& Value);
+    
     /**
      * \brief Moves the player character to a \p Location.
      * \param Location The location to move to.
@@ -127,4 +131,9 @@ private:
     UPROPERTY(EditDefaultsOnly, Category = "Levels", meta = (AllowPrivateAccess = "true"))
     TArray<int64> ExperienceLevelTransitions;
 #pragma endregion
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+    FVector ForwardVector;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+    FVector RightVector;
 };

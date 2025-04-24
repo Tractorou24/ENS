@@ -78,6 +78,16 @@ void AEnsPlayerCharacter::BeginPlay()
     AddStartupEffects();
 }
 
+void AEnsPlayerCharacter::Move(const FInputActionValue& Value)
+{
+    FVector2D MovementVector = Value.Get<FVector2D>();
+    if (Controller != nullptr)
+    {
+        AddMovementInput(ForwardVector, MovementVector.X);
+        AddMovementInput(RightVector,MovementVector.Y);
+    }
+}
+
 
 void AEnsPlayerCharacter::OnDeath(AEnsCharacterBase* SourceActor)
 {
