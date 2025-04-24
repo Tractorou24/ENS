@@ -157,7 +157,6 @@ void AMultiAreaSpawner::OnEnemyDestroyed()
             OnSpawnerFinished.Broadcast();
         SpawnWave();
     }
-    
 }
 
 void AMultiAreaSpawner::BeginPlay()

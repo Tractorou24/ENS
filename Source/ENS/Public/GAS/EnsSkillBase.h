@@ -19,9 +19,9 @@ class ENS_API UEnsSkillBase : public UEnsGameplayAbilityBase
     GENERATED_BODY()
 
 public:
-    /// \brief The damage applied at each level of the skill. (0 for the base attack, 1 for the first level, etc.)
+    /// \brief The damage applied at each level of the skill. (0 for the first level, 1 for the second, etc.)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
-    TArray<float> DamagePerLevel;
+    FScalableFloat Damage;
 
     /// \brief The type of actor to spawn (defines collision & range)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill");

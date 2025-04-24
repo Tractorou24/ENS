@@ -118,7 +118,7 @@ private:
      */
     UFUNCTION()
     void OnLevelUp(int64 NewLevel);
-    
+
     /// \brief Handles weapon switching logic when scroll input is received
     void SwapEquipmentSet(const struct FInputActionValue& Value);
 

@@ -8,7 +8,7 @@ float USkillBaseBlueprintLibrary::SkillDamageFromLevel(const TSubclassOf<UEnsSki
     const auto Object = NewObject<UEnsSkillBase>(GetTransientPackage(), Skill->StaticClass());
     ensure(Object != nullptr && "Skill is not a subclass of UEnsSkillBase");
 
-    const float Result = Object->DamagePerLevel.IsValidIndex(Level) ? Object->DamagePerLevel[Level] : 0.f;
+    const float Result = Object->Damage.GetValueAtLevel(Level);
     Object->ConditionalBeginDestroy();
     return Result;
 }

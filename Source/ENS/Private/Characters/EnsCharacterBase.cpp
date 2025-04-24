@@ -36,7 +36,6 @@ UAbilitySystemComponent* AEnsCharacterBase::GetAbilitySystemComponent() const
     return AbilitySystemComponent;
 }
 
-
 void AEnsCharacterBase::CancelCurrentAbilities(FGameplayTagContainer WithTags)
 {
     if (const auto Asc = GetAbilitySystemComponent())
