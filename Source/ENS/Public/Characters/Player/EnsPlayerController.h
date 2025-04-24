@@ -40,18 +40,18 @@ public:
     FVector2D GetRelativeMousePosition() const { return RelativeMousePosition; }
 
     /// \brief Player lives count
-    UPROPERTY(BlueprintReadWrite, Category="Gameplay")
+    UPROPERTY(BlueprintReadWrite, Category = "Gameplay")
     int Lives = 1;
 
     /// \brief Interaction radius on click
-    UPROPERTY(BlueprintReadWrite, Category="Interaction")
+    UPROPERTY(BlueprintReadWrite, Category = "Interaction")
     float InteractionRadius = 50.0f;
 
 protected:
     virtual void BeginPlay() override;
     virtual void OnPossess(APawn* InPawn) override;
 
-    /// \brief Method bound to Player death 
+    /// \brief Method bound to Player death
     UFUNCTION(BlueprintNativeEvent)
     void OnDeath();
 
@@ -62,10 +62,10 @@ protected:
     /// \brief Called by OnDeath() if player has lives remaining
     UFUNCTION(BlueprintImplementableEvent)
     void LostLife();
-    
+
     /// \brief Binds the inputs to the corresponding player actions.
     virtual void SetupInputComponent() override;
-    
+
 private:
     /// \brief The default mapping context.
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))

@@ -27,7 +27,7 @@ void UEnsHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
             if (GetHealth() == 0)
             {
                 if (Character) // TODO: Find the real source (currently an enemy attacks itself)
-                    Character->OnDeath(Cast<AEnsCharacterBase>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0)));
+                    Character->OnDeath(Cast<AEnsCharacterBase>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)));
                 else
                     UE_LOG(LogHealthAttributeSet, Error, TEXT("Actor can't be killed."))
             }

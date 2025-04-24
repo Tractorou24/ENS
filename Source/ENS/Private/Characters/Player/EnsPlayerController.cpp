@@ -166,18 +166,18 @@ void AEnsPlayerController::Interact()
         // Perform the sphere trace
 
         if (const bool bHit = GetWorld()->SweepMultiByChannel(
-            HitResults, 
-            CursorWorldLocation, 
-            TraceEnd, 
-            FQuat::Identity, 
-            ECustomCollisionChannel::ECC_Interactable, 
-            FCollisionShape::MakeSphere(InteractionRadius), 
-            QueryParams
-            ); !bHit)
+                HitResults,
+                CursorWorldLocation,
+                TraceEnd,
+                FQuat::Identity,
+                ECustomCollisionChannel::ECC_Interactable,
+                FCollisionShape::MakeSphere(InteractionRadius),
+                QueryParams);
+            !bHit)
             return;
 
         HitResults.Sort([CursorWorldLocation](const FHitResult& hit1, const FHitResult& hit2) {
-            return  FVector::DistXY(hit1.Location, CursorWorldLocation) < FVector::DistXY(hit2.Location, CursorWorldLocation);
+            return FVector::DistXY(hit1.Location, CursorWorldLocation) < FVector::DistXY(hit2.Location, CursorWorldLocation);
         });
 
         const FHitResult& ClosestResult = HitResults[0];
@@ -194,7 +194,7 @@ void AEnsPlayerController::Interact()
                     PendingInteractObject = Component;
             IsComponent = true;
         }
-        
+
         // Move to the object
         if (const auto* Component = Cast<UEnsMouseInteractableComponent>(PendingInteractObject); IsComponent && !Component->IsPlayerInZone())
             Cast<AEnsPlayerCharacter>(GetCharacter())->MoveToActor(Component->GetOwner());

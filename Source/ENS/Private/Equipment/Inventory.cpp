@@ -1,10 +1,10 @@
 ﻿// Copyright (c) 2024-2025, BloodTear contributors. All rights reserved.
 
 #include "Equipment/Inventory.h"
+#include "Characters/Player/EnsPlayerCharacter.h"
 #include "Equipment/BaseArmor.h"
 #include "Equipment/BaseWeapon.h"
 #include "GAS/EnsSkillBase.h"
-#include "Characters/Player/EnsPlayerCharacter.h"
 
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"

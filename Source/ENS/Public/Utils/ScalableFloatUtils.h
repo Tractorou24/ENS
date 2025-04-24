@@ -18,7 +18,7 @@ class ENS_API UScalableFloatUtils : public UBlueprintFunctionLibrary
 
 public:
     /**
-     * \brief Gets the value of the scalable float \p Value using its curve at \p Level. 
+     * \brief Gets the value of the scalable float \p Value using its curve at \p Level.
      * \param Value The scalable float to get the value from.
      * \param Level The level to get the associated value.
      * \return The value at \ref Level from \p Value.

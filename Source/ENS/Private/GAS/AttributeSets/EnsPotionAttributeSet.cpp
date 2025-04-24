@@ -12,7 +12,7 @@ void UEnsPotionAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
     if (Data.EvaluatedData.Attribute == GetPotionUseAttribute())
     {
         const float NewHealthPotionQuantity = GetHealthQuantity() - GetPotionUse();
-        //Reset Meta attribute
+        // Reset Meta attribute
         SetPotionUse(0.f);
         SetHealthQuantity(FMath::Clamp(NewHealthPotionQuantity, 0.0f, GetHealthMaxQuantity()));
     }

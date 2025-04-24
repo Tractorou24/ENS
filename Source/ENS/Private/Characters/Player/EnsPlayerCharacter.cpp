@@ -78,7 +78,6 @@ void AEnsPlayerCharacter::BeginPlay()
     AddStartupEffects();
 }
 
-
 void AEnsPlayerCharacter::OnDeath(AEnsCharacterBase* SourceActor)
 {
     APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
