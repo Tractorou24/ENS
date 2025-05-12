@@ -104,50 +104,22 @@ void AEnsPlayerController::SetupInputComponent()
         UE_LOG(LogPlayerController, Error, TEXT("'%s' Failed to find an Enhanced Input Component!"), *GetNameSafe(this));
         return;
     }
-
-    EnhancedInputComponent->BindAction(SetDestinationAction, ETriggerEvent::Started, this, &AEnsPlayerController::StopMovement);
-    EnhancedInputComponent->BindAction(SetDestinationAction, ETriggerEvent::Triggered, this, &AEnsPlayerController::SetDestinationTriggered);
-    EnhancedInputComponent->BindAction(SetDestinationAction, ETriggerEvent::Completed, this, &AEnsPlayerController::SetDestinationReleased);
-
     EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AEnsPlayerController::Interact);
     EnhancedInputComponent->BindActionValueLambda(InteractAction, ETriggerEvent::Completed, [&](auto _) { bIsInInteractMode = false; });
+
+    EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEnsPlayerController::Move);
+    EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AEnsPlayerController::Attack);
 }
 
-void AEnsPlayerController::SetDestinationTriggered()
+void AEnsPlayerController::Move(const FInputActionValue& Value)
 {
-    if (IsInputKeyDown(EKeys::LeftShift))
-        return;
-    if (bIsInInteractMode)
-        return;
-    ResetInteract(true);
-
-    // There is something valid below cursor
-    if (FHitResult Hit; GetHitResultUnderCursor(ECustomCollisionChannel::ECC_Floor, true, Hit))
-        CachedDestination = Hit.Location;
-
-    // Move towards the last cached destination
-    if (auto* ControlledPawn = GetPawn())
-    {
-        const FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
-        ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
-    }
+    auto* PlayerCharacter = Cast<AEnsPlayerCharacter>(GetCharacter());
+    PlayerCharacter->Move(Value.Get<FVector2D>());
 }
 
-void AEnsPlayerController::SetDestinationReleased(const FInputActionInstance& InputActionInstance)
+void AEnsPlayerController::Attack()
 {
-    if (IsInputKeyDown(EKeys::LeftShift))
-    {
-        Cast<AEnsPlayerCharacter>(GetCharacter())->BaseAttack();
-        return;
-    }
-
-    if (bIsInInteractMode)
-        return;
-    ResetInteract();
-
-    // If it was a short press
-    if (InputActionInstance.GetElapsedTime() <= ShortPressThreshold)
-        static_cast<AEnsPlayerCharacter*>(GetCharacter())->MoveToLocation(CachedDestination);
+    Cast<AEnsPlayerCharacter>(GetCharacter())->BaseAttack();
 }
 
 void AEnsPlayerController::Interact()
@@ -196,10 +168,10 @@ void AEnsPlayerController::Interact()
         }
 
         // Move to the object
-        if (const auto* Component = Cast<UEnsMouseInteractableComponent>(PendingInteractObject); IsComponent && !Component->IsPlayerInZone())
+        /* if (const auto* Component = Cast<UEnsMouseInteractableComponent>(PendingInteractObject); IsComponent && !Component->IsPlayerInZone())
             Cast<AEnsPlayerCharacter>(GetCharacter())->MoveToActor(Component->GetOwner());
         else if (!IsComponent)
-            Cast<AEnsPlayerCharacter>(GetCharacter())->MoveToActor(ClosestResult.GetActor());
+            Cast<AEnsPlayerCharacter>(GetCharacter())->MoveToActor(ClosestResult.GetActor()); */
         bIsInInteractMode = true;
     }
 }
