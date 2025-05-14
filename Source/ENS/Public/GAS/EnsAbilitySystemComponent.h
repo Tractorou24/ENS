@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "GameplayEffectTypes.h"
 #include "AbilitySystemComponent.h"
 #include "CoreMinimal.h"
 

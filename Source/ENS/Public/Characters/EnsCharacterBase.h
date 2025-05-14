@@ -5,6 +5,7 @@
 #include "AbilitySystemInterface.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameplayEffectTypes.h"
 
 #include "EnsCharacterBase.generated.h"
 
@@ -55,12 +56,12 @@ protected:
 
     /// \brief Adds the startup effects to the character. (e.g. set attributes to default)
     virtual void AddStartupEffects();
-
+    
     /**
      * \brief Called when the health attribute changes.
      * \param Data The data of the attribute change.
      */
-    virtual void HealthChanged(const struct FOnAttributeChangeData& Data) {}
+    virtual void HealthChanged(const FOnAttributeChangeData& Data){}
 
 protected:
     /// \brief The ability system component of the character using this state.
@@ -71,7 +72,11 @@ protected:
     UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GAS")
     TArray<TSubclassOf<class UGameplayEffect>> StartupEffects;
 
-    /// \brief The current attribute set of the character using this state.
+    /// \brief The health attribute set of the character.
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS", meta = (AllowPrivateAccess = "true"))
     class UEnsHealthAttributeSet* HealthAttributeSet;
+
+    /// \brief The movement attribute set of the character.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+    class UEnsMovementAttributeSet* MovementAttributeSet;
 };
