@@ -3,7 +3,7 @@
 #include "FMODVCA.h"
 #include "FMODStudioModule.h"
 
-UFMODVCA::UFMODVCA(const FObjectInitializer &ObjectInitializer)
+UFMODVCA::UFMODVCA(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
 }

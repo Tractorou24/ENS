@@ -23,18 +23,18 @@ public:
 
     void Load();
 
-    FString GetBankPath(const UFMODBank &Bank) const;
+    FString GetBankPath(const UFMODBank& Bank) const;
     FString GetMasterBankPath() const;
     FString GetMasterStringsBankPath() const;
     FString GetMasterAssetsBankPath() const;
-    void SetLocale(const FString &LocaleCode);
+    void SetLocale(const FString& LocaleCode);
     FString GetLocale() const;
-    void GetAllBankPaths(TArray<FString> &BankPaths, bool IncludeMasterBank) const;
+    void GetAllBankPaths(TArray<FString>& BankPaths, bool IncludeMasterBank) const;
 
-    UFMODAsset *GetAssetByStudioPath(const FString &InStudioPath) const;
+    UFMODAsset* GetAssetByStudioPath(const FString& InStudioPath) const;
 
     static inline FString PrivateDataPath() { return FString(TEXT("PrivateIntegrationData/")); }
-    static inline FString BankLookupName()  { return FString(TEXT("BankLookup")); }
+    static inline FString BankLookupName() { return FString(TEXT("BankLookup")); }
     static inline FString AssetLookupName() { return FString(TEXT("AssetLookup")); }
 
 private:

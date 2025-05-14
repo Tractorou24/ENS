@@ -1,15 +1,15 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2012-2025.
 
 #include "Sequencer/FMODChannelEditors.h"
+#include "Channels/MovieSceneChannelTraits.h"
+#include "Editor/EditorWidgets/Public/SEnumCombo.h"
+#include "EditorStyleSet.h"
 #include "ISequencerChannelInterface.h"
-#include "Widgets/DeclarativeSyntaxSupport.h"
-#include "Widgets/SCompoundWidget.h"
 #include "MovieSceneTimeHelpers.h"
 #include "MovieSceneToolHelpers.h"
 #include "ScopedTransaction.h"
-#include "Editor/EditorWidgets/Public/SEnumCombo.h"
-#include "EditorStyleSet.h"
-#include "Channels/MovieSceneChannelTraits.h"
+#include "Widgets/DeclarativeSyntaxSupport.h"
+#include "Widgets/SCompoundWidget.h"
 
 class SFMODEventControlKeyEditor : public SCompoundWidget
 {
@@ -17,16 +17,16 @@ public:
     SLATE_BEGIN_ARGS(SFMODEventControlKeyEditor) {}
     SLATE_END_ARGS();
 
-    void Construct(const FArguments &InArgs, TMovieSceneChannelHandle<FFMODEventControlChannel> InChannelHandle,
-        TWeakObjectPtr<UMovieSceneSection> InWeakSection, TWeakPtr<ISequencer> InWeakSequencer, UEnum *InEnum)
+    void Construct(const FArguments& InArgs, TMovieSceneChannelHandle<FFMODEventControlChannel> InChannelHandle,
+                   TWeakObjectPtr<UMovieSceneSection> InWeakSection, TWeakPtr<ISequencer> InWeakSequencer, UEnum* InEnum)
     {
         ChannelHandle = InChannelHandle;
         WeakSection = InWeakSection;
         WeakSequencer = InWeakSequencer;
 
         ChildSlot[MovieSceneToolHelpers::MakeEnumComboBox(InEnum,
-            TAttribute<int32>::Create(TAttribute<int32>::FGetter::CreateSP(this, &SFMODEventControlKeyEditor::OnGetCurrentValueAsInt)),
-            SEnumComboBox::FOnEnumSelectionChanged::CreateSP(this, &SFMODEventControlKeyEditor::OnChangeKey))];
+                                                          TAttribute<int32>::Create(TAttribute<int32>::FGetter::CreateSP(this, &SFMODEventControlKeyEditor::OnGetCurrentValueAsInt)),
+                                                          SEnumComboBox::FOnEnumSelectionChanged::CreateSP(this, &SFMODEventControlKeyEditor::OnChangeKey))];
     }
 
 private:
@@ -34,9 +34,9 @@ private:
     {
         using namespace UE::MovieScene;
 
-        FFMODEventControlChannel *Channel = ChannelHandle.Get();
-        ISequencer *Sequencer = WeakSequencer.Pin().Get();
-        UMovieSceneSection *OwningSection = WeakSection.Get();
+        FFMODEventControlChannel* Channel = ChannelHandle.Get();
+        ISequencer* Sequencer = WeakSequencer.Pin().Get();
+        UMovieSceneSection* OwningSection = WeakSection.Get();
         uint8 Result = 0;
 
         if (Channel && Sequencer && OwningSection)
@@ -51,8 +51,8 @@ private:
     void SetValue(uint8 InValue)
     {
         using namespace UE::MovieScene;
- 
-        UMovieSceneSection *OwningSection = WeakSection.Get();
+
+        UMovieSceneSection* OwningSection = WeakSection.Get();
         if (!OwningSection)
         {
             return;
@@ -60,8 +60,8 @@ private:
 
         OwningSection->SetFlags(RF_Transactional);
 
-        FFMODEventControlChannel *Channel = ChannelHandle.Get();
-        ISequencer *Sequencer = WeakSequencer.Pin().Get();
+        FFMODEventControlChannel* Channel = ChannelHandle.Get();
+        ISequencer* Sequencer = WeakSequencer.Pin().Get();
 
         if (!OwningSection->TryModify() || !Channel || !Sequencer)
         {
@@ -115,7 +115,7 @@ private:
     {
         FScopedTransaction Transaction(FText::FromString("Set FMOD Event Control Key Value"));
         SetValue(Selection);
-        if (ISequencer *Sequencer = WeakSequencer.Pin().Get())
+        if (ISequencer* Sequencer = WeakSequencer.Pin().Get())
         {
             Sequencer->NotifyMovieSceneDataChanged(EMovieSceneDataChangeType::TrackValueChangedRefreshImmediately);
         }
@@ -126,34 +126,34 @@ private:
     TWeakPtr<ISequencer> WeakSequencer;
 };
 
-bool CanCreateKeyEditor(const FFMODEventControlChannel *Channel)
+bool CanCreateKeyEditor(const FFMODEventControlChannel* Channel)
 {
     return true;
 }
 
-TSharedRef<SWidget> CreateKeyEditor(const TMovieSceneChannelHandle<FFMODEventControlChannel> &Channel, UMovieSceneSection *Section,
-    const FGuid &InObjectBindingID, TWeakPtr<FTrackInstancePropertyBindings> PropertyBindings, TWeakPtr<ISequencer> InSequencer)
+TSharedRef<SWidget> CreateKeyEditor(const TMovieSceneChannelHandle<FFMODEventControlChannel>& Channel, UMovieSceneSection* Section,
+                                    const FGuid& InObjectBindingID, TWeakPtr<FTrackInstancePropertyBindings> PropertyBindings, TWeakPtr<ISequencer> InSequencer)
 {
-    const FFMODEventControlChannel *RawChannel = Channel.Get();
+    const FFMODEventControlChannel* RawChannel = Channel.Get();
 
     if (!RawChannel)
     {
         return SNullWidget::NullWidget;
     }
 
-    UEnum *Enum = RawChannel->GetEnum();
+    UEnum* Enum = RawChannel->GetEnum();
     return SNew(SFMODEventControlKeyEditor, Channel, Section, InSequencer, Enum);
 }
 
-void DrawKeys(FFMODEventControlChannel *Channel, TArrayView<const FKeyHandle> InKeyHandles, const UMovieSceneSection* InOwner, TArrayView<FKeyDrawParams> OutKeyDrawParams)
+void DrawKeys(FFMODEventControlChannel* Channel, TArrayView<const FKeyHandle> InKeyHandles, const UMovieSceneSection* InOwner, TArrayView<FKeyDrawParams> OutKeyDrawParams)
 {
     static const FName KeyLeftBrushName("Sequencer.KeyLeft");
     static const FName KeyRightBrushName("Sequencer.KeyRight");
     static const FName KeyDiamondBrushName("Sequencer.KeyDiamond");
 
-    const FSlateBrush *LeftKeyBrush = FAppStyle::GetBrush(KeyLeftBrushName);
-    const FSlateBrush *RightKeyBrush = FAppStyle::GetBrush(KeyRightBrushName);
-    const FSlateBrush *DiamondBrush = FAppStyle::GetBrush(KeyDiamondBrushName);
+    const FSlateBrush* LeftKeyBrush = FAppStyle::GetBrush(KeyLeftBrushName);
+    const FSlateBrush* RightKeyBrush = FAppStyle::GetBrush(KeyRightBrushName);
+    const FSlateBrush* DiamondBrush = FAppStyle::GetBrush(KeyDiamondBrushName);
 
     TMovieSceneChannelData<uint8> ChannelData = Channel->GetData();
 

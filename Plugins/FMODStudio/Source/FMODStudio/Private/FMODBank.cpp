@@ -3,7 +3,7 @@
 #include "FMODBank.h"
 #include "FMODStudioModule.h"
 
-UFMODBank::UFMODBank(const FObjectInitializer &ObjectInitializer)
+UFMODBank::UFMODBank(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
 }

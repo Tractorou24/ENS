@@ -2,12 +2,13 @@
 
 #pragma once
 
+#include "Channels/MovieSceneByteChannel.h"
 #include "CoreMinimal.h"
-#include "UObject/ObjectMacros.h"
 #include "Curves/KeyHandle.h"
 #include "MovieSceneClipboard.h"
 #include "MovieSceneSection.h"
-#include "Channels/MovieSceneByteChannel.h"
+#include "UObject/ObjectMacros.h"
+
 #include "FMODEventControlSection.generated.h"
 
 /** Defines the types of FMOD event control keys. */
@@ -30,13 +31,19 @@ struct FFMODEventControlChannel : public FMovieSceneByteChannel
 template <>
 struct TStructOpsTypeTraits<FFMODEventControlChannel> : public TStructOpsTypeTraitsBase2<FFMODEventControlChannel>
 {
-    enum { WithStructuredSerializeFromMismatchedTag = true };
+    enum
+    {
+        WithStructuredSerializeFromMismatchedTag = true
+    };
 };
 
 template <>
 struct TMovieSceneChannelTraits<FFMODEventControlChannel> : TMovieSceneChannelTraitsBase<FFMODEventControlChannel>
 {
-    enum { SupportsDefaults = false };
+    enum
+    {
+        SupportsDefaults = false
+    };
 
 #if WITH_EDITOR
 
@@ -58,7 +65,7 @@ public:
     FFMODEventControlChannel ControlKeys;
 };
 
-inline void AssignValue(FFMODEventControlChannel *InChannel, FKeyHandle InKeyHandle, EFMODEventControlKey InValue)
+inline void AssignValue(FFMODEventControlChannel* InChannel, FKeyHandle InKeyHandle, EFMODEventControlKey InValue)
 {
     TMovieSceneChannelData<uint8> ChannelData = InChannel->GetData();
     int32 ValueIndex = ChannelData.GetIndex(InKeyHandle);
@@ -69,7 +76,7 @@ inline void AssignValue(FFMODEventControlChannel *InChannel, FKeyHandle InKeyHan
     }
 }
 
-inline bool EvaluateChannel(const FFMODEventControlChannel *InChannel, FFrameTime InTime, EFMODEventControlKey &OutValue)
+inline bool EvaluateChannel(const FFMODEventControlChannel* InChannel, FFrameTime InTime, EFMODEventControlKey& OutValue)
 {
     uint8 RawValue = 0;
     if (InChannel->Evaluate(InTime, RawValue))

@@ -4,12 +4,12 @@
 #include "Misc/Paths.h"
 
 #if WITH_EDITOR
-#include "Settings/ProjectPackagingSettings.h"
-#include <ObjectTools.h>
+    #include "Settings/ProjectPackagingSettings.h"
+    #include <ObjectTools.h>
 #endif
 
 #ifdef FMOD_PLATFORM_HEADER
-#include "FMODPlatform.h"
+    #include "FMODPlatform.h"
 #endif
 
 //////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ inline EFMODPlatforms::Type CurrentPlatform()
     return platform;
 }
 
-UFMODSettings::UFMODSettings(const FObjectInitializer &ObjectInitializer)
+UFMODSettings::UFMODSettings(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
     , bLoadAllBanks(true)
     , bLoadAllSampleData(false)
@@ -192,7 +192,7 @@ UFMODSettings::EProblem UFMODSettings::Check() const
 void UFMODSettings::PostEditChangeProperty(FPropertyChangedEvent& e)
 {
     FName PropertyName = (e.Property != NULL) ? e.Property->GetFName() : NAME_None;
-    // Validate ContentBrowserPrefix, as Unreal can crash if the prefix is improperly configured 
+    // Validate ContentBrowserPrefix, as Unreal can crash if the prefix is improperly configured
     if (PropertyName == GET_MEMBER_NAME_CHECKED(UFMODSettings, ContentBrowserPrefix))
     {
         FStrProperty* prop = CastField<FStrProperty>(e.Property);
@@ -200,17 +200,19 @@ void UFMODSettings::PostEditChangeProperty(FPropertyChangedEvent& e)
         FString contentBrowserPrefix = prop->GetPropertyValue(propertyAddress);
 
         // Check for empty prefix
-        if (contentBrowserPrefix.IsEmpty()) {
+        if (contentBrowserPrefix.IsEmpty())
+        {
             contentBrowserPrefix = "/";
         }
-        else {
-
+        else
+        {
             // FName's max length is 1023, but FMOD needs to append additional directories
             // 512 is an arbitary length that should cover most prefix lengths
             const int ContentBrowserPrefixMaxLength = 512;
 
             // Ensure that length doesn't exceed max prefix length
-            if (contentBrowserPrefix.Len() > ContentBrowserPrefixMaxLength) {
+            if (contentBrowserPrefix.Len() > ContentBrowserPrefixMaxLength)
+            {
                 contentBrowserPrefix.LeftChopInline(ContentBrowserPrefixMaxLength);
             }
 
@@ -219,22 +221,24 @@ void UFMODSettings::PostEditChangeProperty(FPropertyChangedEvent& e)
 
             // Remove double slashes
             int32 index = contentBrowserPrefix.Find(FString("//"));
-            while (index != INDEX_NONE) {
+            while (index != INDEX_NONE)
+            {
                 contentBrowserPrefix.RemoveAt(index);
                 index = contentBrowserPrefix.Find(FString("//"));
             }
 
             // Check for starting and ending with slash
-            if (!contentBrowserPrefix.StartsWith("/")) {
+            if (!contentBrowserPrefix.StartsWith("/"))
+            {
                 contentBrowserPrefix = "/" + contentBrowserPrefix;
             }
-            if (!contentBrowserPrefix.EndsWith("/")) {
+            if (!contentBrowserPrefix.EndsWith("/"))
+            {
                 contentBrowserPrefix += "/";
             }
         }
 
         prop->SetPropertyValue(propertyAddress, contentBrowserPrefix);
-
     }
     Super::PostEditChangeProperty(e);
 }

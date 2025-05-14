@@ -2,21 +2,28 @@
 
 #include "Characters/EnsCharacterBase.h"
 #include "GAS/AttributeSets/EnsHealthAttributeSet.h"
+#include "GAS/AttributeSets/EnsMovementAttributeSet.h"
 #include "GAS/EnsAbilitySystemComponent.h"
-
-void AEnsCharacterBase::BeginPlay()
-{
-    Super::BeginPlay();
-    AddStartupEffects();
-}
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameplayEffectTypes.h"
 
 AEnsCharacterBase::AEnsCharacterBase()
 {
     // Init GAS (creating the attribute set as sub-object auto-registers it with the AbilitySystemComponent)
     AbilitySystemComponent = CreateDefaultSubobject<UEnsAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
     HealthAttributeSet = CreateDefaultSubobject<UEnsHealthAttributeSet>(TEXT("HealthAttributeSet"));
+    MovementAttributeSet = CreateDefaultSubobject<UEnsMovementAttributeSet>(TEXT("MovementAttributeSet"));
+
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute())
         .AddUObject(this, &AEnsCharacterBase::HealthChanged);
+}
+
+void AEnsCharacterBase::BeginPlay()
+{
+    Super::BeginPlay();
+    AddStartupEffects();
+
+    MovementAttributeSet->InitMaxSpeed(GetCharacterMovement()->MaxWalkSpeed);
 }
 
 void AEnsCharacterBase::OnHit(const float DamageAmount)

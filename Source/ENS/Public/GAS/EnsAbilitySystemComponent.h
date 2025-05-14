@@ -4,6 +4,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "CoreMinimal.h"
+#include "GameplayEffectTypes.h"
 
 #include "EnsAbilitySystemComponent.generated.h"
 

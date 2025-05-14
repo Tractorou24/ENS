@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "Factories/Factory.h"
-#include "AssetTypeActions_Base.h"
 #include "AssetToolsModule.h"
+#include "AssetTypeActions_Base.h"
+#include "Factories/Factory.h"
 
 #include "FMODAudioLinkSettingsFactory.generated.h"
 
@@ -14,7 +14,7 @@ class UFMODAudioLinkSettingsFactory : public UFactory
     GENERATED_UCLASS_BODY()
 
     virtual UObject* FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context,
-        FFeedbackContext* Warn) override;
+                                      FFeedbackContext* Warn) override;
 
     virtual uint32 GetMenuCategories() const override;
 };

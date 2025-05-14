@@ -2,9 +2,9 @@
 
 #pragma once
 
-//#include "PropertyEditing.h"
-#include "PropertyCustomizationHelpers.h"
+// #include "PropertyEditing.h"
 #include "IDetailCustomization.h"
+#include "PropertyCustomizationHelpers.h"
 
 class IDetailLayoutBuilder;
 
@@ -16,7 +16,7 @@ public:
 
 private:
     /** IDetailCustomization interface */
-    virtual void CustomizeDetails(IDetailLayoutBuilder &DetailBuilder) override;
+    virtual void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
 
     FReply OnEditSoundClicked();
     FReply OnPlaySoundClicked();

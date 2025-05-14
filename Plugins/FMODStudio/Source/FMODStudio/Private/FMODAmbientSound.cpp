@@ -3,12 +3,12 @@
 #include "FMODAmbientSound.h"
 #include "FMODEvent.h"
 #include "Logging/MessageLog.h"
-#include "Misc/UObjectToken.h"
 #include "Misc/MapErrors.h"
+#include "Misc/UObjectToken.h"
 
 #define LOCTEXT_NAMESPACE "FMODAmbientSound"
 
-AFMODAmbientSound::AFMODAmbientSound(const FObjectInitializer &ObjectInitializer)
+AFMODAmbientSound::AFMODAmbientSound(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
     AudioComponent = ObjectInitializer.CreateDefaultSubobject<UFMODAudioComponent>(this, TEXT("FMODAudioComponent0"));
@@ -55,7 +55,7 @@ void AFMODAmbientSound::CheckForErrors(void)
     }
 }
 
-bool AFMODAmbientSound::GetReferencedContentObjects(TArray<UObject *> &Objects) const
+bool AFMODAmbientSound::GetReferencedContentObjects(TArray<UObject*>& Objects) const
 {
     if (IsValid(AudioComponent) && AudioComponent->Event)
     {

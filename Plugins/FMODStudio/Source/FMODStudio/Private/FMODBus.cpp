@@ -3,7 +3,7 @@
 #include "FMODBus.h"
 #include "FMODStudioModule.h"
 
-UFMODBus::UFMODBus(const FObjectInitializer &ObjectInitializer)
+UFMODBus::UFMODBus(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
 }

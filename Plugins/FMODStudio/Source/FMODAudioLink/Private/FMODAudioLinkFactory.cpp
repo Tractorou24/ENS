@@ -1,19 +1,19 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2025-2025.
 
 #include "FMODAudioLinkFactory.h"
-#include "FMODAudioLinkSynchronizer.h"
-#include "FMODAudioLinkSourcePushed.h"
-#include "FMODAudioLinkSettings.h"
-#include "FMODAudioLinkLog.h"
 #include "FMODAudioLinkComponent.h"
+#include "FMODAudioLinkLog.h"
+#include "FMODAudioLinkSettings.h"
+#include "FMODAudioLinkSourcePushed.h"
+#include "FMODAudioLinkSynchronizer.h"
 #include "FMODStudioModule.h"
 
 #include "Async/Async.h"
+#include "AudioDevice.h"
 #include "Components/AudioComponent.h"
 #include "Engine/World.h"
 #include "Sound/SoundSubmix.h"
 #include "Templates/SharedPointer.h"
-#include "AudioDevice.h"
 
 bool FFMODAudioLinkFactory::bHasSubmix = false;
 
@@ -25,12 +25,12 @@ FName FFMODAudioLinkFactory::GetFactoryNameStatic()
 
 FName FFMODAudioLinkFactory::GetFactoryName() const
 {
-	return GetFactoryNameStatic();
+    return GetFactoryNameStatic();
 }
 
 TSubclassOf<UAudioLinkSettingsAbstract> FFMODAudioLinkFactory::GetSettingsClass() const
 {
-	return UFMODAudioLinkSettings::StaticClass();
+    return UFMODAudioLinkSettings::StaticClass();
 }
 
 TUniquePtr<IAudioLink> FFMODAudioLinkFactory::CreateSubmixAudioLink(const FAudioLinkSubmixCreateArgs& InArgs)
@@ -74,8 +74,7 @@ TUniquePtr<IAudioLink> FFMODAudioLinkFactory::CreateSubmixAudioLink(const FAudio
     // Setup a delegate to establish the link when we know the format.
     ProducerSP->SetFormatKnownDelegate(
         IBufferedAudioOutput::FOnFormatKnown::CreateLambda(
-            [ProducerWeak, ConsumerWeak, FMODSettingsSP](const IBufferedAudioOutput::FBufferFormat& InFormat)
-            {
+            [ProducerWeak, ConsumerWeak, FMODSettingsSP](const IBufferedAudioOutput::FBufferFormat& InFormat) {
                 // Unreal uses samples for 'Channels x samples' and frames for 'samples'
                 int32 BufferSizeInChannelSamples = FMODSettingsSP->GetReceivingBufferSizeInFrames() * InFormat.NumChannels;
                 int32 ReserveSizeInChannelSamples = (float)BufferSizeInChannelSamples * FMODSettingsSP->GetProducerConsumerBufferRatio();
@@ -87,21 +86,19 @@ TUniquePtr<IAudioLink> FFMODAudioLinkFactory::CreateSubmixAudioLink(const FAudio
                     ProducerSP->Reserve(ReserveSizeInChannelSamples, SilenceToAddToFirstBuffer);
                 }
 
-
-                AsyncTask(ENamedThreads::GameThread, [ConsumerWeak]()
+                AsyncTask(ENamedThreads::GameThread, [ConsumerWeak]() {
+                    if (FSharedFMODAudioLinkInputClientPtr ConsumerSP = ConsumerWeak.Pin())
                     {
-                        if (FSharedFMODAudioLinkInputClientPtr ConsumerSP = ConsumerWeak.Pin())
-                        {
-                            // Stop ahead of starting to play. This might not be necessary for submixes, but in case we get a format change.
-                            // As our link can remain open, stop anything playing on a format change.
-                            // This won't do anything if we're already stopped.
-                            ConsumerSP->Stop();
+                        // Stop ahead of starting to play. This might not be necessary for submixes, but in case we get a format change.
+                        // As our link can remain open, stop anything playing on a format change.
+                        // This won't do anything if we're already stopped.
+                        ConsumerSP->Stop();
 
-                            // Start the FMOD input object.
-                            UE_LOG(LogFMODAudioLink, VeryVerbose, TEXT("FFMODAudioLinkFactory::CreateSubmixAudioLink: Start consumer."));
-                            ConsumerSP->Start();
-                        }
-                    });
+                        // Start the FMOD input object.
+                        UE_LOG(LogFMODAudioLink, VeryVerbose, TEXT("FFMODAudioLinkFactory::CreateSubmixAudioLink: Start consumer."));
+                        ConsumerSP->Start();
+                    }
+                });
             }));
 
     // Start producer.
@@ -168,13 +165,11 @@ TUniquePtr<IAudioLink> FFMODAudioLinkFactory::CreateSourceAudioLink(const FAudio
 
     ProducerSP->SetFormatKnownDelegate(
         IBufferedAudioOutput::FOnFormatKnown::CreateLambda(
-            [ProducerWeak, ConsumerWeak, FMODSettingsSP, WeakThis = InArgs.OwningComponent](const IBufferedAudioOutput::FBufferFormat& InFormat)
-            {
+            [ProducerWeak, ConsumerWeak, FMODSettingsSP, WeakThis = InArgs.OwningComponent](const IBufferedAudioOutput::FBufferFormat& InFormat) {
                 // Unreal uses samples for 'Channels x samples' and frames for 'samples'
                 int32 BufferSizeInChannelSamples = FMODSettingsSP->GetReceivingBufferSizeInFrames() * InFormat.NumChannels;
                 int32 ReserveSizeInChannelSamples = (float)BufferSizeInChannelSamples * FMODSettingsSP->GetProducerConsumerBufferRatio();
                 int32 SilenceToAddToFirstBuffer = FMath::Min((float)BufferSizeInChannelSamples * FMODSettingsSP->GetInitialSilenceFillRatio(), ReserveSizeInChannelSamples);
-
 
                 // Set circular buffer ahead of first buffer.
                 if (auto ProducerSP = ProducerWeak.Pin())
@@ -182,28 +177,26 @@ TUniquePtr<IAudioLink> FFMODAudioLinkFactory::CreateSourceAudioLink(const FAudio
                     ProducerSP->Reserve(ReserveSizeInChannelSamples, SilenceToAddToFirstBuffer);
                 }
 
-                AsyncTask(ENamedThreads::GameThread, [ConsumerWeak, WeakThis]()
+                AsyncTask(ENamedThreads::GameThread, [ConsumerWeak, WeakThis]() {
+                    if (FSharedFMODAudioLinkInputClientPtr ConsumerSP = ConsumerWeak.Pin())
                     {
-                        if (FSharedFMODAudioLinkInputClientPtr ConsumerSP = ConsumerWeak.Pin())
+                        if (WeakThis.IsValid())
                         {
-                            if (WeakThis.IsValid())
-                            {
-                                // Stop ahead of starting to play. This might not be necessary for submixes, but in case we get a format change.
-                                // As our link can remain open, stop anything playing on a format change.
-                                // This won't do anything if we're already stopped.
-                                ConsumerSP->Stop();
+                            // Stop ahead of starting to play. This might not be necessary for submixes, but in case we get a format change.
+                            // As our link can remain open, stop anything playing on a format change.
+                            // This won't do anything if we're already stopped.
+                            ConsumerSP->Stop();
 
-                                // Start the FMOD input object.
-                                UE_LOG(LogFMODAudioLink, VeryVerbose, TEXT("FFMODAudioLinkFactory::CreateSourceAudioLink: Start consumer."));
-                                ConsumerSP->Start(Cast<UFMODAudioLinkComponent>(WeakThis.Get()));
-                            }
+                            // Start the FMOD input object.
+                            UE_LOG(LogFMODAudioLink, VeryVerbose, TEXT("FFMODAudioLinkFactory::CreateSourceAudioLink: Start consumer."));
+                            ConsumerSP->Start(Cast<UFMODAudioLinkComponent>(WeakThis.Get()));
                         }
-                    });
+                    }
+                });
             }));
     ProducerSP->SetBufferStreamEndDelegate(
         IBufferedAudioOutput::FOnBufferStreamEnd::CreateLambda(
-            [ConsumerWeak](const IBufferedAudioOutput::FBufferStreamEnd&)
-            {
+            [ConsumerWeak](const IBufferedAudioOutput::FBufferStreamEnd&) {
                 if (FSharedFMODAudioLinkInputClientPtr ConsumerSP = ConsumerWeak.Pin())
                 {
                     UE_LOG(LogFMODAudioLink, VeryVerbose, TEXT("FFMODAudioLinkFactory::CreateSourceAudioLink: Stop consumer."));
@@ -225,7 +218,7 @@ IAudioLinkFactory::FAudioLinkSourcePushedSharedPtr FFMODAudioLinkFactory::Create
     if (IFMODStudioModule::IsAvailable())
     {
         UE_LOG(LogFMODAudioLink, VeryVerbose, TEXT("FFMODAudioLinkFactory::CreateSourcePushedAudioLink: Create AudioLink SourcePushed."));
-        return MakeShared<FFMODAudioLinkSourcePushed, ESPMode::ThreadSafe>(InArgs,this);
+        return MakeShared<FFMODAudioLinkSourcePushed, ESPMode::ThreadSafe>(InArgs, this);
     }
     UE_LOG(LogFMODAudioLink, Error, TEXT("FFMODAudioLinkFactory::CreateSourcePushedAudioLink: IFMODStudioModule not available."));
     return nullptr;

@@ -3,7 +3,7 @@
 #include "FMODSnapshot.h"
 #include "FMODStudioModule.h"
 
-UFMODSnapshot::UFMODSnapshot(const FObjectInitializer &ObjectInitializer)
+UFMODSnapshot::UFMODSnapshot(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
 }

@@ -1,9 +1,9 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2012-2025.
 
 #include "FMODEventControlSectionTemplate.h"
+#include "Evaluation/MovieSceneEvaluation.h"
 #include "FMODAmbientSound.h"
 #include "FMODAudioComponent.h"
-#include "Evaluation/MovieSceneEvaluation.h"
 #include "IMovieScenePlayer.h"
 
 enum EventControlKeyInternal
@@ -20,29 +20,29 @@ EventControlKeyInternal MapControlKey(EFMODEventControlKey key)
 {
     switch (key)
     {
-    case EFMODEventControlKey::Stop:
-        return EventControlKeyInternal::Stop;
-        break;
-    case EFMODEventControlKey::Play:
-        return EventControlKeyInternal::Play;
-        break;
-    case EFMODEventControlKey::Pause:
-        return EventControlKeyInternal::Pause;
-        break;
-    default:
-        return EventControlKeyInternal::MAX;
-        break;
+        case EFMODEventControlKey::Stop:
+            return EventControlKeyInternal::Stop;
+            break;
+        case EFMODEventControlKey::Play:
+            return EventControlKeyInternal::Play;
+            break;
+        case EFMODEventControlKey::Pause:
+            return EventControlKeyInternal::Pause;
+            break;
+        default:
+            return EventControlKeyInternal::MAX;
+            break;
     }
 }
 
 struct FPlayingToken : IMovieScenePreAnimatedToken
 {
-    FPlayingToken(UObject &InObject)
+    FPlayingToken(UObject& InObject)
     {
         bPlaying = false;
         TimelinePosition = 0;
 
-        if (UFMODAudioComponent *AudioComponent = Cast<UFMODAudioComponent>(&InObject))
+        if (UFMODAudioComponent* AudioComponent = Cast<UFMODAudioComponent>(&InObject))
         {
             if (IsValid(AudioComponent))
             {
@@ -52,9 +52,9 @@ struct FPlayingToken : IMovieScenePreAnimatedToken
         }
     }
 
-    virtual void RestoreState(UObject &Object, const UE::MovieScene::FRestoreStateParams &Params) override
+    virtual void RestoreState(UObject& Object, const UE::MovieScene::FRestoreStateParams& Params) override
     {
-        UFMODAudioComponent *AudioComponent = CastChecked<UFMODAudioComponent>(&Object);
+        UFMODAudioComponent* AudioComponent = CastChecked<UFMODAudioComponent>(&Object);
 
         if (AudioComponent)
         {
@@ -80,7 +80,7 @@ struct FPlayingTokenProducer : IMovieScenePreAnimatedTokenProducer
     static FMovieSceneAnimTypeID GetAnimTypeID() { return TMovieSceneAnimTypeID<FPlayingTokenProducer>(); }
 
 private:
-    virtual IMovieScenePreAnimatedTokenPtr CacheExistingState(UObject &Object) const override { return FPlayingToken(Object); }
+    virtual IMovieScenePreAnimatedTokenPtr CacheExistingState(UObject& Object) const override { return FPlayingToken(Object); }
 };
 
 struct FFMODEventControlExecutionToken : IMovieSceneExecutionToken
@@ -92,16 +92,16 @@ struct FFMODEventControlExecutionToken : IMovieSceneExecutionToken
     }
 
     /** Execute this token, operating on all objects referenced by 'Operand' */
-    virtual void Execute(const FMovieSceneContext &Context, const FMovieSceneEvaluationOperand &Operand, FPersistentEvaluationData &PersistentData,
-        IMovieScenePlayer &Player)
+    virtual void Execute(const FMovieSceneContext& Context, const FMovieSceneEvaluationOperand& Operand, FPersistentEvaluationData& PersistentData,
+                         IMovieScenePlayer& Player)
     {
-        for (TWeakObjectPtr<> &WeakObject : Player.FindBoundObjects(Operand))
+        for (TWeakObjectPtr<>& WeakObject : Player.FindBoundObjects(Operand))
         {
-            UFMODAudioComponent *AudioComponent = Cast<UFMODAudioComponent>(WeakObject.Get());
+            UFMODAudioComponent* AudioComponent = Cast<UFMODAudioComponent>(WeakObject.Get());
 
             if (!AudioComponent)
             {
-                AFMODAmbientSound *AmbientSound = Cast<AFMODAmbientSound>(WeakObject.Get());
+                AFMODAmbientSound* AmbientSound = Cast<AFMODAmbientSound>(WeakObject.Get());
                 AudioComponent = AmbientSound ? AmbientSound->AudioComponent : nullptr;
             }
 
@@ -150,7 +150,6 @@ struct FFMODEventControlExecutionToken : IMovieSceneExecutionToken
                 {
                     AudioComponent->ResumeInternal(UFMODAudioComponent::PauseContext::Implicit);
                 }
-
             }
         }
     }
@@ -161,14 +160,14 @@ struct FFMODEventControlExecutionToken : IMovieSceneExecutionToken
 
 static bool RuntimeSequenceSetup = false;
 
-FFMODEventControlSectionTemplate::FFMODEventControlSectionTemplate(const UFMODEventControlSection &Section)
+FFMODEventControlSectionTemplate::FFMODEventControlSectionTemplate(const UFMODEventControlSection& Section)
     : ControlKeys(Section.ControlKeys)
 {
     EnableOverrides(FMovieSceneEvalTemplateBase::EOverrideMask::RequiresSetupFlag);
     EnableOverrides(FMovieSceneEvalTemplateBase::EOverrideMask::RequiresTearDownFlag);
 }
 
-void FFMODEventControlSectionTemplate::Setup(FPersistentEvaluationData &PersistentData, IMovieScenePlayer &Player) const
+void FFMODEventControlSectionTemplate::Setup(FPersistentEvaluationData& PersistentData, IMovieScenePlayer& Player) const
 {
     IsEditorSequence = GWorld && GWorld->WorldType == EWorldType::Editor;
     if (!IsEditorSequence)
@@ -183,7 +182,7 @@ void FFMODEventControlSectionTemplate::Setup(FPersistentEvaluationData &Persiste
 #endif
 }
 
-void FFMODEventControlSectionTemplate::TearDown(FPersistentEvaluationData &PersistentData, IMovieScenePlayer &Player) const
+void FFMODEventControlSectionTemplate::TearDown(FPersistentEvaluationData& PersistentData, IMovieScenePlayer& Player) const
 {
     if (!IsEditorSequence)
     {
@@ -197,8 +196,8 @@ void FFMODEventControlSectionTemplate::TearDown(FPersistentEvaluationData &Persi
 #endif
 }
 
-void FFMODEventControlSectionTemplate::Evaluate(const FMovieSceneEvaluationOperand &Operand, const FMovieSceneContext &Context,
-    const FPersistentEvaluationData &PersistentData, FMovieSceneExecutionTokens &ExecutionTokens) const
+void FFMODEventControlSectionTemplate::Evaluate(const FMovieSceneEvaluationOperand& Operand, const FMovieSceneContext& Context,
+                                                const FPersistentEvaluationData& PersistentData, FMovieSceneExecutionTokens& ExecutionTokens) const
 {
     if (IsEditorSequence && RuntimeSequenceSetup)
     {

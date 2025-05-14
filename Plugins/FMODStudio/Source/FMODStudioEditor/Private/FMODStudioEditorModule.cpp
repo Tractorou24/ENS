@@ -1,55 +1,55 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2012-2025.
 
 #include "FMODStudioEditorModule.h"
+#include "FMODAssetBroker.h"
+#include "FMODAudioComponent.h"
+#include "FMODSettings.h"
 #include "FMODStudioModule.h"
 #include "FMODStudioStyle.h"
-#include "FMODAudioComponent.h"
-#include "FMODAssetBroker.h"
-#include "FMODSettings.h"
 #include "FMODUtils.h"
 
-#include "FMODEventEditor.h"
-#include "FMODAudioComponentVisualizer.h"
-#include "FMODAudioComponentDetails.h"
+#include "AssetTypeActions_FMODEvent.h"
 #include "FMODAssetBuilder.h"
+#include "FMODAudioComponentDetails.h"
+#include "FMODAudioComponentVisualizer.h"
 #include "FMODBankUpdateNotifier.h"
+#include "FMODEventEditor.h"
 #include "FMODSettingsCustomization.h"
 #include "Sequencer/FMODChannelEditors.h"
 #include "Sequencer/FMODEventControlSection.h"
 #include "Sequencer/FMODEventControlTrackEditor.h"
 #include "Sequencer/FMODEventParameterTrackEditor.h"
-#include "AssetTypeActions_FMODEvent.h"
 
-#include "Framework/Application/SlateApplication.h"
+#include "ActorFactories/ActorFactory.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AssetSelection.h"
-#include "Framework/Notifications/NotificationManager.h"
-#include "Widgets/Notifications/SNotificationList.h"
+#include "ClipboardTypes.h"
+#include "Debug/DebugDrawService.h"
+#include "DebugRenderSceneProxy.h"
 #include "Developer/Settings/Public/ISettingsModule.h"
 #include "Developer/Settings/Public/ISettingsSection.h"
 #include "Editor.h"
-#include "Slate/SceneViewport.h"
 #include "Editor/LevelEditor/Public/LevelEditor.h"
+#include "Editor/UnrealEdEngine.h"
+#include "Engine/Canvas.h"
+#include "FileHelpers.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Framework/MultiBox/MultiBoxBuilder.h"
+#include "Framework/Notifications/NotificationManager.h"
+#include "HAL/FileManager.h"
+#include "IPAddress.h"
+#include "ISequencerModule.h"
+#include "Interfaces/IMainFrameModule.h"
+#include "LevelEditorViewport.h"
+#include "Misc/MessageDialog.h"
+#include "SequencerChannelInterface.h"
+#include "Settings/ProjectPackagingSettings.h"
+#include "Slate/SceneViewport.h"
 #include "SocketSubsystem.h"
 #include "Sockets.h"
-#include "IPAddress.h"
-#include "FileHelpers.h"
-#include "ISequencerModule.h"
-#include "SequencerChannelInterface.h"
-#include "ClipboardTypes.h"
-#include "DebugRenderSceneProxy.h"
-#include "Debug/DebugDrawService.h"
-#include "Settings/ProjectPackagingSettings.h"
-#include "UnrealEdGlobals.h"
-#include "LevelEditorViewport.h"
-#include "ActorFactories/ActorFactory.h"
-#include "Engine/Canvas.h"
-#include "Editor/UnrealEdEngine.h"
-#include "Framework/MultiBox/MultiBoxBuilder.h"
-#include "Misc/MessageDialog.h"
-#include "HAL/FileManager.h"
-#include "Interfaces/IMainFrameModule.h"
 #include "ToolMenus.h"
+#include "UnrealEdGlobals.h"
+#include "Widgets/Notifications/SNotificationList.h"
 
 #include "fmod_studio.hpp"
 
@@ -96,7 +96,7 @@ public:
         }
     }
 
-    bool Execute(const TCHAR *Message, FString &OutMessage)
+    bool Execute(const TCHAR* Message, FString& OutMessage)
     {
         OutMessage = TEXT("");
         if (!Socket)
@@ -108,7 +108,7 @@ public:
 
         FTCHARToUTF8 MessageChars(Message);
         int32 BytesSent = 0;
-        if (!Socket->Send((const uint8 *)MessageChars.Get(), MessageChars.Length(), BytesSent))
+        if (!Socket->Send((const uint8*)MessageChars.Get(), MessageChars.Length(), BytesSent))
         {
             return false;
         }
@@ -135,7 +135,7 @@ public:
     }
 
 private:
-    bool ReadMessage(FString &OutMessage)
+    bool ReadMessage(FString& OutMessage)
     {
         while (1)
         {
@@ -157,7 +157,7 @@ private:
             {
                 return false;
             }
-            else if (!Socket->Recv((uint8 *)ReceivedMessage.GetData() + CurrentSize, ExtraSpace, ActualRead))
+            else if (!Socket->Recv((uint8*)ReceivedMessage.GetData() + CurrentSize, ExtraSpace, ActualRead))
             {
                 return false;
             }
@@ -165,8 +165,8 @@ private:
         }
     }
 
-    ISocketSubsystem *SocketSubsystem;
-    FSocket *Socket;
+    ISocketSubsystem* SocketSubsystem;
+    FSocket* Socket;
     TArray<char> ReceivedMessage;
 };
 
@@ -190,14 +190,14 @@ public:
     bool HandleSettingsSaved();
 
     /** Show notification */
-    void ShowNotification(const FText &Text, SNotificationItem::ECompletionState State);
+    void ShowNotification(const FText& Text, SNotificationItem::ECompletionState State);
 
     void BeginPIE(bool simulating);
     void EndPIE(bool simulating);
     void PausePIE(bool simulating);
     void ResumePIE(bool simulating);
 
-    void ViewportDraw(UCanvas *Canvas, APlayerController *);
+    void ViewportDraw(UCanvas* Canvas, APlayerController*);
 
     bool Tick(float DeltaTime);
 
@@ -206,7 +206,7 @@ public:
 
     /** Add extensions to menu */
     void RegisterHelpMenuEntries();
-    void AddFileMenuExtension(FMenuBuilder &MenuBuilder);
+    void AddFileMenuExtension(FMenuBuilder& MenuBuilder);
 
     /** Show FMOD version */
     void ShowVersion();
@@ -220,7 +220,7 @@ public:
     void ValidateFMOD();
 
     /** Helper to get Studio project locales */
-    bool GetStudioLocales(FFMODStudioLink &StudioLink, TArray<FFMODProjectLocale> &StudioLocales);
+    bool GetStudioLocales(FFMODStudioLink& StudioLink, TArray<FFMODProjectLocale>& StudioLocales);
 
     /** Reload banks */
     void ReloadBanks();
@@ -236,7 +236,7 @@ public:
     void RegisterComponentVisualizer(FName ComponentClassName, TSharedPtr<FComponentVisualizer> Visualizer);
 
     FSimpleMulticastDelegate BanksReloadedDelegate;
-    FSimpleMulticastDelegate &BanksReloadedEvent() override { return BanksReloadedDelegate; }
+    FSimpleMulticastDelegate& BanksReloadedEvent() override { return BanksReloadedDelegate; }
 
     /** The delegate to be invoked when this profiler manager ticks. */
     FTickerDelegate OnTick;
@@ -292,10 +292,10 @@ void FFMODStudioEditorModule::OnPostEngineInit()
     AssetBroker = MakeShareable(new FFMODAssetBroker);
     FComponentAssetBrokerage::RegisterBroker(AssetBroker, UFMODAudioComponent::StaticClass(), true, true);
 
-    if (ISettingsModule *SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+    if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
     {
         SettingsSection = SettingsModule->RegisterSettings("Project", "Plugins", "FMODStudio", LOCTEXT("FMODStudioSettingsName", "FMOD Studio"),
-            LOCTEXT("FMODStudioDescription", "Configure the FMOD Studio plugin"), GetMutableDefault<UFMODSettings>());
+                                                           LOCTEXT("FMODStudioDescription", "Configure the FMOD Studio plugin"), GetMutableDefault<UFMODSettings>());
 
         if (SettingsSection.IsValid())
         {
@@ -304,7 +304,7 @@ void FFMODStudioEditorModule::OnPostEngineInit()
     }
 
     // Register with the sequencer module that we provide auto-key handlers.
-    ISequencerModule &SequencerModule = FModuleManager::Get().LoadModuleChecked<ISequencerModule>("Sequencer");
+    ISequencerModule& SequencerModule = FModuleManager::Get().LoadModuleChecked<ISequencerModule>("Sequencer");
     FMODControlTrackEditorCreateTrackEditorHandle =
         SequencerModule.RegisterTrackEditor(FOnCreateTrackEditor::CreateStatic(&FFMODEventControlTrackEditor::CreateTrackEditor));
     FMODParamTrackEditorCreateTrackEditorHandle =
@@ -313,12 +313,11 @@ void FFMODStudioEditorModule::OnPostEngineInit()
 
     // Register the details customizations
     {
-        FPropertyEditorModule &PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+        FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
 
         PropertyModule.RegisterCustomClassLayout(
             UFMODSettings::StaticClass()->GetFName(),
-            FOnGetDetailCustomizationInstance::CreateStatic(&FFMODSettingsCustomization::MakeInstance)
-        );
+            FOnGetDetailCustomizationInstance::CreateStatic(&FFMODSettingsCustomization::MakeInstance));
 
         PropertyModule.RegisterCustomClassLayout(
             "FMODAudioComponent", FOnGetDetailCustomizationInstance::CreateStatic(&FFMODAudioComponentDetails::MakeInstance));
@@ -329,19 +328,19 @@ void FFMODStudioEditorModule::OnPostEngineInit()
     // It only works if we are running the editor, not a commandlet
     if (!IsRunningCommandlet() && !IsRunningGame() && FSlateApplication::IsInitialized())
     {
-        FLevelEditorModule *LevelEditor = FModuleManager::LoadModulePtr<FLevelEditorModule>(TEXT("LevelEditor"));
+        FLevelEditorModule* LevelEditor = FModuleManager::LoadModulePtr<FLevelEditorModule>(TEXT("LevelEditor"));
         if (LevelEditor)
         {
             RegisterHelpMenuEntries();
             MainMenuExtender = MakeShareable(new FExtender);
             MainMenuExtender->AddMenuExtension("FileOpen", EExtensionHook::After, NULL,
-                FMenuExtensionDelegate::CreateRaw(this, &FFMODStudioEditorModule::AddFileMenuExtension));
+                                               FMenuExtensionDelegate::CreateRaw(this, &FFMODStudioEditorModule::AddFileMenuExtension));
             LevelEditor->GetMenuExtensibilityManager()->AddExtender(MainMenuExtender);
         }
     }
 
     // Register AssetTypeActions
-    IAssetTools &AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+    IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
 
     FMODEventAssetTypeActions = MakeShareable(new FAssetTypeActions_FMODEvent);
     AssetTools.RegisterAssetTypeActions(FMODEventAssetTypeActions.ToSharedRef());
@@ -385,7 +384,7 @@ void FFMODStudioEditorModule::ProcessBanks()
         BankUpdateNotifier.EnableUpdate(false);
         ReloadBanks();
 
-        const UFMODSettings &Settings = *GetDefault<UFMODSettings>();
+        const UFMODSettings& Settings = *GetDefault<UFMODSettings>();
         BankUpdateNotifier.SetFilePath(Settings.GetFullBankPath());
 
         BankUpdateNotifier.EnableUpdate(true);
@@ -397,14 +396,13 @@ void FFMODStudioEditorModule::RegisterHelpMenuEntries()
     FToolMenuOwnerScoped OwnerScoped(this);
     UToolMenu* HelpMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Help");
     FToolMenuSection& Section = HelpMenu->AddSection("FMODHelp", LOCTEXT("FMODHelpLabel", "FMOD Help"),
-        FToolMenuInsert("HelpBrowse", EToolMenuInsertType::Default));
+                                                     FToolMenuInsert("HelpBrowse", EToolMenuInsertType::Default));
     Section.AddEntry(FToolMenuEntry::InitMenuEntry(
         NAME_None,
         LOCTEXT("FMODVersionMenuEntryTitle", "About FMOD Studio"),
         LOCTEXT("FMODVersionMenuEntryToolTip", "Shows FMOD Studio version information."),
         FSlateIcon(),
-        FUIAction(FExecuteAction::CreateRaw(this, &FFMODStudioEditorModule::ShowVersion))
-    ));
+        FUIAction(FExecuteAction::CreateRaw(this, &FFMODStudioEditorModule::ShowVersion))));
 
 #if PLATFORM_WINDOWS
     Section.AddEntry(FToolMenuEntry::InitMenuEntry(
@@ -412,8 +410,7 @@ void FFMODStudioEditorModule::RegisterHelpMenuEntries()
         LOCTEXT("FMODHelpCHMTitle", "FMOD Documentation..."),
         LOCTEXT("FMODHelpCHMToolTip", "Opens the local FMOD documentation."),
         FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.BrowseAPIReference"),
-        FUIAction(FExecuteAction::CreateRaw(this, &FFMODStudioEditorModule::OpenIntegrationDocs))
-    ));
+        FUIAction(FExecuteAction::CreateRaw(this, &FFMODStudioEditorModule::OpenIntegrationDocs))));
 #endif
 
     Section.AddEntry(FToolMenuEntry::InitMenuEntry(
@@ -421,32 +418,29 @@ void FFMODStudioEditorModule::RegisterHelpMenuEntries()
         LOCTEXT("FMODHelpOnlineTitle", "FMOD Online Documentation..."),
         LOCTEXT("FMODHelpOnlineToolTip", "Go to the online FMOD documentation."),
         FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.BrowseDocumentation"),
-        FUIAction(FExecuteAction::CreateRaw(this, &FFMODStudioEditorModule::OpenAPIDocs))
-    ));
+        FUIAction(FExecuteAction::CreateRaw(this, &FFMODStudioEditorModule::OpenAPIDocs))));
 
     Section.AddEntry(FToolMenuEntry::InitMenuEntry(
         NAME_None,
         LOCTEXT("FMODHelpVideosTitle", "FMOD Tutorial Videos..."),
         LOCTEXT("FMODHelpVideosToolTip", "Go to the online FMOD tutorial videos."),
         FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Tutorials"),
-        FUIAction(FExecuteAction::CreateRaw(this, &FFMODStudioEditorModule::OpenVideoTutorials))
-    ));
+        FUIAction(FExecuteAction::CreateRaw(this, &FFMODStudioEditorModule::OpenVideoTutorials))));
 
     Section.AddEntry(FToolMenuEntry::InitMenuEntry(
         NAME_None,
         LOCTEXT("FMODSetStudioBuildTitle", "Validate FMOD"),
         LOCTEXT("FMODSetStudioBuildToolTip", "Verifies that FMOD and FMOD Studio are working as expected."),
         FSlateIcon(),
-        FUIAction(FExecuteAction::CreateRaw(this, &FFMODStudioEditorModule::ValidateFMOD))
-    ));
+        FUIAction(FExecuteAction::CreateRaw(this, &FFMODStudioEditorModule::ValidateFMOD))));
 }
 
-void FFMODStudioEditorModule::AddFileMenuExtension(FMenuBuilder &MenuBuilder)
+void FFMODStudioEditorModule::AddFileMenuExtension(FMenuBuilder& MenuBuilder)
 {
     MenuBuilder.BeginSection("FMODFile", LOCTEXT("FMODFileLabel", "FMOD"));
     MenuBuilder.AddMenuEntry(LOCTEXT("FMODFileMenuEntryTitle", "Reload Banks"),
-        LOCTEXT("FMODFileMenuEntryToolTip", "Force a manual reload of all FMOD Studio banks."), FSlateIcon(),
-        FUIAction(FExecuteAction::CreateRaw(this, &FFMODStudioEditorModule::ReloadBanks)));
+                             LOCTEXT("FMODFileMenuEntryToolTip", "Force a manual reload of all FMOD Studio banks."), FSlateIcon(),
+                             FUIAction(FExecuteAction::CreateRaw(this, &FFMODStudioEditorModule::ReloadBanks)));
     MenuBuilder.EndSection();
 }
 
@@ -454,10 +448,10 @@ unsigned int GetDLLVersion()
 {
     // Just grab it from the audition context which is always valid
     unsigned int DLLVersion = 0;
-    FMOD::Studio::System *StudioSystem = IFMODStudioModule::Get().GetStudioSystem(EFMODSystemContext::Auditioning);
+    FMOD::Studio::System* StudioSystem = IFMODStudioModule::Get().GetStudioSystem(EFMODSystemContext::Auditioning);
     if (StudioSystem)
     {
-        FMOD::System *LowLevelSystem = nullptr;
+        FMOD::System* LowLevelSystem = nullptr;
         if (StudioSystem->getCoreSystem(&LowLevelSystem) == FMOD_OK)
         {
             LowLevelSystem->getVersion(&DLLVersion);
@@ -476,8 +470,7 @@ FString VersionToString(unsigned int Version)
 
 unsigned int MakeVersion(unsigned int ProductVersion, unsigned int MajorVersion, unsigned int MinorVersion)
 {
-    auto EncodeAsHex = [](unsigned int Value) -> unsigned int
-    {
+    auto EncodeAsHex = [](unsigned int Value) -> unsigned int {
         return 16 * (Value / 10) + Value % 10;
     };
 
@@ -511,9 +504,9 @@ void FFMODStudioEditorModule::ShowVersion()
     FString DLLVersion = VersionToString(GetDLLVersion());
 
     FText VersionMessage = FText::Format(LOCTEXT("FMODStudio_About",
-                                             "FMOD Studio\n\nBuilt Version: {0}\nDLL Version: {1}\n\nCopyright \u00A9 Firelight Technologies Pty "
-                                             "Ltd.\n\nSee LICENSE.TXT for additional license information."),
-        FText::FromString(HeaderVersion), FText::FromString(DLLVersion));
+                                                 "FMOD Studio\n\nBuilt Version: {0}\nDLL Version: {1}\n\nCopyright \u00A9 Firelight Technologies Pty "
+                                                 "Ltd.\n\nSee LICENSE.TXT for additional license information."),
+                                         FText::FromString(HeaderVersion), FText::FromString(DLLVersion));
 
     FMessageDialog::Open(EAppMsgType::Ok, VersionMessage);
 }
@@ -533,7 +526,7 @@ void FFMODStudioEditorModule::OpenVideoTutorials()
     FPlatformProcess::LaunchFileInDefaultExternalApplication(TEXT("http://www.youtube.com/user/FMODTV"));
 }
 
-bool FFMODStudioEditorModule::GetStudioLocales(FFMODStudioLink &StudioLink, TArray<FFMODProjectLocale> &StudioLocales)
+bool FFMODStudioEditorModule::GetStudioLocales(FFMODStudioLink& StudioLink, TArray<FFMODProjectLocale>& StudioLocales)
 {
     FString OutMessage;
 
@@ -578,8 +571,8 @@ void FFMODStudioEditorModule::ValidateFMOD()
     {
         if (EAppReturnType::No ==
             FMessageDialog::Open(EAppMsgType::YesNo,
-                LOCTEXT("SetStudioBuildStudioNotRunning",
-                    "FMODStudio does not appear to be running.  Only some validation will occur.  Do you want to continue anyway?")))
+                                 LOCTEXT("SetStudioBuildStudioNotRunning",
+                                         "FMODStudio does not appear to be running.  Only some validation will occur.  Do you want to continue anyway?")))
         {
             return;
         }
@@ -609,9 +602,9 @@ void FFMODStudioEditorModule::ValidateFMOD()
     if (HeaderVersion != DLLVersion)
     {
         FText VersionMessage = FText::Format(LOCTEXT("SetStudioBuildStudio_Status",
-                                                 "The FMOD DLL version is different to the version the integration was built against.  This may "
-                                                 "cause problems running the game.\nBuilt Version: {0}\nDLL Version: {1}\n"),
-            FText::FromString(VersionToString(HeaderVersion)), FText::FromString(VersionToString(DLLVersion)));
+                                                     "The FMOD DLL version is different to the version the integration was built against.  This may "
+                                                     "cause problems running the game.\nBuilt Version: {0}\nDLL Version: {1}\n"),
+                                             FText::FromString(VersionToString(HeaderVersion)), FText::FromString(VersionToString(DLLVersion)));
         FMessageDialog::Open(EAppMsgType::Ok, VersionMessage);
         ProblemsFound++;
     }
@@ -620,11 +613,11 @@ void FFMODStudioEditorModule::ValidateFMOD()
     {
         FText VersionMessage =
             FText::Format(LOCTEXT("SetStudioBuildStudio_Version",
-                              "The Studio tool is different to the version the integration was built against.  The integration may not be able to "
-                              "load the banks that the tool builds.\n\nBuilt Version: {0}\nDLL Version: {1}\nStudio Version: {2}\n\nWe recommend "
-                              "using the Studio tool that matches the integration.\n\nDo you want to continue with the validation?"),
-                FText::FromString(VersionToString(HeaderVersion)), FText::FromString(VersionToString(DLLVersion)),
-                FText::FromString(VersionToString(StudioVersion)));
+                                  "The Studio tool is different to the version the integration was built against.  The integration may not be able to "
+                                  "load the banks that the tool builds.\n\nBuilt Version: {0}\nDLL Version: {1}\nStudio Version: {2}\n\nWe recommend "
+                                  "using the Studio tool that matches the integration.\n\nDo you want to continue with the validation?"),
+                          FText::FromString(VersionToString(HeaderVersion)), FText::FromString(VersionToString(DLLVersion)),
+                          FText::FromString(VersionToString(StudioVersion)));
 
         if (EAppReturnType::No == FMessageDialog::Open(EAppMsgType::YesNo, VersionMessage))
         {
@@ -660,8 +653,8 @@ void FFMODStudioEditorModule::ValidateFMOD()
             if (StudioProjectPath.IsEmpty() || StudioProjectPath == TEXT("undefined"))
             {
                 FMessageDialog::Open(EAppMsgType::Ok,
-                    LOCTEXT("SetStudioBuildStudio_NewProject",
-                        "FMOD Studio has an empty project.  Please go to FMOD Studio, and press Save to create your new project."));
+                                     LOCTEXT("SetStudioBuildStudio_NewProject",
+                                             "FMOD Studio has an empty project.  Please go to FMOD Studio, and press Save to create your new project."));
                 // Just try to save anyway
                 FString Result;
                 StudioLink.Execute(TEXT("studio.project.save()"), Result);
@@ -720,9 +713,9 @@ void FFMODStudioEditorModule::ValidateFMOD()
             ProblemsFound++;
 
             FText AskMessage = FText::Format(LOCTEXT("SetStudioBuildStudio_Ask",
-                                                 "FMOD Studio build path should be set up.\n\nCurrent Studio build path: {0}\nNew build path: "
-                                                 "{1}\n\nDo you want to fix up the project now?"),
-                FText::FromString(StudioPathString), FText::FromString(BankPathToSet));
+                                                     "FMOD Studio build path should be set up.\n\nCurrent Studio build path: {0}\nNew build path: "
+                                                     "{1}\n\nDo you want to fix up the project now?"),
+                                             FText::FromString(StudioPathString), FText::FromString(BankPathToSet));
 
             if (EAppReturnType::Yes == FMessageDialog::Open(EAppMsgType::YesNo, AskMessage))
             {
@@ -733,8 +726,8 @@ void FFMODStudioEditorModule::ValidateFMOD()
                 if (Result != BankPathToSet)
                 {
                     FMessageDialog::Open(EAppMsgType::Ok,
-                        LOCTEXT("SetStudioBuildStudio_Save",
-                            "Failed to set bank directory.  Please go to FMOD Studio, and set the bank path in FMOD Studio project settings."));
+                                         LOCTEXT("SetStudioBuildStudio_Save",
+                                                 "Failed to set bank directory.  Please go to FMOD Studio, and set the bank path in FMOD Studio project settings."));
                 }
 
                 FMessageDialog::Open(
@@ -785,8 +778,8 @@ void FFMODStudioEditorModule::ValidateFMOD()
                 {
                     ProblemsFound++;
                     FText Message = LOCTEXT("LocalesMismatch",
-                        "The project locales do not match those defined in the FMOD Studio Project.\n\n"
-                        "Would you like to import the locales from Studio?\n");
+                                            "The project locales do not match those defined in the FMOD Studio Project.\n\n"
+                                            "Would you like to import the locales from Studio?\n");
                     if (FMessageDialog::Open(EAppMsgType::YesNo, Message) == EAppReturnType::Yes)
                     {
                         Settings.Locales = StudioLocales;
@@ -808,9 +801,9 @@ void FFMODStudioEditorModule::ValidateFMOD()
     if (!FPaths::DirectoryExists(FullBankPath) || !FPaths::DirectoryExists(PlatformBankPath))
     {
         FText DirMessage = FText::Format(LOCTEXT("SetStudioBuildStudio_Dir",
-                                             "The FMOD Content directory does not exist.  Please make sure FMOD Studio is exporting banks into the "
-                                             "correct location.\n\nBanks should be exported to: {0}\nBanks files should exist in: {1}\n"),
-            FText::FromString(FullBankPath), FText::FromString(PlatformBankPath));
+                                                 "The FMOD Content directory does not exist.  Please make sure FMOD Studio is exporting banks into the "
+                                                 "correct location.\n\nBanks should be exported to: {0}\nBanks files should exist in: {1}\n"),
+                                         FText::FromString(FullBankPath), FText::FromString(PlatformBankPath));
         FMessageDialog::Open(EAppMsgType::Ok, DirMessage);
         ProblemsFound++;
     }
@@ -827,9 +820,9 @@ void FFMODStudioEditorModule::ValidateFMOD()
         {
             FText EmptyBankDirMessage =
                 FText::Format(LOCTEXT("SetStudioBuildStudio_EmptyBankDir",
-                                  "The FMOD Content directory does not have any bank files in them.  Please make sure FMOD Studio is exporting banks "
-                                  "into the correct location.\n\nBanks should be exported to: {0}\nBanks files should exist in: {1}\n"),
-                    FText::FromString(FullBankPath), FText::FromString(PlatformBankPath));
+                                      "The FMOD Content directory does not have any bank files in them.  Please make sure FMOD Studio is exporting banks "
+                                      "into the correct location.\n\nBanks should be exported to: {0}\nBanks files should exist in: {1}\n"),
+                              FText::FromString(FullBankPath), FText::FromString(PlatformBankPath));
             FMessageDialog::Open(EAppMsgType::Ok, EmptyBankDirMessage);
             ProblemsFound++;
         }
@@ -838,7 +831,7 @@ void FFMODStudioEditorModule::ValidateFMOD()
     // Look for banks that may have failed to load
     if (bAnyBankFiles)
     {
-        FMOD::Studio::System *StudioSystem = IFMODStudioModule::Get().GetStudioSystem(EFMODSystemContext::Auditioning);
+        FMOD::Studio::System* StudioSystem = IFMODStudioModule::Get().GetStudioSystem(EFMODSystemContext::Auditioning);
         int BankCount = 0;
         StudioSystem->getBankCount(&BankCount);
         TArray<FString> FailedBanks = IFMODStudioModule::Get().GetFailedBankLoads(EFMODSystemContext::Auditioning);
@@ -876,11 +869,11 @@ void FFMODStudioEditorModule::ValidateFMOD()
         else
         {
             int TotalEventCount = 0;
-            TArray<FMOD::Studio::Bank *> Banks;
+            TArray<FMOD::Studio::Bank*> Banks;
             Banks.SetNum(BankCount);
             StudioSystem->getBankList(Banks.GetData(), BankCount, &BankCount);
 
-            for (FMOD::Studio::Bank *Bank : Banks)
+            for (FMOD::Studio::Bank* Bank : Banks)
             {
                 int EventCount = 0;
                 Bank->getEventCount(&EventCount);
@@ -890,8 +883,8 @@ void FFMODStudioEditorModule::ValidateFMOD()
             if (TotalEventCount == 0)
             {
                 FMessageDialog::Open(EAppMsgType::Ok,
-                    LOCTEXT("SetStudioBuildStudio_NoEvents",
-                        "Banks have been loaded but they didn't have any events in them.  Please make sure you have added some events to banks."));
+                                     LOCTEXT("SetStudioBuildStudio_NoEvents",
+                                             "Banks have been loaded but they didn't have any events in them.  Please make sure you have added some events to banks."));
                 ProblemsFound++;
             }
         }
@@ -912,14 +905,14 @@ void FFMODStudioEditorModule::ValidateFMOD()
 
         FText PluginMessage =
             FText::Format(LOCTEXT("SetStudioBuildStudio_Plugins",
-                              "The banks require the following plugins, but no plugin filenames are listed in the settings:\n{0}\n"),
-                FText::FromString(CombinedPlugins));
+                                  "The banks require the following plugins, but no plugin filenames are listed in the settings:\n{0}\n"),
+                          FText::FromString(CombinedPlugins));
         FMessageDialog::Open(EAppMsgType::Ok, PluginMessage);
         ProblemsFound++;
     }
 
     // Look for FMOD in packaging settings
-    UProjectPackagingSettings *PackagingSettings = Cast<UProjectPackagingSettings>(UProjectPackagingSettings::StaticClass()->GetDefaultObject());
+    UProjectPackagingSettings* PackagingSettings = Cast<UProjectPackagingSettings>(UProjectPackagingSettings::StaticClass()->GetDefaultObject());
     bool bPackagingFound = false;
 
     for (int i = 0; i < PackagingSettings->DirectoriesToAlwaysStageAsNonUFS.Num(); ++i)
@@ -947,16 +940,15 @@ void FFMODStudioEditorModule::ValidateFMOD()
     {
         ProblemsFound++;
 
-        FText message = bPackagingFound ?
-            LOCTEXT("PackagingFMOD_Both",
-                "FMOD has been added to both the \"Additional Non-Asset Directories to Copy\" and the \"Additional Non-Asset Directories to Package\" "
-                "lists. It is recommended to remove FMOD from the \"Additional Non-Asset Directories to Package\" list.\n\n"
-                "Do you want to remove it now?") :
-            LOCTEXT("PackagingFMOD_AskMove",
-                "FMOD has been added to the \"Additional Non-Asset Directories to Package\" list. "
-                "Packaging FMOD content may lead to deadlocks at runtime. "
-                "It is recommended to move FMOD to the \"Additional Non-Asset Directories to Copy\" list.\n\n"
-                "Do you want to move it now?");
+        FText message = bPackagingFound ? LOCTEXT("PackagingFMOD_Both",
+                                                  "FMOD has been added to both the \"Additional Non-Asset Directories to Copy\" and the \"Additional Non-Asset Directories to Package\" "
+                                                  "lists. It is recommended to remove FMOD from the \"Additional Non-Asset Directories to Package\" list.\n\n"
+                                                  "Do you want to remove it now?")
+                                        : LOCTEXT("PackagingFMOD_AskMove",
+                                                  "FMOD has been added to the \"Additional Non-Asset Directories to Package\" list. "
+                                                  "Packaging FMOD content may lead to deadlocks at runtime. "
+                                                  "It is recommended to move FMOD to the \"Additional Non-Asset Directories to Copy\" list.\n\n"
+                                                  "Do you want to move it now?");
 
         if (EAppReturnType::Yes == FMessageDialog::Open(EAppMsgType::YesNo, message))
         {
@@ -975,7 +967,7 @@ void FFMODStudioEditorModule::ValidateFMOD()
         ProblemsFound++;
 
         FText message = LOCTEXT("PackagingFMOD_Ask",
-            "FMOD has not been added to the \"Additional Non-Asset Directories to Copy\" list.\n\nDo you want add it now?");
+                                "FMOD has not been added to the \"Additional Non-Asset Directories to Copy\" list.\n\nDo you want add it now?");
 
         if (EAppReturnType::Yes == FMessageDialog::Open(EAppMsgType::YesNo, message))
         {
@@ -998,7 +990,7 @@ void FFMODStudioEditorModule::ValidateFMOD()
         ProblemsFound++;
 
         FText message = LOCTEXT("PackagingFMOD_Ask",
-            "FMOD has not been added to the \"Additional Asset Directories to Cook\" list.\n\nDo you want add it now?");
+                                "FMOD has not been added to the \"Additional Asset Directories to Cook\" list.\n\nDo you want add it now?");
 
         if (EAppReturnType::Yes == FMessageDialog::Open(EAppMsgType::YesNo, message))
         {
@@ -1038,11 +1030,11 @@ void FFMODStudioEditorModule::OnMainFrameLoaded(TSharedPtr<SWindow> InRootWindow
             Info.bUseThrobber = false;
             Info.FadeOutDuration = 0.5f;
             Info.ButtonDetails.Add(FNotificationButtonInfo(LOCTEXT("BadSettingsPopupSettings", "Settings..."),
-                LOCTEXT("BadSettingsPopupSettingsTT", "Open the settings editor"),
-                FSimpleDelegate::CreateRaw(this, &FFMODStudioEditorModule::OnBadSettingsPopupSettingsClicked)));
-            Info.ButtonDetails.Add(FNotificationButtonInfo(LOCTEXT("BadSettingsPopupDismiss", "Dismiss"), 
-                LOCTEXT("BadSettingsPopupDismissTT", "Dismiss this notification"),
-                FSimpleDelegate::CreateRaw(this, &FFMODStudioEditorModule::OnBadSettingsPopupDismissClicked)));
+                                                           LOCTEXT("BadSettingsPopupSettingsTT", "Open the settings editor"),
+                                                           FSimpleDelegate::CreateRaw(this, &FFMODStudioEditorModule::OnBadSettingsPopupSettingsClicked)));
+            Info.ButtonDetails.Add(FNotificationButtonInfo(LOCTEXT("BadSettingsPopupDismiss", "Dismiss"),
+                                                           LOCTEXT("BadSettingsPopupDismissTT", "Dismiss this notification"),
+                                                           FSimpleDelegate::CreateRaw(this, &FFMODStudioEditorModule::OnBadSettingsPopupDismissClicked)));
 
             BadSettingsNotification = FSlateNotificationManager::Get().AddNotification(Info);
             BadSettingsNotification.Pin()->SetCompletionState(SNotificationItem::CS_Pending);
@@ -1078,17 +1070,17 @@ bool FFMODStudioEditorModule::Tick(float DeltaTime)
     BankUpdateNotifier.Update(DeltaTime);
 
     // Update listener position for Editor sound system
-    FMOD::Studio::System *StudioSystem = IFMODStudioModule::Get().GetStudioSystem(EFMODSystemContext::Editor);
+    FMOD::Studio::System* StudioSystem = IFMODStudioModule::Get().GetStudioSystem(EFMODSystemContext::Editor);
     if (StudioSystem)
     {
         if (GCurrentLevelEditingViewportClient)
         {
-            const FVector &ViewLocation = GCurrentLevelEditingViewportClient->GetViewLocation();
+            const FVector& ViewLocation = GCurrentLevelEditingViewportClient->GetViewLocation();
             FMatrix CameraToWorld = FRotationMatrix::Make(GCurrentLevelEditingViewportClient->GetViewRotation());
             FVector Up = CameraToWorld.GetUnitAxis(EAxis::Z);
             FVector Forward = CameraToWorld.GetUnitAxis(EAxis::X);
 
-            FMOD_3D_ATTRIBUTES Attributes = { { 0 } };
+            FMOD_3D_ATTRIBUTES Attributes = {{0}};
             Attributes.position = FMODUtils::ConvertWorldVector(ViewLocation);
             Attributes.forward = FMODUtils::ConvertUnitVector(Forward);
             Attributes.up = FMODUtils::ConvertUnitVector(Up);
@@ -1136,7 +1128,7 @@ void FFMODStudioEditorModule::PostLoadCallback()
     UE_LOG(LogFMOD, Verbose, TEXT("FFMODStudioEditorModule PostLoadCallback"));
 }
 
-void FFMODStudioEditorModule::ViewportDraw(UCanvas *Canvas, APlayerController *)
+void FFMODStudioEditorModule::ViewportDraw(UCanvas* Canvas, APlayerController*)
 {
     // Only want to update based on viewport in simulate mode.
     // In PIE/game, we update from the player controller instead.
@@ -1145,12 +1137,12 @@ void FFMODStudioEditorModule::ViewportDraw(UCanvas *Canvas, APlayerController *)
         return;
     }
 
-    const FSceneView *View = Canvas->SceneView;
+    const FSceneView* View = Canvas->SceneView;
 
     if (View->Drawer == GCurrentLevelEditingViewportClient)
     {
-        UWorld *World = GCurrentLevelEditingViewportClient->GetWorld();
-        const FVector &ViewLocation = GCurrentLevelEditingViewportClient->GetViewLocation();
+        UWorld* World = GCurrentLevelEditingViewportClient->GetWorld();
+        const FVector& ViewLocation = GCurrentLevelEditingViewportClient->GetViewLocation();
 
         FMatrix CameraToWorld = View->ViewMatrices.GetViewMatrix().InverseFast();
         FVector ProjUp = CameraToWorld.TransformVector(FVector(0, 1000, 0));
@@ -1190,7 +1182,7 @@ void FFMODStudioEditorModule::ShutdownModule()
 
         if (MainMenuExtender.IsValid())
         {
-            FLevelEditorModule *LevelEditorModule = FModuleManager::GetModulePtr<FLevelEditorModule>("LevelEditor");
+            FLevelEditorModule* LevelEditorModule = FModuleManager::GetModulePtr<FLevelEditorModule>("LevelEditor");
             if (LevelEditorModule)
             {
                 LevelEditorModule->GetMenuExtensibilityManager()->RemoveExtender(MainMenuExtender);
@@ -1198,7 +1190,7 @@ void FFMODStudioEditorModule::ShutdownModule()
         }
     }
 
-    if (ISettingsModule *SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+    if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
     {
         SettingsModule->UnregisterSettings("Project", "Plugins", "FMODStudio");
     }
@@ -1206,7 +1198,7 @@ void FFMODStudioEditorModule::ShutdownModule()
     // Unregister AssetTypeActions
     if (FModuleManager::Get().IsModuleLoaded("AssetTools"))
     {
-        IAssetTools &AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+        IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
 
         AssetTools.UnregisterAssetTypeActions(FMODEventAssetTypeActions.ToSharedRef());
     }
@@ -1222,7 +1214,7 @@ void FFMODStudioEditorModule::ShutdownModule()
     }
 
     // Unregister sequencer track creation delegates
-    ISequencerModule *SequencerModule = FModuleManager::GetModulePtr<ISequencerModule>("Sequencer");
+    ISequencerModule* SequencerModule = FModuleManager::GetModulePtr<ISequencerModule>("Sequencer");
     if (SequencerModule != nullptr)
     {
         SequencerModule->UnRegisterTrackEditor(FMODControlTrackEditorCreateTrackEditorHandle);
@@ -1268,7 +1260,7 @@ void FFMODStudioEditorModule::ReloadBanks()
     ShowNotification(Message, State);
 }
 
-void FFMODStudioEditorModule::ShowNotification(const FText &Text, SNotificationItem::ECompletionState State)
+void FFMODStudioEditorModule::ShowNotification(const FText& Text, SNotificationItem::ECompletionState State)
 {
     FNotificationInfo Info(Text);
     Info.Image = FAppStyle::GetBrush(TEXT("NoBrush"));

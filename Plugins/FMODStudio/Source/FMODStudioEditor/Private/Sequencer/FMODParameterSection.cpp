@@ -7,12 +7,12 @@
 
 #define LOCTEXT_NAMESPACE "FMODParameterSection"
 
-bool FFMODParameterSection::RequestDeleteKeyArea(const TArray<FName> &KeyAreaNamePath)
+bool FFMODParameterSection::RequestDeleteKeyArea(const TArray<FName>& KeyAreaNamePath)
 {
     if (KeyAreaNamePath.Num() == 1)
     {
         const FScopedTransaction Transaction(LOCTEXT("DeleteEventParameter", "Delete event parameter"));
-        UMovieSceneParameterSection *ParameterSection = Cast<UMovieSceneParameterSection>(WeakSection.Get());
+        UMovieSceneParameterSection* ParameterSection = Cast<UMovieSceneParameterSection>(WeakSection.Get());
         if (ParameterSection->TryModify())
         {
             return ParameterSection->RemoveScalarParameter(KeyAreaNamePath[0]);

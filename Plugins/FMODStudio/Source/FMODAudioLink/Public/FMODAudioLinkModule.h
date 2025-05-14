@@ -16,6 +16,7 @@ public:
     {
         Factory.Reset();
     }
+
 private:
     TUniquePtr<FFMODAudioLinkFactory> Factory;
 };

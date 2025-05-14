@@ -1,18 +1,18 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2025-2025.
 
 #include "FMODAudioLinkInputClient.h"
+#include "FMODAudioLinkComponent.h"
+#include "FMODAudioLinkFactory.h"
 #include "FMODAudioLinkLog.h"
 #include "FMODAudioLinkSettings.h"
-#include "FMODAudioLinkFactory.h"
-#include "FMODAudioLinkComponent.h"
 #include "FMODEvent.h"
 
-#include "FMODStudioModule.h"
 #include "FMODBlueprintStatics.h"
+#include "FMODStudioModule.h"
 
-#include <inttypes.h>
 #include "Async/Async.h"
 #include "Templates/SharedPointer.h"
+#include <inttypes.h>
 
 class InputClientRef
 {
@@ -55,8 +55,7 @@ void FFMODAudioLinkInputClient::Register(const FName& NameOfProducingSource)
         return;
     }
 
-    AsyncTask(ENamedThreads::GameThread, []
-    {
+    AsyncTask(ENamedThreads::GameThread, [] {
         const auto AudioDeviceManager = FAudioDeviceManager::Get();
         if (UNLIKELY(!AudioDeviceManager))
         {
@@ -70,11 +69,11 @@ void FFMODAudioLinkInputClient::Register(const FName& NameOfProducingSource)
             return;
         }
         UE_CLOG(UNLIKELY(AudioDevice->GetMaxChannels() == 0), LogFMODAudioLink, Warning,
-            TEXT("FMODAudioLink: The current AudioDevice %d has 0 MaxChannels. Consider setting AudioMaxChannels to a sensible value in the Engine config file's TargetSettings for your platform."),
-            AudioDevice->DeviceID);
+                TEXT("FMODAudioLink: The current AudioDevice %d has 0 MaxChannels. Consider setting AudioMaxChannels to a sensible value in the Engine config file's TargetSettings for your platform."),
+                AudioDevice->DeviceID);
 
         UE_CLOG(!FFMODAudioLinkFactory::bHasSubmix,
-            LogFMODAudioLink, Warning, TEXT("FMODAudioLink: No initial submix got routed to AudioLink. Consider creating custom versions of global submixes in Project Settings Audio, and Enable Audio Link in their advanced settings."));
+                LogFMODAudioLink, Warning, TEXT("FMODAudioLink: No initial submix got routed to AudioLink. Consider creating custom versions of global submixes in Project Settings Audio, and Enable Audio Link in their advanced settings."));
     });
 }
 
@@ -128,14 +127,14 @@ FMOD_RESULT F_CALL SoundCallback(FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUD
         // Create sound info
         FMOD_CREATESOUNDEXINFO exinfo;
         memset(&exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
-        exinfo.cbsize               = sizeof(FMOD_CREATESOUNDEXINFO);                                           /* Required. */
-        exinfo.numchannels          = formatInfo->NumChannels;                                                  /* Number of channels in the sound. */
-        exinfo.defaultfrequency     = formatInfo->NumSamplesPerSec;                                             /* Default playback rate of sound. */
-        exinfo.decodebuffersize     = formatInfo->NumSamplesPerBlock / exinfo.numchannels;                      /* Chunk size of stream update in samples. Should match the FMOD System. */
-        exinfo.length               = exinfo.defaultfrequency * exinfo.numchannels * sizeof(signed short) * 5;  /* Length of PCM data in bytes of whole song (for Sound::getLength) */
-        exinfo.format               = FMOD_SOUND_FORMAT_PCMFLOAT;                                               /* Data format of sound. */
-        exinfo.pcmreadcallback      = pcmreadcallback;                                                          /* User callback for reading. */
-        exinfo.userdata             = ConsumerPtr;
+        exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);                                          /* Required. */
+        exinfo.numchannels = formatInfo->NumChannels;                                            /* Number of channels in the sound. */
+        exinfo.defaultfrequency = formatInfo->NumSamplesPerSec;                                  /* Default playback rate of sound. */
+        exinfo.decodebuffersize = formatInfo->NumSamplesPerBlock / exinfo.numchannels;           /* Chunk size of stream update in samples. Should match the FMOD System. */
+        exinfo.length = exinfo.defaultfrequency * exinfo.numchannels * sizeof(signed short) * 5; /* Length of PCM data in bytes of whole song (for Sound::getLength) */
+        exinfo.format = FMOD_SOUND_FORMAT_PCMFLOAT;                                              /* Data format of sound. */
+        exinfo.pcmreadcallback = pcmreadcallback;                                                /* User callback for reading. */
+        exinfo.userdata = ConsumerPtr;
 
         FMOD::Sound* sound = NULL;
         FString sourceName = ConsumerPtr->GetProducerName().ToString();
@@ -180,46 +179,44 @@ void FFMODAudioLinkInputClient::Start(USceneComponent* InComponent)
     const auto LinkEvent = FMODSettings->GetLinkEvent();
 
     auto SelfSP = AsShared();
-    auto PlayLambda = [SelfSP, LinkEvent, InComponent]()
+    auto PlayLambda = [SelfSP, LinkEvent, InComponent]() {
+        UE_LOG(LogFMODAudioLink, Verbose, TEXT("FFMODAudioLinkInputClient::Start: SelfSP = %p, LinkEvent = %s, InComponent = %p."), &SelfSP, *LinkEvent.Get()->GetName(), &InComponent);
+
+        FMOD::Studio::EventDescription* EventDesc = IFMODStudioModule::Get().GetEventDescription(LinkEvent.Get());
+        if (EventDesc != nullptr)
         {
-            UE_LOG(LogFMODAudioLink, Verbose, TEXT("FFMODAudioLinkInputClient::Start: SelfSP = %p, LinkEvent = %s, InComponent = %p.")
-                    , &SelfSP, *LinkEvent.Get()->GetName(), &InComponent);
-
-            FMOD::Studio::EventDescription* EventDesc = IFMODStudioModule::Get().GetEventDescription(LinkEvent.Get());
-            if (EventDesc != nullptr)
+            FMOD::Studio::EventInstance* EventInst = NULL;
+            EventDesc->createInstance(&EventInst);
+            SelfSP->EventInstance = EventInst;
+            if (EventInst != nullptr)
             {
-                FMOD::Studio::EventInstance* EventInst = NULL;
-                EventDesc->createInstance(&EventInst);
-                SelfSP->EventInstance = EventInst;
-                if (EventInst != nullptr)
+                FTransform EventTransform = InComponent ? InComponent->GetComponentTransform() : FTransform();
+                FMOD_3D_ATTRIBUTES EventAttr = {{0}};
+                FMODUtils::Assign(EventAttr, EventTransform);
+                EventInst->set3DAttributes(&EventAttr);
+
+                EventInst->setCallback(SoundCallback, FMOD_STUDIO_EVENT_CALLBACK_CREATE_PROGRAMMER_SOUND | FMOD_STUDIO_EVENT_CALLBACK_DESTROY_PROGRAMMER_SOUND | FMOD_STUDIO_EVENT_CALLBACK_DESTROYED);
+
+                InputClientRef* callbackMemory = new InputClientRef(SelfSP);
+
+                EventInst->setUserData(callbackMemory);
+
+                bool bIs3d = 0;
+                EventDesc->is3D(&bIs3d);
+                if (bIs3d)
                 {
-                    FTransform EventTransform = InComponent ? InComponent->GetComponentTransform() : FTransform();
-                    FMOD_3D_ATTRIBUTES EventAttr = { { 0 } };
-                    FMODUtils::Assign(EventAttr, EventTransform);
-                    EventInst->set3DAttributes(&EventAttr);
-
-                    EventInst->setCallback(SoundCallback, FMOD_STUDIO_EVENT_CALLBACK_CREATE_PROGRAMMER_SOUND | FMOD_STUDIO_EVENT_CALLBACK_DESTROY_PROGRAMMER_SOUND | FMOD_STUDIO_EVENT_CALLBACK_DESTROYED);
-
-                    InputClientRef* callbackMemory = new InputClientRef(SelfSP);
-
-                    EventInst->setUserData(callbackMemory);
-
-                    bool bIs3d = 0;
-                    EventDesc->is3D(&bIs3d);
-                    if (bIs3d)
-                    {
-                        // delay start
-                        SelfSP->bShouldDelayStart = true;
-                        UE_LOG(LogFMODAudioLink, Verbose, TEXT("FFMODAudioLinkInputClient::Start: Delaying start of 3D EventInstance."));
-                    }
-                    else
-                    {
-                        SelfSP->bShouldDelayStart = false;
-                        EventInst->start();
-                    }
+                    // delay start
+                    SelfSP->bShouldDelayStart = true;
+                    UE_LOG(LogFMODAudioLink, Verbose, TEXT("FFMODAudioLinkInputClient::Start: Delaying start of 3D EventInstance."));
+                }
+                else
+                {
+                    SelfSP->bShouldDelayStart = false;
+                    EventInst->start();
                 }
             }
-        };
+        }
+    };
 
     FMODSettings->IsEventDataLoaded() ? PlayLambda() : FMODSettings->RegisterCallback(PlayLambda, IsLoadedHandle);
 }
@@ -248,7 +245,7 @@ void FFMODAudioLinkInputClient::UpdateWorldState(const FWorldState& InParams)
     if (EventInstance->isValid())
     {
         const FTransform& T = InParams.WorldTransform;
-        FMOD_3D_ATTRIBUTES attr = { { 0 } };
+        FMOD_3D_ATTRIBUTES attr = {{0}};
         FMODUtils::Assign(attr, T);
 
         // TODO: velocity
@@ -265,7 +262,7 @@ void FFMODAudioLinkInputClient::UpdateWorldState(const FWorldState& InParams)
 
 bool FFMODAudioLinkInputClient::GetSamples(void* data, unsigned int dataLenBytes)
 {
-    FSharedBufferedOutputPtr StrongBufferProducer{ WeakProducer.Pin() };
+    FSharedBufferedOutputPtr StrongBufferProducer{WeakProducer.Pin()};
     if (!StrongBufferProducer.IsValid())
     {
         // return false, to indicate no more data.
@@ -285,7 +282,7 @@ bool FFMODAudioLinkInputClient::GetSamples(void* data, unsigned int dataLenBytes
     int32 FramesThatNeedZeroing = dataLenFrames - FramesWritten;
 
     UE_LOG(LogFMODAudioLink, Verbose, TEXT("FFMODAudioLinkInputClient::GetSamples: (post-pop), SamplesPopped=%d, SamplesNeeded=%d, ZeroFrames=%d, This=0x%p"),
-        FramesWritten, dataLenFrames, FramesThatNeedZeroing, this);
+           FramesWritten, dataLenFrames, FramesThatNeedZeroing, this);
 
     if (FramesThatNeedZeroing > 0)
     {
@@ -296,7 +293,7 @@ bool FFMODAudioLinkInputClient::GetSamples(void* data, unsigned int dataLenBytes
         if (NumStarvedBuffersInARow > NumStatedBuffersBeforeStop)
         {
             UE_LOG(LogFMODAudioLink, Verbose, TEXT("FMODAudioLinkInputClient::GetSamples: Stopping Starving input object, Needed=%d, Red=%d, StarvedCount=%d, This=0x%p"),
-                dataLenFrames, FramesWritten, NumStarvedBuffersInARow, this);
+                   dataLenFrames, FramesWritten, NumStarvedBuffersInARow, this);
 
             // Terminate.
             bMoreDataRemaining = false;
@@ -313,7 +310,7 @@ bool FFMODAudioLinkInputClient::GetSamples(void* data, unsigned int dataLenBytes
 IBufferedAudioOutput::FBufferFormat* FFMODAudioLinkInputClient::GetFormat()
 {
     // Ensure we're still listening to a sub mix that exists.
-    FSharedBufferedOutputPtr StrongPtr{ WeakProducer.Pin() };
+    FSharedBufferedOutputPtr StrongPtr{WeakProducer.Pin()};
     if (!StrongPtr.IsValid())
     {
         UE_LOG(LogFMODAudioLink, Verbose, TEXT("FMODAudioLinkInputClient::GetFormat: FSharedBufferedOutputPtr not valid."));
@@ -326,7 +323,7 @@ IBufferedAudioOutput::FBufferFormat* FFMODAudioLinkInputClient::GetFormat()
     return &UnrealFormat;
 }
 
-void FFMODAudioLinkInputClient::SetFormat(const IBufferedAudioOutput::FBufferFormat *AudioFormat)
+void FFMODAudioLinkInputClient::SetFormat(const IBufferedAudioOutput::FBufferFormat* AudioFormat)
 {
     UnrealFormat.NumChannels = AudioFormat->NumChannels;
     UnrealFormat.NumSamplesPerBlock = AudioFormat->NumSamplesPerBlock;

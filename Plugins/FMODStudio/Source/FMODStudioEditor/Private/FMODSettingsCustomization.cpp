@@ -10,14 +10,14 @@
 #include "Settings/ProjectPackagingSettings.h"
 #include "Styling/SlateColor.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"
-#include "Widgets/SWidget.h"
-#include "Widgets/SCompoundWidget.h"
-#include "Widgets/SBoxPanel.h"
+#include "Widgets/Images/SImage.h"
+#include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Layout/SWidgetSwitcher.h"
-#include "Widgets/Images/SImage.h"
+#include "Widgets/SBoxPanel.h"
+#include "Widgets/SCompoundWidget.h"
+#include "Widgets/SWidget.h"
 #include "Widgets/Text/STextBlock.h"
-#include "Widgets/Input/SButton.h"
 
 #define LOCTEXT_NAMESPACE "FMODSettings"
 
@@ -37,53 +37,39 @@ public:
         TSharedRef<SWidget> SettingsOkayWidget = MakeRow(
             "SettingsEditor.GoodIcon",
             LOCTEXT("SettingsOkayText", "FMOD Settings are valid, run the Validate FMOD command to perform additional checking."),
-            FText()
-        );
+            FText());
 
         TSharedRef<SWidget> NoContentDirWidget = MakeRow(
             "SettingsEditor.WarningIcon",
             LOCTEXT("NoContentDirText", "Bank Output Directory directory has not been set."),
-            FText()
-        );
+            FText());
 
         TSharedRef<SWidget> PackagingSettingsBadWidget = MakeRow(
             "SettingsEditor.WarningIcon",
             LOCTEXT("PackagingSettingsBadText",
-                "The packaging settings for copying the FMOD bank files to staging are not correct. It is recommended that:\n"
-                " - The bank output directory for the Desktop platform (or the forced platform if set) is added to the \"Additional Non-Asset Directories To Copy\" list.\n"
-                " - That no other directory containing FMOD banks or assets is added to either the \"Additional Non-Asset Directories To Copy\" list "
-                "or the \"Additional Non-Asset Directories to Package\" list.\n"
-                " - The Generated Assets are added to the \"Additional Asset Directories to Cook\" list."
-            ),
-            LOCTEXT("FixPackagingSettings", "Fix")
-        );
+                    "The packaging settings for copying the FMOD bank files to staging are not correct. It is recommended that:\n"
+                    " - The bank output directory for the Desktop platform (or the forced platform if set) is added to the \"Additional Non-Asset Directories To Copy\" list.\n"
+                    " - That no other directory containing FMOD banks or assets is added to either the \"Additional Non-Asset Directories To Copy\" list "
+                    "or the \"Additional Non-Asset Directories to Package\" list.\n"
+                    " - The Generated Assets are added to the \"Additional Asset Directories to Cook\" list."),
+            LOCTEXT("FixPackagingSettings", "Fix"));
 
         ChildSlot
-            [
-                SNew(SBorder)
-                .BorderBackgroundColor(this, &SSettingsMessage::GetBorderColor)
-                .BorderImage(FAppStyle::GetBrush("ToolPanel.LightGroupBorder"))
-                .Padding(8.0f)
-                [
-                    SNew(SWidgetSwitcher)
-                    .WidgetIndex(this, &SSettingsMessage::GetSetupStateAsInt)
+            [SNew(SBorder)
+                 .BorderBackgroundColor(this, &SSettingsMessage::GetBorderColor)
+                 .BorderImage(FAppStyle::GetBrush("ToolPanel.LightGroupBorder"))
+                 .Padding(8.0f)
+                     [SNew(SWidgetSwitcher)
+                          .WidgetIndex(this, &SSettingsMessage::GetSetupStateAsInt)
 
-                    + SWidgetSwitcher::Slot()
-                    [
-                        SettingsOkayWidget
-                    ]
+                      + SWidgetSwitcher::Slot()
+                            [SettingsOkayWidget]
 
-                    + SWidgetSwitcher::Slot()
-                    [
-                        NoContentDirWidget
-                    ]
+                      + SWidgetSwitcher::Slot()
+                            [NoContentDirWidget]
 
-                    + SWidgetSwitcher::Slot()
-                    [
-                        PackagingSettingsBadWidget
-                    ]
-                ]
-            ];
+                      + SWidgetSwitcher::Slot()
+                            [PackagingSettingsBadWidget]]];
 
         UpdateState();
     }
@@ -110,32 +96,28 @@ private:
     {
         TSharedRef<SHorizontalBox> Result = SNew(SHorizontalBox)
 
-            // Status icon
-            + SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[SNew(SImage).Image(FAppStyle::GetBrush(IconName))]
+                                            // Status icon
+                                            + SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)[SNew(SImage).Image(FAppStyle::GetBrush(IconName))]
 
-            // Notice
-            + SHorizontalBox::Slot()
-            .FillWidth(1.0f)
-            .Padding(16.0f, 0.0f)
-            .VAlign(VAlign_Center)[
-                SNew(STextBlock)
-                .ColorAndOpacity(FLinearColor::White)
-                .ShadowColorAndOpacity(FLinearColor::Black)
-                .ShadowOffset(FVector2D::UnitVector)
-                .AutoWrapText(true)
-                .Text(Message)
-            ];
+                                            // Notice
+                                            + SHorizontalBox::Slot()
+                                                  .FillWidth(1.0f)
+                                                  .Padding(16.0f, 0.0f)
+                                                  .VAlign(VAlign_Center)[SNew(STextBlock)
+                                                                             .ColorAndOpacity(FLinearColor::White)
+                                                                             .ShadowColorAndOpacity(FLinearColor::Black)
+                                                                             .ShadowOffset(FVector2D::UnitVector)
+                                                                             .AutoWrapText(true)
+                                                                             .Text(Message)];
 
         if (!ButtonMessage.IsEmpty())
         {
             Result->AddSlot()
                 .AutoWidth()
                 .VAlign(VAlign_Center)
-                [
-                    SNew(SButton)
-                    .OnClicked(this, &SSettingsMessage::OnButtonPressed)
-                    .Text(ButtonMessage)
-                ];
+                    [SNew(SButton)
+                         .OnClicked(this, &SSettingsMessage::OnButtonPressed)
+                         .Text(ButtonMessage)];
         }
 
         return Result;
@@ -227,9 +209,9 @@ FFMODSettingsCustomization::FFMODSettingsCustomization()
 {
 }
 
-void FFMODSettingsCustomization::CustomizeDetails(IDetailLayoutBuilder &DetailLayout)
+void FFMODSettingsCustomization::CustomizeDetails(IDetailLayoutBuilder& DetailLayout)
 {
-    IDetailCategoryBuilder &PackagingCategory = DetailLayout.EditCategory(TEXT("Notice"), FText::GetEmpty(), ECategoryPriority::Important);
+    IDetailCategoryBuilder& PackagingCategory = DetailLayout.EditCategory(TEXT("Notice"), FText::GetEmpty(), ECategoryPriority::Important);
     TSharedRef<SSettingsMessage> PlatformSetupMessage = SNew(SSettingsMessage);
     PackagingCategory.AddCustomRow(LOCTEXT("Warning", "Warning"), false).WholeRowWidget[PlatformSetupMessage];
 }

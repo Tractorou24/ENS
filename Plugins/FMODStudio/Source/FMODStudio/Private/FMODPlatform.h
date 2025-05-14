@@ -2,10 +2,10 @@
 #pragma once
 
 #include "Containers/UnrealString.h"
-#include "fmod_common.h"
 #include "FMODSettings.h"
+#include "fmod_common.h"
 
-FString FMODPlatform_GetDllPath(const TCHAR *ShortName, bool bExplicitPath, bool bUseLibPrefix);
+FString FMODPlatform_GetDllPath(const TCHAR* ShortName, bool bExplicitPath, bool bUseLibPrefix);
 
 EFMODPlatforms::Type FMODPlatform_CurrentPlatform();
 

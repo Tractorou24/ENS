@@ -88,7 +88,7 @@ private:
 
     /// \brief Called when \ref AttackAction is pressed; Trigger the attack of the player character.
     void Attack();
-    
+
 #pragma region Interactions
     /// \brief Moves to and interacts with the object under the cursor if it exists.
     void Interact();

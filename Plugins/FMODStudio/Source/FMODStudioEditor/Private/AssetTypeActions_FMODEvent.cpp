@@ -2,14 +2,14 @@
 
 #include "AssetTypeActions_FMODEvent.h"
 #include "AssetTypeActions_Base.h"
-#include "FMODEventEditor.h"
-#include "FMODEvent.h"
-#include "FMODUtils.h"
-#include "FMODStudioModule.h"
-#include "FMODStudioEditorModule.h"
 #include "Editor.h"
-#include "Framework/MultiBox/MultiBoxBuilder.h"
 #include "Editor/EditorStyle/Public/EditorStyleSet.h"
+#include "FMODEvent.h"
+#include "FMODEventEditor.h"
+#include "FMODStudioEditorModule.h"
+#include "FMODStudioModule.h"
+#include "FMODUtils.h"
+#include "Framework/MultiBox/MultiBoxBuilder.h"
 
 #define LOCTEXT_NAMESPACE "AssetTypeActions"
 
@@ -30,26 +30,26 @@ FAssetTypeActions_FMODEvent::~FAssetTypeActions_FMODEvent()
     }
 }
 
-UClass *FAssetTypeActions_FMODEvent::GetSupportedClass() const
+UClass* FAssetTypeActions_FMODEvent::GetSupportedClass() const
 {
     return UFMODEvent::StaticClass();
 }
 
-void FAssetTypeActions_FMODEvent::GetActions(const TArray<UObject *> &InObjects, FMenuBuilder &MenuBuilder)
+void FAssetTypeActions_FMODEvent::GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder)
 {
     auto Events = GetTypedWeakObjectPtrs<UFMODEvent>(InObjects);
 
     MenuBuilder.AddMenuEntry(LOCTEXT("FMODEvent_Play", "Play"), LOCTEXT("FMODEvent_PlayTooltip", "Plays the selected FMOD event."),
-        FSlateIcon(FAppStyle::GetAppStyleSetName(), "MediaAsset.AssetActions.Play"),
-        FUIAction(FExecuteAction::CreateSP(this, &FAssetTypeActions_FMODEvent::ExecutePlay, Events),
-            FCanExecuteAction::CreateSP(this, &FAssetTypeActions_FMODEvent::CanExecutePlayCommand, Events)));
+                             FSlateIcon(FAppStyle::GetAppStyleSetName(), "MediaAsset.AssetActions.Play"),
+                             FUIAction(FExecuteAction::CreateSP(this, &FAssetTypeActions_FMODEvent::ExecutePlay, Events),
+                                       FCanExecuteAction::CreateSP(this, &FAssetTypeActions_FMODEvent::CanExecutePlayCommand, Events)));
 
     MenuBuilder.AddMenuEntry(LOCTEXT("FMODEvent_Stop", "Stop"), LOCTEXT("FMODEvent_StopTooltip", "Stops the currently playing FMOD event."),
-        FSlateIcon(FAppStyle::GetAppStyleSetName(), "MediaAsset.AssetActions.Stop"),
-        FUIAction(FExecuteAction::CreateSP(this, &FAssetTypeActions_FMODEvent::ExecuteStop, Events), FCanExecuteAction()));
+                             FSlateIcon(FAppStyle::GetAppStyleSetName(), "MediaAsset.AssetActions.Stop"),
+                             FUIAction(FExecuteAction::CreateSP(this, &FAssetTypeActions_FMODEvent::ExecuteStop, Events), FCanExecuteAction()));
 }
 
-void FAssetTypeActions_FMODEvent::OpenAssetEditor(const TArray<UObject *> &InObjects, TSharedPtr<IToolkitHost> EditWithinLevelEditor)
+void FAssetTypeActions_FMODEvent::OpenAssetEditor(const TArray<UObject*>& InObjects, TSharedPtr<IToolkitHost> EditWithinLevelEditor)
 {
     EToolkitMode::Type Mode = EditWithinLevelEditor.IsValid() ? EToolkitMode::WorldCentric : EToolkitMode::Standalone;
 
@@ -69,13 +69,13 @@ bool FAssetTypeActions_FMODEvent::CanExecutePlayCommand(TArray<TWeakObjectPtr<UF
     return Objects.Num() == 1;
 }
 
-bool FAssetTypeActions_FMODEvent::AssetsActivatedOverride(const TArray<UObject *> &InObjects, EAssetTypeActivationMethod::Type ActivationType)
+bool FAssetTypeActions_FMODEvent::AssetsActivatedOverride(const TArray<UObject*>& InObjects, EAssetTypeActivationMethod::Type ActivationType)
 {
     if (ActivationType == EAssetTypeActivationMethod::Previewed)
     {
         for (auto ObjIt = InObjects.CreateConstIterator(); ObjIt; ++ObjIt)
         {
-            UFMODEvent *Event = Cast<UFMODEvent>(*ObjIt);
+            UFMODEvent* Event = Cast<UFMODEvent>(*ObjIt);
             if (IsValid(Event))
             {
                 // Only play the first valid event
@@ -104,7 +104,7 @@ void FAssetTypeActions_FMODEvent::ExecutePlay(TArray<TWeakObjectPtr<UFMODEvent>>
 {
     for (auto ObjIt = Objects.CreateConstIterator(); ObjIt; ++ObjIt)
     {
-        UFMODEvent *Event = (*ObjIt).Get();
+        UFMODEvent* Event = (*ObjIt).Get();
         if (IsValid(Event))
         {
             // Only play the first valid event
@@ -119,7 +119,7 @@ void FAssetTypeActions_FMODEvent::ExecuteStop(TArray<TWeakObjectPtr<UFMODEvent>>
     IFMODStudioModule::Get().StopAuditioningInstance();
 }
 
-void FAssetTypeActions_FMODEvent::PlayEvent(UFMODEvent *Event)
+void FAssetTypeActions_FMODEvent::PlayEvent(UFMODEvent* Event)
 {
     if (IsValid(Event))
     {

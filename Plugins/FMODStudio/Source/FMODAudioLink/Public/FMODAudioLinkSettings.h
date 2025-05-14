@@ -34,7 +34,7 @@ protected:
 private:
 #if WITH_EDITOR
     void RefreshFromSettings(UAudioLinkSettingsAbstract* InSettings, FPropertyChangedEvent& InPropertyChangedEvent) override;
-#endif //WITH_EDITOR
+#endif // WITH_EDITOR
 
     FSimpleMulticastDelegate OnEventLoadedDelegate;
     FCriticalSection CS;
@@ -90,9 +90,8 @@ protected:
 
     UAudioLinkSettingsAbstract::FSharedSettingsProxyPtr MakeProxy() const override
     {
-        return UAudioLinkSettingsAbstract::FSharedSettingsProxyPtr(new FFMODAudioLinkSettingsProxy{ *this });
+        return UAudioLinkSettingsAbstract::FSharedSettingsProxyPtr(new FFMODAudioLinkSettingsProxy{*this});
     }
 
     FName GetFactoryName() const override;
 };
-

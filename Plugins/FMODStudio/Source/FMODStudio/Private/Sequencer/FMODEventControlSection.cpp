@@ -2,15 +2,15 @@
 
 #include "FMODEventControlSection.h"
 #include "Channels/MovieSceneChannelProxy.h"
-#include "UObject/SequencerObjectVersion.h"
 #include "UObject/Package.h"
+#include "UObject/SequencerObjectVersion.h"
 
 FFMODEventControlChannel::FFMODEventControlChannel()
 {
     SetEnum(StaticEnum<EFMODEventControlKey>());
 }
 
-UFMODEventControlSection::UFMODEventControlSection(const FObjectInitializer &ObjectInitializer)
+UFMODEventControlSection::UFMODEventControlSection(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
     SetRange(TRange<FFrameNumber>::All());

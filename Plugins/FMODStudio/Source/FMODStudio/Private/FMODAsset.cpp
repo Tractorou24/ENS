@@ -3,9 +3,9 @@
 #include "FMODAsset.h"
 #include "FMODStudioModule.h"
 
-static const TCHAR *FMODAssetTypeStrings[] = { TEXT("Bank"), TEXT("Event"), TEXT("VCA"), TEXT("Bus"), TEXT("Invalid") };
+static const TCHAR* FMODAssetTypeStrings[] = {TEXT("Bank"), TEXT("Event"), TEXT("VCA"), TEXT("Bus"), TEXT("Invalid")};
 
-UFMODAsset::UFMODAsset(const FObjectInitializer &ObjectInitializer)
+UFMODAsset::UFMODAsset(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
 }

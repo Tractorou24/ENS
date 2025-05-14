@@ -50,13 +50,13 @@ typedef enum
     FMOD_DSP_TYPE_MULTIBAND_DYNAMICS,
 
     FMOD_DSP_TYPE_MAX,
-    FMOD_DSP_TYPE_FORCEINT = 65536    /* Makes sure this enum is signed 32bit. */
+    FMOD_DSP_TYPE_FORCEINT = 65536 /* Makes sure this enum is signed 32bit. */
 } FMOD_DSP_TYPE;
 
 /*
     ===================================================================================================
 
-    FMOD built in effect parameters.  
+    FMOD built in effect parameters.
     Use DSP::setParameter with these enums for the 'index' parameter.
 
     ===================================================================================================
@@ -68,13 +68,11 @@ typedef enum
     FMOD_DSP_OSCILLATOR_RATE
 } FMOD_DSP_OSCILLATOR;
 
-
 typedef enum
 {
     FMOD_DSP_LOWPASS_CUTOFF,
     FMOD_DSP_LOWPASS_RESONANCE
 } FMOD_DSP_LOWPASS;
-
 
 typedef enum
 {
@@ -82,13 +80,11 @@ typedef enum
     FMOD_DSP_ITLOWPASS_RESONANCE
 } FMOD_DSP_ITLOWPASS;
 
-
 typedef enum
 {
     FMOD_DSP_HIGHPASS_CUTOFF,
     FMOD_DSP_HIGHPASS_RESONANCE
 } FMOD_DSP_HIGHPASS;
-
 
 typedef enum
 {
@@ -99,7 +95,6 @@ typedef enum
     FMOD_DSP_ECHO_DELAYCHANGEMODE
 } FMOD_DSP_ECHO;
 
-
 typedef enum
 {
     FMOD_DSP_ECHO_DELAYCHANGEMODE_FADE,
@@ -107,13 +102,11 @@ typedef enum
     FMOD_DSP_ECHO_DELAYCHANGEMODE_NONE
 } FMOD_DSP_ECHO_DELAYCHANGEMODE_TYPE;
 
-
 typedef enum FMOD_DSP_FADER
 {
     FMOD_DSP_FADER_GAIN,
     FMOD_DSP_FADER_OVERALL_GAIN,
 } FMOD_DSP_FADER;
-
 
 typedef enum
 {
@@ -122,12 +115,10 @@ typedef enum
     FMOD_DSP_FLANGE_RATE
 } FMOD_DSP_FLANGE;
 
-
 typedef enum
 {
     FMOD_DSP_DISTORTION_LEVEL
 } FMOD_DSP_DISTORTION;
-
 
 typedef enum
 {
@@ -135,7 +126,6 @@ typedef enum
     FMOD_DSP_NORMALIZE_THRESHOLD,
     FMOD_DSP_NORMALIZE_MAXAMP
 } FMOD_DSP_NORMALIZE;
-
 
 typedef enum
 {
@@ -145,14 +135,12 @@ typedef enum
     FMOD_DSP_LIMITER_MODE,
 } FMOD_DSP_LIMITER;
 
-
 typedef enum
 {
     FMOD_DSP_PARAMEQ_CENTER,
     FMOD_DSP_PARAMEQ_BANDWIDTH,
     FMOD_DSP_PARAMEQ_GAIN
 } FMOD_DSP_PARAMEQ;
-
 
 typedef enum FMOD_DSP_MULTIBAND_EQ
 {
@@ -178,7 +166,6 @@ typedef enum FMOD_DSP_MULTIBAND_EQ
     FMOD_DSP_MULTIBAND_EQ_E_GAIN,
 } FMOD_DSP_MULTIBAND_EQ;
 
-
 typedef enum FMOD_DSP_MULTIBAND_EQ_FILTER_TYPE
 {
     FMOD_DSP_MULTIBAND_EQ_FILTER_DISABLED,
@@ -197,7 +184,6 @@ typedef enum FMOD_DSP_MULTIBAND_EQ_FILTER_TYPE
     FMOD_DSP_MULTIBAND_EQ_FILTER_LOWPASS_6DB,
     FMOD_DSP_MULTIBAND_EQ_FILTER_HIGHPASS_6DB,
 } FMOD_DSP_MULTIBAND_EQ_FILTER_TYPE;
-
 
 typedef enum FMOD_DSP_MULTIBAND_DYNAMICS
 {
@@ -231,7 +217,6 @@ typedef enum FMOD_DSP_MULTIBAND_DYNAMICS
     FMOD_DSP_MULTIBAND_DYNAMICS_C_RESPONSE_DATA,
 } FMOD_DSP_MULTIBAND_DYNAMICS;
 
-
 typedef enum FMOD_DSP_MULTIBAND_DYNAMICS_MODE_TYPE
 {
     FMOD_DSP_MULTIBAND_DYNAMICS_MODE_DISABLED,
@@ -241,7 +226,6 @@ typedef enum FMOD_DSP_MULTIBAND_DYNAMICS_MODE_TYPE
     FMOD_DSP_MULTIBAND_DYNAMICS_MODE_EXPAND_DOWN
 } FMOD_DSP_MULTIBAND_DYNAMICS_MODE_TYPE;
 
-
 typedef enum
 {
     FMOD_DSP_PITCHSHIFT_PITCH,
@@ -250,14 +234,12 @@ typedef enum
     FMOD_DSP_PITCHSHIFT_MAXCHANNELS
 } FMOD_DSP_PITCHSHIFT;
 
-
 typedef enum
 {
     FMOD_DSP_CHORUS_MIX,
     FMOD_DSP_CHORUS_RATE,
     FMOD_DSP_CHORUS_DEPTH,
 } FMOD_DSP_CHORUS;
-
 
 typedef enum
 {
@@ -270,8 +252,8 @@ typedef enum
 
 typedef enum
 {
-    FMOD_DSP_COMPRESSOR_THRESHOLD, 
-    FMOD_DSP_COMPRESSOR_RATIO, 
+    FMOD_DSP_COMPRESSOR_THRESHOLD,
+    FMOD_DSP_COMPRESSOR_RATIO,
     FMOD_DSP_COMPRESSOR_ATTACK,
     FMOD_DSP_COMPRESSOR_RELEASE,
     FMOD_DSP_COMPRESSOR_GAINMAKEUP,
@@ -301,7 +283,6 @@ typedef enum
     FMOD_DSP_LOWPASS_SIMPLE_CUTOFF
 } FMOD_DSP_LOWPASS_SIMPLE;
 
-
 typedef enum
 {
     FMOD_DSP_DELAY_CH0,
@@ -323,7 +304,6 @@ typedef enum
     FMOD_DSP_DELAY_MAXDELAY
 } FMOD_DSP_DELAY;
 
-
 typedef enum
 {
     FMOD_DSP_TREMOLO_FREQUENCY,
@@ -336,13 +316,11 @@ typedef enum
     FMOD_DSP_TREMOLO_SPREAD
 } FMOD_DSP_TREMOLO;
 
-
 typedef enum
 {
     FMOD_DSP_SEND_RETURNID,
     FMOD_DSP_SEND_LEVEL,
 } FMOD_DSP_SEND;
-
 
 typedef enum
 {
@@ -350,12 +328,10 @@ typedef enum
     FMOD_DSP_RETURN_INPUT_SPEAKER_MODE
 } FMOD_DSP_RETURN;
 
-
 typedef enum
 {
     FMOD_DSP_HIGHPASS_SIMPLE_CUTOFF
 } FMOD_DSP_HIGHPASS_SIMPLE;
-
 
 typedef enum
 {
@@ -363,14 +339,12 @@ typedef enum
     FMOD_DSP_PAN_2D_STEREO_MODE_DISCRETE
 } FMOD_DSP_PAN_2D_STEREO_MODE_TYPE;
 
-
 typedef enum
 {
     FMOD_DSP_PAN_MODE_MONO,
     FMOD_DSP_PAN_MODE_STEREO,
     FMOD_DSP_PAN_MODE_SURROUND
 } FMOD_DSP_PAN_MODE_TYPE;
-
 
 typedef enum
 {
@@ -381,14 +355,12 @@ typedef enum
     FMOD_DSP_PAN_3D_ROLLOFF_CUSTOM
 } FMOD_DSP_PAN_3D_ROLLOFF_TYPE;
 
-
 typedef enum
 {
     FMOD_DSP_PAN_3D_EXTENT_MODE_AUTO,
     FMOD_DSP_PAN_3D_EXTENT_MODE_USER,
     FMOD_DSP_PAN_3D_EXTENT_MODE_OFF
 } FMOD_DSP_PAN_3D_EXTENT_MODE_TYPE;
-
 
 typedef enum
 {
@@ -418,14 +390,12 @@ typedef enum
     FMOD_DSP_PAN_OVERRIDE_RANGE
 } FMOD_DSP_PAN;
 
-
 typedef enum
 {
     FMOD_DSP_THREE_EQ_CROSSOVERSLOPE_12DB,
     FMOD_DSP_THREE_EQ_CROSSOVERSLOPE_24DB,
     FMOD_DSP_THREE_EQ_CROSSOVERSLOPE_48DB
 } FMOD_DSP_THREE_EQ_CROSSOVERSLOPE_TYPE;
-
 
 typedef enum
 {
@@ -437,7 +407,6 @@ typedef enum
     FMOD_DSP_THREE_EQ_CROSSOVERSLOPE
 } FMOD_DSP_THREE_EQ;
 
-
 typedef enum
 {
     FMOD_DSP_FFT_WINDOW_RECT,
@@ -448,13 +417,11 @@ typedef enum
     FMOD_DSP_FFT_WINDOW_BLACKMANHARRIS
 } FMOD_DSP_FFT_WINDOW_TYPE;
 
-
 typedef enum
 {
     FMOD_DSP_FFT_DOWNMIX_NONE,
     FMOD_DSP_FFT_DOWNMIX_MONO,
 } FMOD_DSP_FFT_DOWNMIX_TYPE;
-
 
 typedef enum
 {
@@ -478,7 +445,6 @@ typedef enum
     FMOD_DSP_LOUDNESS_METER_WEIGHTING,
     FMOD_DSP_LOUDNESS_METER_INFO
 } FMOD_DSP_LOUDNESS_METER;
-
 
 typedef enum
 {
@@ -603,7 +569,6 @@ typedef enum
     FMOD_DSP_TRANSCEIVER_SPEAKERMODE_SURROUND,
 } FMOD_DSP_TRANSCEIVER_SPEAKERMODE;
 
-
 typedef enum
 {
     FMOD_DSP_TRANSCEIVER_TRANSMIT,
@@ -611,7 +576,6 @@ typedef enum
     FMOD_DSP_TRANSCEIVER_CHANNEL,
     FMOD_DSP_TRANSCEIVER_TRANSMITSPEAKERMODE
 } FMOD_DSP_TRANSCEIVER;
-
 
 typedef enum
 {
@@ -629,4 +593,3 @@ typedef enum
 } FMOD_DSP_OBJECTPAN;
 
 #endif
-

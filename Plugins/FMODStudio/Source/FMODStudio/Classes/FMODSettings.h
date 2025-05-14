@@ -2,10 +2,11 @@
 
 #pragma once
 
-#include "UObject/Class.h"
 #include "Engine/EngineTypes.h"
 #include "GenericPlatform/GenericPlatform.h"
+#include "UObject/Class.h"
 #include "fmod_common.h"
+
 #include "FMODSettings.generated.h"
 
 class Paths;
@@ -33,7 +34,7 @@ namespace EFMODSpeakerMode
         // 7.1.4 speaker setup
         Surround_7_1_4
     };
-}
+} // namespace EFMODSpeakerMode
 
 UENUM()
 namespace EFMODOutput
@@ -69,7 +70,7 @@ namespace EFMODOutput
         /** Android - AAudio. (Default on Android 8.1 and above) */
         TYPE_AAUDIO,
     };
-}
+} // namespace EFMODOutput
 
 UENUM()
 namespace EFMODPlatforms
@@ -89,7 +90,7 @@ namespace EFMODPlatforms
         XSX,
         Editor
     };
-}
+} // namespace EFMODPlatforms
 
 UENUM()
 namespace EFMODCodec
@@ -102,7 +103,7 @@ namespace EFMODCodec
         XMA,
         AT9,
     };
-}
+} // namespace EFMODCodec
 
 USTRUCT()
 struct FFMODPlatformSettings
@@ -112,19 +113,19 @@ struct FFMODPlatformSettings
     UPROPERTY(config, EditAnywhere, Category = PlatformSettings, meta = (ClampMin = "0"))
     int32 RealChannelCount;
     /**
-    * Sample rate to use, or 0 to match system rate.
-    * eg. 0, 22050, 24000, 32000, 44100, 48000.
-    */
+     * Sample rate to use, or 0 to match system rate.
+     * eg. 0, 22050, 24000, 32000, 44100, 48000.
+     */
     UPROPERTY(config, EditAnywhere, Category = PlatformSettings, meta = (ClampMin = "0"))
     int32 SampleRate;
     /**
-    * Project Output Format, should match the mode set up for the Studio project.
-    */
+     * Project Output Format, should match the mode set up for the Studio project.
+     */
     UPROPERTY(config, EditAnywhere, Category = PlatformSettings)
     TEnumAsByte<EFMODSpeakerMode::Type> SpeakerMode;
     /**
-    * Built-in output types that can be used to run the mixer.
-    */
+     * Built-in output types that can be used to run the mixer.
+     */
     UPROPERTY(config, EditAnywhere, Category = PlatformSettings)
     TEnumAsByte<EFMODOutput::Type> OutputType;
     /**
@@ -134,7 +135,7 @@ struct FFMODPlatformSettings
     UPROPERTY(config, EditAnywhere, Category = PlatformSettings, meta = (ClampMin = "0", DisplayName = "Memory Pool Size"))
     int32 CustomPoolSize;
     /* Codecs
-    */
+     */
     UPROPERTY(config, EditAnywhere, Category = PlatformSettings, meta = (ClampMin = "0"))
     TMap<TEnumAsByte<EFMODCodec::Type>, int32> Codecs;
 
@@ -152,18 +153,18 @@ struct FFMODProjectLocale
 {
     GENERATED_USTRUCT_BODY()
     /**
-    * Human readable locale name, displayed in Blueprints.
-    */
+     * Human readable locale name, displayed in Blueprints.
+     */
     UPROPERTY(config, EditAnywhere, Category = Localization)
     FString LocaleName;
     /**
-    * Locale code. Must correspond to project locale codes in FMOD Studio project.
-    */
+     * Locale code. Must correspond to project locale codes in FMOD Studio project.
+     */
     UPROPERTY(config, EditAnywhere, Category = Localization)
     FString LocaleCode;
     /**
-    * Default locale at startup. Only one locale should be marked as default.
-    */
+     * Default locale at startup. Only one locale should be marked as default.
+     */
     UPROPERTY(config, EditAnywhere, Category = Localization)
     bool bDefault;
 
@@ -204,8 +205,8 @@ public:
     bool bEnableLiveUpdate;
 
     /**
-    * Enable live update in Editor for Auditioning. *Requires Restart*
-    */
+     * Enable live update in Editor for Auditioning. *Requires Restart*
+     */
     UPROPERTY(Config, EditAnywhere, Category = Basic, meta = (ConfigRestartRequired = true))
     bool bEnableEditorLiveUpdate;
 
@@ -220,14 +221,14 @@ public:
     TEnumAsByte<EFMODSpeakerMode::Type> OutputFormat;
 
     /**
-    * Built-in output types that can be used to run the mixer.
-    */
+     * Built-in output types that can be used to run the mixer.
+     */
     UPROPERTY(config, EditAnywhere, Category = Basic)
     TEnumAsByte<EFMODOutput::Type> OutputType;
 
     /**
-    * Locales for localized banks. These should match the project locales configured in the FMOD Studio project.
-    */
+     * Locales for localized banks. These should match the project locales configured in the FMOD Studio project.
+     */
     UPROPERTY(config, EditAnywhere, Category = Localization)
     TArray<FFMODProjectLocale> Locales;
 
@@ -245,8 +246,8 @@ public:
     int32 SampleRate;
 
     /**
-    * Whether to match hardware sample rate where reasonable (44.1kHz to 48kHz).
-    */
+     * Whether to match hardware sample rate where reasonable (44.1kHz to 48kHz).
+     */
     UPROPERTY(config, EditAnywhere, Category = InitSettings)
     bool bMatchHardwareSampleRate;
 
@@ -309,7 +310,7 @@ public:
 
     /**
      * Codecs
-    */
+     */
     UPROPERTY(config, EditAnywhere, Category = InitSettings, meta = (ClampMin = "0"))
     TMap<TEnumAsByte<EFMODCodec::Type>, int32> Codecs;
 
@@ -320,16 +321,16 @@ public:
     int32 LiveUpdatePort;
 
     /**
-    * Live update port to use while in editor for auditioning. *Requires Restart*
-    */
+     * Live update port to use while in editor for auditioning. *Requires Restart*
+     */
     UPROPERTY(config, EditAnywhere, Category = Advanced, meta = (EditCondition = "bEnableEditorLiveUpdate", ConfigRestartRequired = true))
     int32 EditorLiveUpdatePort;
 
     /**
-    * Delay in seconds before automatically reloading modified banks from disk. This can be extended if building
-    * banks takes a long time and UE4 tries to reload banks before building is completed.
-    * Set to 0 to disable automatic bank reloading.
-    */
+     * Delay in seconds before automatically reloading modified banks from disk. This can be extended if building
+     * banks takes a long time and UE4 tries to reload banks before building is completed.
+     * Set to 0 to disable automatic bank reloading.
+     */
     UPROPERTY(config, EditAnywhere, Category = Advanced)
     int32 ReloadBanksDelay;
 
@@ -340,8 +341,8 @@ public:
     bool bEnableAPIErrorLogging;
 
     /**
-    * Enable memory tracking.
-    */
+     * Enable memory tracking.
+     */
     UPROPERTY(config, EditAnywhere, Category = Advanced)
     bool bEnableMemoryTracking;
 
@@ -378,50 +379,50 @@ public:
     FString SkipLoadBankName;
 
     /*
-    * Specify the key for loading sounds from encrypted banks.
-    */
+     * Specify the key for loading sounds from encrypted banks.
+     */
     UPROPERTY(config, EditAnywhere, Category = Advanced, meta = (DisplayName = "Encryption Key"))
     FString StudioBankKey;
 
     /**
-    * Force wav writer output, for debugging only.  Setting this will prevent normal sound output!
-    */
+     * Force wav writer output, for debugging only.  Setting this will prevent normal sound output!
+     */
     UPROPERTY(config, EditAnywhere, Category = Advanced)
     FString WavWriterPath;
 
     /*
-    * Specify the logging level to use in a debug/development build.
-    */
+     * Specify the logging level to use in a debug/development build.
+     */
     UPROPERTY(config, EditAnywhere, Category = Advanced)
     TEnumAsByte<EFMODLogging> LoggingLevel;
 
     /**
-    * Name of the parameter used in Studio to control Occlusion effects.
-    */
+     * Name of the parameter used in Studio to control Occlusion effects.
+     */
     UPROPERTY(config, EditAnywhere, Category = Advanced)
     FString OcclusionParameter;
 
     /**
-    * Name of the parameter used in Studio to control Ambient volume.
-    */
+     * Name of the parameter used in Studio to control Ambient volume.
+     */
     UPROPERTY(config, EditAnywhere, Category = Advanced)
     FString AmbientVolumeParameter;
 
     /**
-    * Name of the parameter used in Studio to control Ambient LPF effects.
-    */
+     * Name of the parameter used in Studio to control Ambient LPF effects.
+     */
     UPROPERTY(config, EditAnywhere, Category = Advanced)
     FString AmbientLPFParameter;
 
     /**
-    * Enables/Disables the FMODAudioLink modules.
-    */
-    UPROPERTY(config, EditAnywhere, Category = Advanced, meta = (ConfigRestartRequired=true))
+     * Enables/Disables the FMODAudioLink modules.
+     */
+    UPROPERTY(config, EditAnywhere, Category = Advanced, meta = (ConfigRestartRequired = true))
     bool bFMODAudioLinkEnabled;
 
     /*
-    * Used to specify platform specific settings.
-    */
+     * Used to specify platform specific settings.
+     */
     UPROPERTY(config, EditAnywhere, Category = PlatformSettings)
     TMap<TEnumAsByte<EFMODPlatforms::Type>, FFMODPlatformSettings> Platforms;
 
@@ -469,8 +470,7 @@ private:
         TEXT("Events"),
         TEXT("Reverbs"),
         TEXT("Snapshots"),
-        TEXT("VCAs")
-    };
+        TEXT("VCAs")};
 
 #if WITH_EDITOR
     /** Get the path desktop banks. */

@@ -10,12 +10,12 @@ class UMovieSceneSection;
 class FFMODParameterSection : public FSequencerSection
 {
 public:
-    FFMODParameterSection(UMovieSceneSection &InSectionObject)
+    FFMODParameterSection(UMovieSceneSection& InSectionObject)
         : FSequencerSection(InSectionObject)
     {
     }
 
     // Begin ISequencerSection interface
-    virtual bool RequestDeleteKeyArea(const TArray<FName> &KeyAreaNamePath) override;
+    virtual bool RequestDeleteKeyArea(const TArray<FName>& KeyAreaNamePath) override;
     // End ISequencerSection interface
 };

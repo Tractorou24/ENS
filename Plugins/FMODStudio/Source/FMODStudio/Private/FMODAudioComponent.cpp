@@ -1,22 +1,22 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2012-2025.
 
 #include "FMODAudioComponent.h"
-#include "FMODStudioModule.h"
-#include "FMODUtils.h"
+#include "Components/BillboardComponent.h"
 #include "FMODEvent.h"
 #include "FMODListener.h"
 #include "FMODSettings.h"
-#include "fmod_studio.hpp"
+#include "FMODStudioModule.h"
+#include "FMODStudioPrivatePCH.h"
+#include "FMODUtils.h"
 #include "Misc/App.h"
 #include "Misc/Paths.h"
 #include "Misc/ScopeLock.h"
-#include "FMODStudioPrivatePCH.h"
-#include "Components/BillboardComponent.h"
+#include "fmod_studio.hpp"
 #if WITH_EDITORONLY_DATA
-#include "Engine/Texture2D.h"
+    #include "Engine/Texture2D.h"
 #endif
 
-UFMODAudioComponent::UFMODAudioComponent(const FObjectInitializer &ObjectInitializer)
+UFMODAudioComponent::UFMODAudioComponent(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
     , Event(nullptr)
     , bEnableTimelineCallbacks(false) // Default OFF for efficiency
@@ -129,7 +129,7 @@ void UFMODAudioComponent::UpdateSpriteTexture()
 #endif
 
 #if WITH_EDITOR
-void UFMODAudioComponent::PostEditChangeProperty(FPropertyChangedEvent &e)
+void UFMODAudioComponent::PostEditChangeProperty(FPropertyChangedEvent& e)
 {
     if (IsPlaying())
     {
@@ -146,9 +146,9 @@ void UFMODAudioComponent::PostEditChangeProperty(FPropertyChangedEvent &e)
     }
     UpdateCachedParameterValues();
 
-#if WITH_EDITORONLY_DATA
+    #if WITH_EDITORONLY_DATA
     UpdateSpriteTexture();
-#endif
+    #endif
 
     Super::PostEditChangeProperty(e);
 }
@@ -159,7 +159,7 @@ void UFMODAudioComponent::OnUpdateTransform(EUpdateTransformFlags UpdateTransfor
     Super::OnUpdateTransform(UpdateTransformFlags, Teleport);
     if (StudioInstance)
     {
-        FMOD_3D_ATTRIBUTES attr = { { 0 } };
+        FMOD_3D_ATTRIBUTES attr = {{0}};
         attr.position = FMODUtils::ConvertWorldVector(GetComponentTransform().GetLocation());
         attr.up = FMODUtils::ConvertUnitVector(GetComponentTransform().GetUnitAxis(EAxis::Z));
         attr.forward = FMODUtils::ConvertUnitVector(GetComponentTransform().GetUnitAxis(EAxis::X));
@@ -186,12 +186,12 @@ void UFMODAudioComponent::UpdateInteriorVolumes()
     float NewAmbientVolumeMultiplier = 1.0f;
     float NewAmbientHighFrequencyGain = 1.0f;
 
-    FInteriorSettings *Ambient =
-        (FInteriorSettings *)alloca(sizeof(FInteriorSettings)); // FinteriorSetting::FInteriorSettings() isn't exposed (possible UE4 bug???)
-    const FVector &Location = GetComponentLocation();
-    AAudioVolume *AudioVolume = GetWorld()->GetAudioSettings(Location, NULL, Ambient);
+    FInteriorSettings* Ambient =
+        (FInteriorSettings*)alloca(sizeof(FInteriorSettings)); // FinteriorSetting::FInteriorSettings() isn't exposed (possible UE4 bug???)
+    const FVector& Location = GetComponentLocation();
+    AAudioVolume* AudioVolume = GetWorld()->GetAudioSettings(Location, NULL, Ambient);
 
-    const FFMODListener &Listener = GetStudioModule().GetNearestListener(Location);
+    const FFMODListener& Listener = GetStudioModule().GetNearestListener(Location);
     if (InteriorLastUpdateTime < Listener.InteriorStartTime)
     {
         SourceInteriorVolume = CurrentInteriorVolume;
@@ -209,7 +209,7 @@ void UFMODAudioComponent::UpdateInteriorVolumes()
         CurrentInteriorLPF = FMath::Lerp(SourceInteriorLPF, MAX_FILTER_FREQUENCY, Listener.InteriorLPFInterp);
         NewAmbientHighFrequencyGain = CurrentInteriorLPF;
 
-        //UE_LOG(LogFMOD, Verbose, TEXT( "Ambient in same volume. Volume *= %g LPF *= %g" ), CurrentInteriorVolume, CurrentInteriorLPF);
+        // UE_LOG(LogFMOD, Verbose, TEXT( "Ambient in same volume. Volume *= %g LPF *= %g" ), CurrentInteriorVolume, CurrentInteriorLPF);
     }
     else
     {
@@ -223,7 +223,7 @@ void UFMODAudioComponent::UpdateInteriorVolumes()
             CurrentInteriorLPF = FMath::Lerp(SourceInteriorLPF, Listener.InteriorSettings.ExteriorLPF, Listener.ExteriorLPFInterp);
             NewAmbientHighFrequencyGain = CurrentInteriorLPF;
 
-            //UE_LOG(LogFMOD, Verbose, TEXT( "Ambient in diff volume, ambient outside. Volume *= %g LPF *= %g" ), CurrentInteriorVolume, CurrentInteriorLPF);
+            // UE_LOG(LogFMOD, Verbose, TEXT( "Ambient in diff volume, ambient outside. Volume *= %g LPF *= %g" ), CurrentInteriorVolume, CurrentInteriorLPF);
         }
         else
         {
@@ -231,7 +231,6 @@ void UFMODAudioComponent::UpdateInteriorVolumes()
             CurrentInteriorVolume = FMath::Lerp(SourceInteriorVolume, Ambient->InteriorVolume, Listener.InteriorVolumeInterp);
             CurrentInteriorVolume *= FMath::Lerp(SourceInteriorVolume, Listener.InteriorSettings.ExteriorVolume, Listener.ExteriorVolumeInterp);
             NewAmbientVolumeMultiplier = CurrentInteriorVolume;
-
 
             float AmbientLPFValue = FMath::Lerp(SourceInteriorLPF, Ambient->InteriorLPF, Listener.InteriorLPFInterp);
             float ListenerLPFValue = FMath::Lerp(SourceInteriorLPF, Listener.InteriorSettings.ExteriorLPF, Listener.ExteriorLPFInterp);
@@ -248,7 +247,7 @@ void UFMODAudioComponent::UpdateInteriorVolumes()
                 NewAmbientHighFrequencyGain = ListenerLPFValue;
             }
 
-            //UE_LOG(LogFMOD, Verbose, TEXT( "Ambient in diff volume, ambient inside. Volume *= %g LPF *= %g" ), CurrentInteriorVolume, CurrentInteriorLPF);
+            // UE_LOG(LogFMOD, Verbose, TEXT( "Ambient in diff volume, ambient inside. Volume *= %g LPF *= %g" ), CurrentInteriorVolume, CurrentInteriorLPF);
         }
     }
 
@@ -278,8 +277,8 @@ void UFMODAudioComponent::UpdateAttenuation()
         static FName NAME_SoundOcclusion = FName(TEXT("SoundOcclusion"));
         FCollisionQueryParams Params(NAME_SoundOcclusion, OcclusionDetails.bUseComplexCollisionForOcclusion, GetOwner());
 
-        const FVector &Location = GetComponentLocation();
-        const FFMODListener &Listener = GetStudioModule().GetNearestListener(Location);
+        const FVector& Location = GetComponentLocation();
+        const FFMODListener& Listener = GetStudioModule().GetNearestListener(Location);
 
         bool bIsOccluded = GWorld->LineTraceTestByChannel(Location, Listener.Transform.GetLocation(), OcclusionDetails.OcclusionTraceChannel, Params);
 
@@ -341,7 +340,7 @@ void UFMODAudioComponent::CacheDefaultParameterValues()
     {
         TArray<FMOD_STUDIO_PARAMETER_DESCRIPTION> ParameterDescriptions;
         Event->GetParameterDescriptions(ParameterDescriptions);
-        for (const FMOD_STUDIO_PARAMETER_DESCRIPTION &ParameterDescription : ParameterDescriptions)
+        for (const FMOD_STUDIO_PARAMETER_DESCRIPTION& ParameterDescription : ParameterDescriptions)
         {
             if (!ParameterCache.Find(ParameterDescription.name) && ShouldCacheParameter(ParameterDescription))
             {
@@ -401,7 +400,7 @@ void UFMODAudioComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
         case EEndPlayReason::Destroyed:
         case EEndPlayReason::RemovedFromWorld:
         {
-            AActor *Owner = GetOwner();
+            AActor* Owner = GetOwner();
             if (!Owner || bStopWhenOwnerDestroyed)
                 shouldStop = true;
             break;
@@ -425,7 +424,7 @@ void UFMODAudioComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     bPlayEnded = true;
 }
 
-void UFMODAudioComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+void UFMODAudioComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -462,11 +461,11 @@ void UFMODAudioComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
                     Swap(LocalBeatQueue, CallbackBeatQueue);
                 }
 
-                for (const FTimelineMarkerProperties &EachProps : LocalMarkerQueue)
+                for (const FTimelineMarkerProperties& EachProps : LocalMarkerQueue)
                 {
                     OnTimelineMarker.Broadcast(EachProps.Name, EachProps.Position);
                 }
-                for (const FTimelineBeatProperties &EachProps : LocalBeatQueue)
+                for (const FTimelineBeatProperties& EachProps : LocalBeatQueue)
                 {
                     OnTimelineBeat.Broadcast(
                         EachProps.Bar, EachProps.Beat, EachProps.Position, EachProps.Tempo, EachProps.TimeSignatureUpper, EachProps.TimeSignatureLower);
@@ -491,7 +490,7 @@ void UFMODAudioComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
     }
 }
 
-void UFMODAudioComponent::SetEvent(UFMODEvent *NewEvent)
+void UFMODAudioComponent::SetEvent(UFMODEvent* NewEvent)
 {
     const bool bPlay = IsPlaying();
 
@@ -532,27 +531,27 @@ void UFMODAudioComponent::Deactivate()
     Super::Deactivate();
 }
 
-FMOD_RESULT F_CALL UFMODAudioComponent_EventCallback(FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUDIO_EVENTINSTANCE *event, void *parameters)
+FMOD_RESULT F_CALL UFMODAudioComponent_EventCallback(FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUDIO_EVENTINSTANCE* event, void* parameters)
 {
-    UFMODAudioComponent *Component = nullptr;
-    FMOD::Studio::EventInstance *Instance = (FMOD::Studio::EventInstance *)event;
-    if (Instance->getUserData((void **)&Component) == FMOD_OK && IsValid(Component))
+    UFMODAudioComponent* Component = nullptr;
+    FMOD::Studio::EventInstance* Instance = (FMOD::Studio::EventInstance*)event;
+    if (Instance->getUserData((void**)&Component) == FMOD_OK && IsValid(Component))
     {
         if (type == FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_MARKER && Component->bEnableTimelineCallbacks)
         {
-            Component->EventCallbackAddMarker((FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES *)parameters);
+            Component->EventCallbackAddMarker((FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES*)parameters);
         }
         else if (type == FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_BEAT && Component->bEnableTimelineCallbacks)
         {
-            Component->EventCallbackAddBeat((FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES *)parameters);
+            Component->EventCallbackAddBeat((FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES*)parameters);
         }
         else if (type == FMOD_STUDIO_EVENT_CALLBACK_CREATE_PROGRAMMER_SOUND)
         {
-            Component->EventCallbackCreateProgrammerSound((FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES *)parameters);
+            Component->EventCallbackCreateProgrammerSound((FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES*)parameters);
         }
         else if (type == FMOD_STUDIO_EVENT_CALLBACK_DESTROY_PROGRAMMER_SOUND)
         {
-            Component->EventCallbackDestroyProgrammerSound((FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES *)parameters);
+            Component->EventCallbackDestroyProgrammerSound((FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES*)parameters);
         }
         else if (type == FMOD_STUDIO_EVENT_CALLBACK_SOUND_STOPPED)
         {
@@ -562,23 +561,23 @@ FMOD_RESULT F_CALL UFMODAudioComponent_EventCallback(FMOD_STUDIO_EVENT_CALLBACK_
     return FMOD_OK;
 }
 
-void UFMODAudioComponent_ReleaseProgrammerSound(FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES *props)
+void UFMODAudioComponent_ReleaseProgrammerSound(FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES* props)
 {
     if (props->sound)
     {
         UE_LOG(LogFMOD, Verbose, TEXT("Destroying programmer sound"));
-        FMOD_RESULT Result = ((FMOD::Sound *)props->sound)->release();
+        FMOD_RESULT Result = ((FMOD::Sound*)props->sound)->release();
         verifyfmod(Result);
     }
 }
 
-FMOD_RESULT F_CALL UFMODAudioComponent_EventCallbackDestroyProgrammerSound(FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUDIO_EVENTINSTANCE *event, void *parameters)
+FMOD_RESULT F_CALL UFMODAudioComponent_EventCallbackDestroyProgrammerSound(FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUDIO_EVENTINSTANCE* event, void* parameters)
 {
-    UFMODAudioComponent_ReleaseProgrammerSound((FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES *)parameters);
+    UFMODAudioComponent_ReleaseProgrammerSound((FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES*)parameters);
     return FMOD_OK;
 }
 
-void UFMODAudioComponent::EventCallbackAddMarker(FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES *props)
+void UFMODAudioComponent::EventCallbackAddMarker(FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES* props)
 {
     FScopeLock Lock(&CallbackLock);
     FTimelineMarkerProperties info;
@@ -587,7 +586,7 @@ void UFMODAudioComponent::EventCallbackAddMarker(FMOD_STUDIO_TIMELINE_MARKER_PRO
     CallbackMarkerQueue.Push(info);
 }
 
-void UFMODAudioComponent::EventCallbackAddBeat(FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES *props)
+void UFMODAudioComponent::EventCallbackAddBeat(FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES* props)
 {
     FScopeLock Lock(&CallbackLock);
     FTimelineBeatProperties info;
@@ -600,7 +599,7 @@ void UFMODAudioComponent::EventCallbackAddBeat(FMOD_STUDIO_TIMELINE_BEAT_PROPERT
     CallbackBeatQueue.Push(info);
 }
 
-void UFMODAudioComponent::EventCallbackCreateProgrammerSound(FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES *props)
+void UFMODAudioComponent::EventCallbackCreateProgrammerSound(FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES* props)
 {
     // Make sure name isn't being changed as we are reading it
     FString ProgrammerSoundNameCopy;
@@ -611,20 +610,20 @@ void UFMODAudioComponent::EventCallbackCreateProgrammerSound(FMOD_STUDIO_PROGRAM
 
     if (ProgrammerSound)
     {
-        props->sound = (FMOD_SOUND *)ProgrammerSound;
+        props->sound = (FMOD_SOUND*)ProgrammerSound;
         props->subsoundIndex = -1;
     }
     else if (ProgrammerSoundNameCopy.Len() || strlen(props->name) != 0)
     {
-        FMOD::Studio::System *System = GetStudioModule().GetStudioSystem(EFMODSystemContext::Max);
-        FMOD::System *LowLevelSystem = nullptr;
+        FMOD::Studio::System* System = GetStudioModule().GetStudioSystem(EFMODSystemContext::Max);
+        FMOD::System* LowLevelSystem = nullptr;
         System->getCoreSystem(&LowLevelSystem);
         FString SoundName = ProgrammerSoundNameCopy.Len() ? ProgrammerSoundNameCopy : UTF8_TO_TCHAR(props->name);
         FMOD_MODE SoundMode = FMOD_LOOP_NORMAL | FMOD_CREATECOMPRESSEDSAMPLE | FMOD_NONBLOCKING;
 
-        if (SoundName.StartsWith(TEXT("http://")) || 
-            SoundName.StartsWith(TEXT("http:\\\\")) || 
-            SoundName.StartsWith(TEXT("https://")) || 
+        if (SoundName.StartsWith(TEXT("http://")) ||
+            SoundName.StartsWith(TEXT("http:\\\\")) ||
+            SoundName.StartsWith(TEXT("https://")) ||
             SoundName.StartsWith(TEXT("https:\\\\")))
         {
             // Load via url
@@ -656,11 +655,11 @@ void UFMODAudioComponent::EventCallbackCreateProgrammerSound(FMOD_STUDIO_PROGRAM
                 SoundPath = FPaths::ProjectContentDir() / SoundPath;
             }
 
-            FMOD::Sound *Sound = nullptr;
+            FMOD::Sound* Sound = nullptr;
             if (LowLevelSystem->createSound(TCHAR_TO_UTF8(*SoundPath), SoundMode, nullptr, &Sound) == FMOD_OK)
             {
                 UE_LOG(LogFMOD, Verbose, TEXT("Creating programmer sound from file '%s'"), *SoundPath);
-                props->sound = (FMOD_SOUND *)Sound;
+                props->sound = (FMOD_SOUND*)Sound;
                 props->subsoundIndex = -1;
                 NeedDestroyProgrammerSoundCallback = true;
             }
@@ -672,17 +671,17 @@ void UFMODAudioComponent::EventCallbackCreateProgrammerSound(FMOD_STUDIO_PROGRAM
         else
         {
             // Load via FMOD Studio asset table
-            FMOD_STUDIO_SOUND_INFO SoundInfo = { 0 };
+            FMOD_STUDIO_SOUND_INFO SoundInfo = {0};
             FMOD_RESULT Result = System->getSoundInfo(TCHAR_TO_UTF8(*SoundName), &SoundInfo);
             if (Result == FMOD_OK)
             {
-                FMOD::Sound *Sound = nullptr;
+                FMOD::Sound* Sound = nullptr;
                 Result = LowLevelSystem->createSound(SoundInfo.name_or_data, SoundMode | SoundInfo.mode, &SoundInfo.exinfo, &Sound);
                 if (Result == FMOD_OK)
                 {
                     UE_LOG(LogFMOD, Verbose, TEXT("Creating programmer sound using audio entry '%s'"), *SoundName);
 
-                    props->sound = (FMOD_SOUND *)Sound;
+                    props->sound = (FMOD_SOUND*)Sound;
                     props->subsoundIndex = SoundInfo.subsoundindex;
                     NeedDestroyProgrammerSoundCallback = true;
                 }
@@ -705,7 +704,7 @@ void UFMODAudioComponent::EventCallbackSoundStopped()
     TriggerSoundStoppedDelegate = true;
 }
 
-void UFMODAudioComponent::EventCallbackDestroyProgrammerSound(FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES *props)
+void UFMODAudioComponent::EventCallbackDestroyProgrammerSound(FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES* props)
 {
     if (NeedDestroyProgrammerSoundCallback)
     {
@@ -720,7 +719,7 @@ void UFMODAudioComponent::SetProgrammerSoundName(FString Value)
     ProgrammerSoundName = Value;
 }
 
-void UFMODAudioComponent::SetProgrammerSound(FMOD::Sound *Sound)
+void UFMODAudioComponent::SetProgrammerSound(FMOD::Sound* Sound)
 {
     FScopeLock Lock(&CallbackLock);
     ProgrammerSound = Sound;
@@ -735,8 +734,7 @@ void UFMODAudioComponent::PlayInternal(EFMODSystemContext::Type Context, bool bR
 {
     Stop();
 
-    if (!FMODUtils::IsWorldAudible(GetWorld(), Context == EFMODSystemContext::Editor
-        || Context == EFMODSystemContext::Auditioning))
+    if (!FMODUtils::IsWorldAudible(GetWorld(), Context == EFMODSystemContext::Editor || Context == EFMODSystemContext::Auditioning))
     {
         return;
     }
@@ -744,7 +742,7 @@ void UFMODAudioComponent::PlayInternal(EFMODSystemContext::Type Context, bool bR
     UE_LOG(LogFMOD, Verbose, TEXT("UFMODAudioComponent %p Play"), this);
 
     // Only play events in PIE/game, not when placing them in the editor
-    FMOD::Studio::EventDescription *EventDesc = GetStudioModule().GetEventDescription(Event, Context);
+    FMOD::Studio::EventDescription* EventDesc = GetStudioModule().GetEventDescription(Event, Context);
     if (EventDesc != nullptr)
     {
         EventDesc->getLength(&EventLength);
@@ -755,7 +753,7 @@ void UFMODAudioComponent::PlayInternal(EFMODSystemContext::Type Context, bool bR
                 return;
         }
 
-        const UFMODSettings &Settings = *GetDefault<UFMODSettings>();
+        const UFMODSettings& Settings = *GetDefault<UFMODSettings>();
         FMOD_STUDIO_PARAMETER_DESCRIPTION paramDesc = {};
         FString param = Settings.OcclusionParameter;
         if (!param.IsEmpty())
@@ -774,7 +772,7 @@ void UFMODAudioComponent::PlayInternal(EFMODSystemContext::Type Context, bool bR
             if (EventDesc->getParameterDescriptionByName(TCHAR_TO_UTF8(*param), &paramDesc) == FMOD_OK)
             {
                 AmbientVolumeID = paramDesc.id;
-                LastVolume = -1.0f;     // Invalidate LastVolume so the AmbientVolumeParameter of the Event will be set later on
+                LastVolume = -1.0f; // Invalidate LastVolume so the AmbientVolumeParameter of the Event will be set later on
                 bApplyAmbientVolumes = true;
             }
         }
@@ -786,7 +784,7 @@ void UFMODAudioComponent::PlayInternal(EFMODSystemContext::Type Context, bool bR
             if (EventDesc->getParameterDescriptionByName(TCHAR_TO_UTF8(*Settings.AmbientLPFParameter), &paramDesc) == FMOD_OK)
             {
                 AmbientLPFID = paramDesc.id;
-                LastLPF = -1.0f;     // Invalidate LastLPF so the AmbientLPFParameter of the Event will be set later on
+                LastLPF = -1.0f; // Invalidate LastLPF so the AmbientLPFParameter of the Event will be set later on
                 bApplyAmbientVolumes = true;
             }
         }
@@ -934,7 +932,7 @@ void UFMODAudioComponent::OnPlaybackCompleted()
         // Fire callback after we have cleaned up our instance
         OnEventStopped.Broadcast();
     }
-    
+
     // Auto destruction is handled via marking object for deletion.
     if (bAutoDestroy)
     {
@@ -1077,7 +1075,7 @@ float UFMODAudioComponent::GetParameter(FName Name)
         CacheDefaultParameterValues();
     }
 
-    float *CachedValue = ParameterCache.Find(Name);
+    float* CachedValue = ParameterCache.Find(Name);
     float Value = CachedValue ? *CachedValue : 0.0;
     if (StudioInstance)
     {
@@ -1090,14 +1088,14 @@ float UFMODAudioComponent::GetParameter(FName Name)
     return Value;
 }
 
-void UFMODAudioComponent::GetParameterValue(FName Name, float &UserValue, float &FinalValue)
+void UFMODAudioComponent::GetParameterValue(FName Name, float& UserValue, float& FinalValue)
 {
     if (!bDefaultParameterValuesCached)
     {
         CacheDefaultParameterValues();
     }
 
-    float *CachedValue = ParameterCache.Find(Name);
+    float* CachedValue = ParameterCache.Find(Name);
     if (StudioInstance)
     {
         FMOD_RESULT Result = StudioInstance->getParameterByName(TCHAR_TO_UTF8(*Name.ToString()), &UserValue, &FinalValue);

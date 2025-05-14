@@ -2,9 +2,10 @@
 
 #pragma once
 
-#include "Misc/Guid.h"
 #include "CoreMinimal.h"
+#include "Misc/Guid.h"
 #include "UObject/AssetRegistryTagsContext.h"
+
 #include "FMODAsset.generated.h"
 
 class FAssetRegistryTagsContext;

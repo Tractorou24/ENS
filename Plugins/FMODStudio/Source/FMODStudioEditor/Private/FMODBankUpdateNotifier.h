@@ -3,15 +3,15 @@
 #pragma once
 
 #include "Containers/UnrealString.h"
-#include "Misc/DateTime.h"
 #include "Delegates/Delegate.h"
+#include "Misc/DateTime.h"
 
 class FFMODBankUpdateNotifier
 {
 public:
     FFMODBankUpdateNotifier();
 
-    void SetFilePath(const FString &InPath);
+    void SetFilePath(const FString& InPath);
     void Update(float DeltaTime);
 
     void EnableUpdate(bool bEnable);

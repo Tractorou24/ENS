@@ -4,6 +4,7 @@
 
 #include "FMODAsset.h"
 #include "Sound/ReverbEffect.h"
+
 #include "FMODSnapshotReverb.generated.h"
 
 /**
@@ -24,6 +25,6 @@ private:
     virtual bool IsAsset() const override;
 
 #if WITH_EDITORONLY_DATA
-    virtual void PostEditChangeProperty(FPropertyChangedEvent &PropertyChangedEvent) override;
+    virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif // EDITORONLY_DATA
 };

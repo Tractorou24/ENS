@@ -11,7 +11,7 @@ class UAudioComponent;
 #include "FMODAudioLinkComponent.generated.h"
 
 UCLASS(ClassGroup = (Audio, Common), HideCategories = (Object, ActorComponent, Physics, Rendering, Mobility, LOD),
-    ShowCategories = Trigger, meta = (BlueprintSpawnableComponent))
+       ShowCategories = Trigger, meta = (BlueprintSpawnableComponent))
 class UFMODAudioLinkComponent : public USceneComponent, public IAudioLinkBlueprintInterface
 {
     GENERATED_BODY()

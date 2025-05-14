@@ -1,13 +1,13 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2012-2025.
 
 #include "SFMODEventEditorPanel.h"
+#include "Editor/EditorStyle/Public/EditorStyleSet.h"
 #include "FMODStudioModule.h"
 #include "FMODUtils.h"
 #include "Input/Reply.h"
+#include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SNumericEntryBox.h"
 #include "Widgets/Layout/SExpandableArea.h"
-#include "Editor/EditorStyle/Public/EditorStyleSet.h"
-#include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SScrollBox.h"
 #include "fmod_studio.hpp"
 
@@ -17,11 +17,11 @@ SFMODEventEditorPanel::~SFMODEventEditorPanel()
 {
 }
 
-void SFMODEventEditorPanel::Construct(const FArguments &InArgs)
+void SFMODEventEditorPanel::Construct(const FArguments& InArgs)
 {
     FMODEventEditorPtr = InArgs._FMODEventEditor;
 
-    FMOD::Studio::EventDescription *EventDescription = FMODEventEditorPtr.Pin()->GetEventDescription();
+    FMOD::Studio::EventDescription* EventDescription = FMODEventEditorPtr.Pin()->GetEventDescription();
 
     TSharedRef<SBorder> ToolbarBorder = ConstructToolbar(EventDescription);
     TSharedRef<SExpandableArea> InfoArea = ConstructInfo(EventDescription);
@@ -38,7 +38,7 @@ void SFMODEventEditorPanel::Construct(const FArguments &InArgs)
                         SScrollBox::Slot().Padding(0.0f)[SNew(SVerticalBox) + SVerticalBox::Slot().AutoHeight().Padding(0.0f)[ChildWidget]]]];
 }
 
-TSharedRef<SBorder> SFMODEventEditorPanel::ConstructToolbar(FMOD::Studio::EventDescription *EventDescription)
+TSharedRef<SBorder> SFMODEventEditorPanel::ConstructToolbar(FMOD::Studio::EventDescription* EventDescription)
 {
     float MinDistance = 0.0f;
     float MaxDistance = 0.0f;
@@ -110,24 +110,24 @@ TSharedRef<SBorder> SFMODEventEditorPanel::ConstructToolbar(FMOD::Studio::EventD
                        .HAlign(HAlign_Right)[SNew(STextBlock).Text(EventInfoText)]];
 }
 
-void AddTextField(TSharedRef<SVerticalBox> &InfoBox, const TCHAR *Name, const FText &Value)
+void AddTextField(TSharedRef<SVerticalBox>& InfoBox, const TCHAR* Name, const FText& Value)
 {
     InfoBox->AddSlot().Padding(
         4.0f, 3.0f)[SNew(SHorizontalBox) + SHorizontalBox::Slot().FillWidth(0.3f)[SNew(STextBlock).Text(FText::FromString(Name))] +
                     SHorizontalBox::Slot()[SNew(SEditableText).Text(Value).IsReadOnly(true)]];
 }
 
-void AddBoolField(TSharedRef<SVerticalBox> &InfoBox, const TCHAR *Name, bool bValue)
+void AddBoolField(TSharedRef<SVerticalBox>& InfoBox, const TCHAR* Name, bool bValue)
 {
     AddTextField(InfoBox, Name, bValue ? LOCTEXT("True", "True") : LOCTEXT("False", "False"));
 }
 
-void AddFloatField(TSharedRef<SVerticalBox> &InfoBox, const TCHAR *Name, float Value)
+void AddFloatField(TSharedRef<SVerticalBox>& InfoBox, const TCHAR* Name, float Value)
 {
     AddTextField(InfoBox, Name, FText::AsNumber(Value));
 }
 
-TSharedRef<SExpandableArea> MakeBox(TSharedRef<SVerticalBox> &InfoBox, const FText &Value)
+TSharedRef<SExpandableArea> MakeBox(TSharedRef<SVerticalBox>& InfoBox, const FText& Value)
 {
     return SNew(SExpandableArea)
         .AreaTitle(Value)
@@ -135,7 +135,7 @@ TSharedRef<SExpandableArea> MakeBox(TSharedRef<SVerticalBox> &InfoBox, const FTe
         .BodyContent()[SNew(SBorder).BorderImage(FCoreStyle::Get().GetBrush("NoBorder")).Padding(4.0f).Content()[InfoBox]];
 }
 
-TSharedRef<SExpandableArea> SFMODEventEditorPanel::ConstructInfo(FMOD::Studio::EventDescription *EventDescription)
+TSharedRef<SExpandableArea> SFMODEventEditorPanel::ConstructInfo(FMOD::Studio::EventDescription* EventDescription)
 {
     TSharedRef<SVerticalBox> InfoBox = SNew(SVerticalBox);
 
@@ -174,7 +174,7 @@ TSharedRef<SExpandableArea> SFMODEventEditorPanel::ConstructInfo(FMOD::Studio::E
     return MakeBox(InfoBox, LOCTEXT("EventInfo", "Event Info"));
 }
 
-TSharedRef<SExpandableArea> SFMODEventEditorPanel::ConstructParameters(FMOD::Studio::EventDescription *EventDescription)
+TSharedRef<SExpandableArea> SFMODEventEditorPanel::ConstructParameters(FMOD::Studio::EventDescription* EventDescription)
 {
     auto EventEditor = FMODEventEditorPtr.Pin();
     TSharedRef<SVerticalBox> ParametersBox = SNew(SVerticalBox);
@@ -193,30 +193,29 @@ TSharedRef<SExpandableArea> SFMODEventEditorPanel::ConstructParameters(FMOD::Stu
 
             EventEditor->AddParameter(Parameter.id, Parameter.minimum);
 
-            const FString ParameterName = Parameter.type == FMOD_STUDIO_PARAMETER_GAME_CONTROLLED ? FString(UTF8_TO_TCHAR(Parameter.name)) :
-                                                                                                    FMODUtils::ParameterTypeToString(Parameter.type);
+            const FString ParameterName = Parameter.type == FMOD_STUDIO_PARAMETER_GAME_CONTROLLED ? FString(UTF8_TO_TCHAR(Parameter.name)) : FMODUtils::ParameterTypeToString(Parameter.type);
             const FText ToolTipText = FText::Format(LOCTEXT("ParameterTooltipFormat", "{0} (Min Value: {1} - Max Value: {2})"),
-                FText::FromString(ParameterName), FText::AsNumber(Parameter.minimum, &Options), FText::AsNumber(Parameter.maximum, &Options));
+                                                    FText::FromString(ParameterName), FText::AsNumber(Parameter.minimum, &Options), FText::AsNumber(Parameter.maximum, &Options));
 
             ParametersBox->AddSlot().Padding(4.0f,
-                2.0f)[SNew(SHorizontalBox).ToolTipText(ToolTipText) +
-                      SHorizontalBox::Slot().FillWidth(0.3f)[SNew(STextBlock).Text(FText::FromString(ParameterName))] +
-                      SHorizontalBox::Slot().MaxWidth(200.0f)[SNew(SNumericEntryBox<float>)
-                                                                  .Value(this, &SFMODEventEditorPanel::GetParameterValue, Parameter.id)
-                                                                  .OnValueChanged(this, &SFMODEventEditorPanel::OnParameterValueChanged, Parameter.id)
-                                                                  .AllowSpin(true)
-                                                                  .MinValue(Parameter.minimum)
-                                                                  .MaxValue(Parameter.maximum)
-                                                                  .MinSliderValue(Parameter.minimum)
-                                                                  .MaxSliderValue(Parameter.maximum)
-                                                                  .Delta(0.01f)]];
+                                             2.0f)[SNew(SHorizontalBox).ToolTipText(ToolTipText) +
+                                                   SHorizontalBox::Slot().FillWidth(0.3f)[SNew(STextBlock).Text(FText::FromString(ParameterName))] +
+                                                   SHorizontalBox::Slot().MaxWidth(200.0f)[SNew(SNumericEntryBox<float>)
+                                                                                               .Value(this, &SFMODEventEditorPanel::GetParameterValue, Parameter.id)
+                                                                                               .OnValueChanged(this, &SFMODEventEditorPanel::OnParameterValueChanged, Parameter.id)
+                                                                                               .AllowSpin(true)
+                                                                                               .MinValue(Parameter.minimum)
+                                                                                               .MaxValue(Parameter.maximum)
+                                                                                               .MinSliderValue(Parameter.minimum)
+                                                                                               .MaxSliderValue(Parameter.maximum)
+                                                                                               .Delta(0.01f)]];
         }
     }
 
     return MakeBox(ParametersBox, LOCTEXT("EventParameters", "Event Parameters"));
 }
 
-TSharedRef<SExpandableArea> SFMODEventEditorPanel::ConstructUserProperties(FMOD::Studio::EventDescription *EventDescription)
+TSharedRef<SExpandableArea> SFMODEventEditorPanel::ConstructUserProperties(FMOD::Studio::EventDescription* EventDescription)
 {
     TSharedRef<SVerticalBox> UserPropertiesBox = SNew(SVerticalBox);
 

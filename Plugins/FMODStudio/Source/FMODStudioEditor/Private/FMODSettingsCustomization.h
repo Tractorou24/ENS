@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Misc/Attribute.h"
-#include "Input/Reply.h"
 #include "IDetailCustomization.h"
+#include "Input/Reply.h"
+#include "Misc/Attribute.h"
 #include "PropertyHandle.h"
 
 class IDetailLayoutBuilder;

@@ -1,49 +1,49 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2012-2025.
 
 #include "FMODStudioModule.h"
-#include "FMODSettings.h"
+#include "FMODAssetTable.h"
 #include "FMODAudioComponent.h"
 #include "FMODBlueprintStatics.h"
-#include "FMODAssetTable.h"
-#include "FMODFileCallbacks.h"
-#include "FMODUtils.h"
 #include "FMODEvent.h"
+#include "FMODFileCallbacks.h"
 #include "FMODListener.h"
+#include "FMODSettings.h"
 #include "FMODSnapshotReverb.h"
+#include "FMODUtils.h"
 
 #include "FMODAudioLinkModule.h"
 #if WITH_EDITOR
-#include "FMODAudioLinkEditorModule.h"
+    #include "FMODAudioLinkEditorModule.h"
 #endif
 
 #include "Async/Async.h"
+#include "Containers/Ticker.h"
+#include "Engine/Engine.h"
+#include "Engine/GameViewportClient.h"
+#include "Engine/LocalPlayer.h"
+#include "GameFramework/PlayerController.h"
 #include "Interfaces/IPluginManager.h"
 #include "Misc/App.h"
 #include "Misc/CommandLine.h"
 #include "Misc/CoreDelegates.h"
-#include "Engine/Engine.h"
-#include "Engine/LocalPlayer.h"
-#include "Engine/GameViewportClient.h"
-#include "GameFramework/PlayerController.h"
-#include "Containers/Ticker.h"
 #include "Misc/Paths.h"
 #include "Runtime/Media/Public/IMediaClock.h"
 #include "Runtime/Media/Public/IMediaClockSink.h"
 #include "Runtime/Media/Public/IMediaModule.h"
 #include "TimerManager.h"
 
-#include "fmod_studio.hpp"
-#include "fmod_errors.h"
 #include "FMODStudioPrivatePCH.h"
+#include "fmod_errors.h"
+#include "fmod_studio.hpp"
 
 #include <atomic>
 
 #ifdef FMOD_PLATFORM_HEADER
-#include "FMODPlatform.h"
+    #include "FMODPlatform.h"
 #endif
 
 #if PLATFORM_IOS || PLATFORM_TVOS
-#include <AVFoundation/AVAudioSession.h>
+    #include <AVFoundation/AVAudioSession.h>
 #endif
 
 #define LOCTEXT_NAMESPACE "FMODStudio"
@@ -58,26 +58,28 @@ DECLARE_MEMORY_STAT(TEXT("FMOD Memory - Max"), STAT_FMOD_Max_Memory, STATGROUP_F
 DECLARE_DWORD_COUNTER_STAT(TEXT("FMOD Channels - Total"), STAT_FMOD_Total_Channels, STATGROUP_FMOD);
 DECLARE_DWORD_COUNTER_STAT(TEXT("FMOD Channels - Real"), STAT_FMOD_Real_Channels, STATGROUP_FMOD);
 
-const TCHAR *FMODSystemContextNames[EFMODSystemContext::Max] = {
-    TEXT("Auditioning"), TEXT("Runtime"), TEXT("Editor"),
+const TCHAR* FMODSystemContextNames[EFMODSystemContext::Max] = {
+    TEXT("Auditioning"),
+    TEXT("Runtime"),
+    TEXT("Editor"),
 };
 
-void *F_CALL FMODMemoryAlloc(unsigned int size, FMOD_MEMORY_TYPE type, const char *sourcestr)
+void* F_CALL FMODMemoryAlloc(unsigned int size, FMOD_MEMORY_TYPE type, const char* sourcestr)
 {
     return FMemory::Malloc(size);
 }
-void *F_CALL FMODMemoryRealloc(void *ptr, unsigned int size, FMOD_MEMORY_TYPE type, const char *sourcestr)
+void* F_CALL FMODMemoryRealloc(void* ptr, unsigned int size, FMOD_MEMORY_TYPE type, const char* sourcestr)
 {
     return FMemory::Realloc(ptr, size);
 }
-void F_CALL FMODMemoryFree(void *ptr, FMOD_MEMORY_TYPE type, const char *sourcestr)
+void F_CALL FMODMemoryFree(void* ptr, FMOD_MEMORY_TYPE type, const char* sourcestr)
 {
     FMemory::Free(ptr);
 }
 
 struct FFMODSnapshotEntry
 {
-    FFMODSnapshotEntry(UFMODSnapshotReverb *InSnapshot = nullptr, FMOD::Studio::EventInstance *InInstance = nullptr)
+    FFMODSnapshotEntry(UFMODSnapshotReverb* InSnapshot = nullptr, FMOD::Studio::EventInstance* InInstance = nullptr)
         : Snapshot(InSnapshot)
         , Instance(InInstance)
         , StartTime(0.0)
@@ -111,8 +113,8 @@ struct FFMODSnapshotEntry
         FadeIntensityEnd = Target;
     }
 
-    UFMODSnapshotReverb *Snapshot;
-    FMOD::Studio::EventInstance *Instance;
+    UFMODSnapshotReverb* Snapshot;
+    FMOD::Studio::EventInstance* Instance;
     double StartTime;
     float FadeDuration;
     float FadeIntensityStart;
@@ -124,7 +126,7 @@ class FFMODStudioSystemClockSink : public IMediaClockSink
 public:
     DECLARE_DELEGATE(FUpdateListenerPosition);
 
-    FFMODStudioSystemClockSink(FMOD::Studio::System *SystemIn)
+    FFMODStudioSystemClockSink(FMOD::Studio::System* SystemIn)
         : System(SystemIn)
         , LastResult(FMOD_OK)
     {
@@ -147,7 +149,7 @@ public:
 
     void OnDestroyStudioSystem() { System = nullptr; }
 
-    FMOD::Studio::System *System;
+    FMOD::Studio::System* System;
     FMOD_RESULT LastResult;
     FUpdateListenerPosition UpdateListenerPosition;
 };
@@ -193,8 +195,8 @@ public:
     virtual void StartupModule() override;
     virtual void ShutdownModule() override;
 
-    FString GetDllPath(const TCHAR *ShortName, bool bExplicitPath, bool bUseLibPrefix);
-    void *LoadDll(const TCHAR *ShortName);
+    FString GetDllPath(const TCHAR* ShortName, bool bExplicitPath, bool bUseLibPrefix);
+    void* LoadDll(const TCHAR* ShortName);
 
     bool LoadLibraries();
 
@@ -203,7 +205,7 @@ public:
 
 #if WITH_EDITOR
     FSimpleMulticastDelegate PreEndPIEDelegate;
-    FSimpleMulticastDelegate &PreEndPIEEvent() override { return PreEndPIEDelegate; };
+    FSimpleMulticastDelegate& PreEndPIEEvent() override { return PreEndPIEDelegate; };
     virtual void PreEndPIE() override;
     void ReloadBanks();
     void LoadEditorBanks();
@@ -216,17 +218,17 @@ public:
     bool Tick(float DeltaTime);
 
     void UpdateListeners();
-    void UpdateWorldListeners(UWorld *World, int *ListenerIndex);
+    void UpdateWorldListeners(UWorld* World, int* ListenerIndex);
 
-    virtual FMOD::Studio::System *GetStudioSystem(EFMODSystemContext::Type Context) override;
-    virtual FMOD::Studio::EventDescription *GetEventDescription(const UFMODEvent *Event, EFMODSystemContext::Type Type) override;
-    virtual FMOD::Studio::EventInstance *CreateAuditioningInstance(const UFMODEvent *Event) override;
+    virtual FMOD::Studio::System* GetStudioSystem(EFMODSystemContext::Type Context) override;
+    virtual FMOD::Studio::EventDescription* GetEventDescription(const UFMODEvent* Event, EFMODSystemContext::Type Type) override;
+    virtual FMOD::Studio::EventInstance* CreateAuditioningInstance(const UFMODEvent* Event) override;
     virtual void StopAuditioningInstance() override;
 
-    virtual void SetListenerPosition(int ListenerIndex, UWorld *World, const FTransform &ListenerTransform, float DeltaSeconds) override;
+    virtual void SetListenerPosition(int ListenerIndex, UWorld* World, const FTransform& ListenerTransform, float DeltaSeconds) override;
     virtual void FinishSetListenerPosition(int ListenerCount) override;
 
-    virtual const FFMODListener &GetNearestListener(const FVector &Location) override;
+    virtual const FFMODListener& GetNearestListener(const FVector& Location) override;
 
     virtual bool HasListenerMoved() override;
 
@@ -234,16 +236,16 @@ public:
 
     virtual void SetInPIE(bool bInPIE, bool simulating) override;
 
-    virtual UFMODAsset *FindAssetByName(const FString &Name) override;
-    virtual UFMODEvent *FindEventByName(const FString &Name) override;
-    virtual FString GetBankPath(const UFMODBank &Bank) override;
-    virtual void GetAllBankPaths(TArray<FString> &Paths, bool IncludeMasterBank) const override;
+    virtual UFMODAsset* FindAssetByName(const FString& Name) override;
+    virtual UFMODEvent* FindEventByName(const FString& Name) override;
+    virtual FString GetBankPath(const UFMODBank& Bank) override;
+    virtual void GetAllBankPaths(TArray<FString>& Paths, bool IncludeMasterBank) const override;
 
     virtual TArray<FString> GetFailedBankLoads(EFMODSystemContext::Type Context) override { return FailedBankLoads[Context]; }
 
     virtual TArray<FString> GetRequiredPlugins() override { return RequiredPlugins; }
 
-    virtual void AddRequiredPlugin(const FString &Plugin)
+    virtual void AddRequiredPlugin(const FString& Plugin)
     {
         if (!RequiredPlugins.Contains(Plugin))
         {
@@ -253,9 +255,9 @@ public:
 
     virtual bool UseSound() override { return bUseSound; }
 
-    virtual bool LoadPlugin(EFMODSystemContext::Type Context, const TCHAR *ShortName) override;
+    virtual bool LoadPlugin(EFMODSystemContext::Type Context, const TCHAR* ShortName) override;
 
-    virtual void LogError(int result, const char *function) override;
+    virtual void LogError(int result, const char* function) override;
 
     virtual bool AreBanksLoaded() override;
 
@@ -272,8 +274,8 @@ public:
 #endif
 
     /** The studio system handle. */
-    FMOD::Studio::System *StudioSystem[EFMODSystemContext::Max];
-    FMOD::Studio::EventInstance *AuditioningInstance;
+    FMOD::Studio::System* StudioSystem[EFMODSystemContext::Max];
+    FMOD::Studio::EventInstance* AuditioningInstance;
 
     /** The delegate to be invoked when this profiler manager ticks. */
     FTickerDelegate OnTick;
@@ -324,38 +326,37 @@ public:
 
     /** Dynamic library */
     FString BaseLibPath;
-    void *LowLevelLibHandle;
-    void *StudioLibHandle;
+    void* LowLevelLibHandle;
+    void* StudioLibHandle;
 
     /** True if the mixer has been paused by application deactivation */
     std::atomic<bool> bMixerPaused;
 
     /** You can also supply a pool of memory for FMOD to work with and it will do so with no extra calls to malloc or free. */
-    void *MemPool;
+    void* MemPool;
 
     bool bLoadAllSampleData;
 };
 
 IMPLEMENT_MODULE(FFMODStudioModule, FMODStudio)
 
-void FFMODStudioModule::LogError(int result, const char *function)
+void FFMODStudioModule::LogError(int result, const char* function)
 {
     FString ErrorStr(ANSI_TO_TCHAR(FMOD_ErrorString((FMOD_RESULT)result)));
     FString FunctionStr(ANSI_TO_TCHAR(function));
     UE_LOG(LogFMOD, Error, TEXT("'%s' returned '%s'"), *FunctionStr, *ErrorStr);
 }
 
-bool FFMODStudioModule::LoadPlugin(EFMODSystemContext::Type Context, const TCHAR *ShortName)
+bool FFMODStudioModule::LoadPlugin(EFMODSystemContext::Type Context, const TCHAR* ShortName)
 {
     UE_LOG(LogFMOD, Log, TEXT("Loading plugin '%s'"), ShortName);
 
     static const int ATTEMPT_COUNT = 2;
-    static const TCHAR *AttemptPrefixes[ATTEMPT_COUNT] = {
+    static const TCHAR* AttemptPrefixes[ATTEMPT_COUNT] = {
         TEXT(""),
-        TEXT("64")
-    };
+        TEXT("64")};
 
-    FMOD::System *LowLevelSystem = nullptr;
+    FMOD::System* LowLevelSystem = nullptr;
     verifyfmod(StudioSystem[Context]->getCoreSystem(&LowLevelSystem));
 
     FMOD_RESULT PluginLoadResult;
@@ -383,11 +384,11 @@ bool FFMODStudioModule::LoadPlugin(EFMODSystemContext::Type Context, const TCHAR
     return false;
 }
 
-void *FFMODStudioModule::LoadDll(const TCHAR *ShortName)
+void* FFMODStudioModule::LoadDll(const TCHAR* ShortName)
 {
     FString LibPath = GetDllPath(ShortName, false, true);
 
-    void *Handle = nullptr;
+    void* Handle = nullptr;
     UE_LOG(LogFMOD, Log, TEXT("FFMODStudioModule::LoadDll: Loading %s"), *LibPath);
     // Unfortunately Unreal's platform loading code hasn't been implemented on all platforms so we wrap it
 #ifdef FMOD_PLATFORM_LOAD_DLL
@@ -410,9 +411,9 @@ void *FFMODStudioModule::LoadDll(const TCHAR *ShortName)
     return Handle;
 }
 
-FString FFMODStudioModule::GetDllPath(const TCHAR *ShortName, bool bExplicitPath, bool bUseLibPrefix)
+FString FFMODStudioModule::GetDllPath(const TCHAR* ShortName, bool bExplicitPath, bool bUseLibPrefix)
 {
-    const TCHAR *LibPrefixName = (bUseLibPrefix ? TEXT("lib") : TEXT(""));
+    const TCHAR* LibPrefixName = (bUseLibPrefix ? TEXT("lib") : TEXT(""));
 #ifdef FMOD_PLATFORM_HEADER
     return FMODPlatform_GetDllPath(ShortName, bExplicitPath, bUseLibPrefix);
 #elif PLATFORM_MAC
@@ -436,15 +437,15 @@ bool FFMODStudioModule::LoadLibraries()
 #else
     UE_LOG(LogFMOD, Verbose, TEXT("FFMODStudioModule::LoadLibraries"));
 
-#if defined(FMODSTUDIO_LINK_DEBUG)
+    #if defined(FMODSTUDIO_LINK_DEBUG)
     FString ConfigName = TEXT("D");
-#elif defined(FMODSTUDIO_LINK_LOGGING)
+    #elif defined(FMODSTUDIO_LINK_LOGGING)
     FString ConfigName = TEXT("L");
-#elif defined(FMODSTUDIO_LINK_RELEASE)
+    #elif defined(FMODSTUDIO_LINK_RELEASE)
     FString ConfigName = TEXT("");
-#else
-#error FMODSTUDIO_LINK not defined
-#endif
+    #else
+        #error FMODSTUDIO_LINK not defined
+    #endif
 
     FString LowLevelName = FString(TEXT("fmod")) + ConfigName;
     FString StudioName = FString(TEXT("fmodstudio")) + ConfigName;
@@ -475,7 +476,7 @@ void FFMODStudioModule::StartupModule()
     {
         verifyfmod(FMOD::Debug_Initialize(FMOD_DEBUG_LEVEL_WARNING, FMOD_DEBUG_MODE_CALLBACK, FMODLogCallback));
 
-        const UFMODSettings &Settings = *GetDefault<UFMODSettings>();
+        const UFMODSettings& Settings = *GetDefault<UFMODSettings>();
         int32 size = Settings.GetMemoryPoolSize();
 
         if (!GIsEditor && size > 0)
@@ -545,36 +546,36 @@ inline FMOD_OUTPUTTYPE ConvertOutputType(EFMODOutput::Type output)
 {
     switch (output)
     {
-    case EFMODOutput::TYPE_AUTODETECT:
-        return FMOD_OUTPUTTYPE_AUTODETECT;
-    case EFMODOutput::TYPE_NOSOUND:
-        return FMOD_OUTPUTTYPE_NOSOUND;
-    case EFMODOutput::TYPE_WASAPI:
-        return FMOD_OUTPUTTYPE_WASAPI;
-    case EFMODOutput::TYPE_ASIO:
-        return FMOD_OUTPUTTYPE_ASIO;
-    case EFMODOutput::TYPE_PULSEAUDIO:
-        return FMOD_OUTPUTTYPE_PULSEAUDIO;
-    case EFMODOutput::TYPE_ALSA:
-        return FMOD_OUTPUTTYPE_ALSA;
-    case EFMODOutput::TYPE_COREAUDIO:
-        return FMOD_OUTPUTTYPE_COREAUDIO;
-    case EFMODOutput::TYPE_AUDIOTRACK:
-        return FMOD_OUTPUTTYPE_AUDIOTRACK;
-    case EFMODOutput::TYPE_OPENSL:
-        return FMOD_OUTPUTTYPE_OPENSL;
-    case EFMODOutput::TYPE_AUDIOOUT:
-        return FMOD_OUTPUTTYPE_AUDIOOUT;
-    case EFMODOutput::TYPE_AUDIO3D:
-        return FMOD_OUTPUTTYPE_AUDIO3D;
-    case EFMODOutput::TYPE_NNAUDIO:
-        return FMOD_OUTPUTTYPE_NNAUDIO;
-    case EFMODOutput::TYPE_WINSONIC:
-        return FMOD_OUTPUTTYPE_WINSONIC;
-    case EFMODOutput::TYPE_AAUDIO:
-        return FMOD_OUTPUTTYPE_AAUDIO;
-    default:
-        return FMOD_OUTPUTTYPE_AUTODETECT;
+        case EFMODOutput::TYPE_AUTODETECT:
+            return FMOD_OUTPUTTYPE_AUTODETECT;
+        case EFMODOutput::TYPE_NOSOUND:
+            return FMOD_OUTPUTTYPE_NOSOUND;
+        case EFMODOutput::TYPE_WASAPI:
+            return FMOD_OUTPUTTYPE_WASAPI;
+        case EFMODOutput::TYPE_ASIO:
+            return FMOD_OUTPUTTYPE_ASIO;
+        case EFMODOutput::TYPE_PULSEAUDIO:
+            return FMOD_OUTPUTTYPE_PULSEAUDIO;
+        case EFMODOutput::TYPE_ALSA:
+            return FMOD_OUTPUTTYPE_ALSA;
+        case EFMODOutput::TYPE_COREAUDIO:
+            return FMOD_OUTPUTTYPE_COREAUDIO;
+        case EFMODOutput::TYPE_AUDIOTRACK:
+            return FMOD_OUTPUTTYPE_AUDIOTRACK;
+        case EFMODOutput::TYPE_OPENSL:
+            return FMOD_OUTPUTTYPE_OPENSL;
+        case EFMODOutput::TYPE_AUDIOOUT:
+            return FMOD_OUTPUTTYPE_AUDIOOUT;
+        case EFMODOutput::TYPE_AUDIO3D:
+            return FMOD_OUTPUTTYPE_AUDIO3D;
+        case EFMODOutput::TYPE_NNAUDIO:
+            return FMOD_OUTPUTTYPE_NNAUDIO;
+        case EFMODOutput::TYPE_WINSONIC:
+            return FMOD_OUTPUTTYPE_WINSONIC;
+        case EFMODOutput::TYPE_AAUDIO:
+            return FMOD_OUTPUTTYPE_AAUDIO;
+        default:
+            return FMOD_OUTPUTTYPE_AUTODETECT;
     }
 }
 
@@ -588,7 +589,7 @@ void FFMODStudioModule::CreateStudioSystem(EFMODSystemContext::Type Type)
 
     UE_LOG(LogFMOD, Verbose, TEXT("CreateStudioSystem for context %s"), FMODSystemContextNames[Type]);
 
-    const UFMODSettings &Settings = *GetDefault<UFMODSettings>();
+    const UFMODSettings& Settings = *GetDefault<UFMODSettings>();
     bLoadAllSampleData = Settings.bLoadAllSampleData;
 
     FMOD_STUDIO_INITFLAGS StudioInitFlags = FMOD_STUDIO_INIT_NORMAL;
@@ -615,17 +616,17 @@ void FFMODStudioModule::CreateStudioSystem(EFMODSystemContext::Type Type)
     }
 
     verifyfmod(FMOD::Studio::System::create(&StudioSystem[Type]));
-    FMOD::System *lowLevelSystem = nullptr;
+    FMOD::System* lowLevelSystem = nullptr;
     verifyfmod(StudioSystem[Type]->getCoreSystem(&lowLevelSystem));
 
     FTCHARToUTF8 WavWriterDestUTF8(*Settings.WavWriterPath);
-    void *InitData = nullptr;
+    void* InitData = nullptr;
     FMOD_OUTPUTTYPE outputType;
     if (Type == EFMODSystemContext::Runtime && Settings.WavWriterPath.Len() > 0)
     {
         UE_LOG(LogFMOD, Log, TEXT("Running with Wav Writer: %s"), *Settings.WavWriterPath);
         outputType = FMOD_OUTPUTTYPE_WAVWRITER;
-        InitData = (void *)WavWriterDestUTF8.Get();
+        InitData = (void*)WavWriterDestUTF8.Get();
     }
     else
     {
@@ -686,16 +687,16 @@ void FFMODStudioModule::CreateStudioSystem(EFMODSystemContext::Type Type)
         verifyfmod(lowLevelSystem->setDSPBufferSize(Settings.DSPBufferLength, Settings.DSPBufferCount));
     }
 
-    FMOD_ADVANCEDSETTINGS advSettings = { 0 };
+    FMOD_ADVANCEDSETTINGS advSettings = {0};
     advSettings.cbSize = sizeof(FMOD_ADVANCEDSETTINGS);
     advSettings.vol0virtualvol = Settings.Vol0VirtualLevel;
 
     TMap<TEnumAsByte<EFMODCodec::Type>, int32> Codecs = Settings.GetCodecs();
-    advSettings.maxXMACodecs    = Codecs.Contains(EFMODCodec::XMA)      ? Codecs[EFMODCodec::XMA]       : 0;
-    advSettings.maxVorbisCodecs = Codecs.Contains(EFMODCodec::VORBIS)   ? Codecs[EFMODCodec::VORBIS]    : 0;
-    advSettings.maxAT9Codecs    = Codecs.Contains(EFMODCodec::AT9)      ? Codecs[EFMODCodec::AT9]       : 0;
-    advSettings.maxFADPCMCodecs = Codecs.Contains(EFMODCodec::FADPCM)   ? Codecs[EFMODCodec::FADPCM]    : 0;
-    advSettings.maxOpusCodecs   = Codecs.Contains(EFMODCodec::OPUS)     ? Codecs[EFMODCodec::OPUS]      : 0;
+    advSettings.maxXMACodecs = Codecs.Contains(EFMODCodec::XMA) ? Codecs[EFMODCodec::XMA] : 0;
+    advSettings.maxVorbisCodecs = Codecs.Contains(EFMODCodec::VORBIS) ? Codecs[EFMODCodec::VORBIS] : 0;
+    advSettings.maxAT9Codecs = Codecs.Contains(EFMODCodec::AT9) ? Codecs[EFMODCodec::AT9] : 0;
+    advSettings.maxFADPCMCodecs = Codecs.Contains(EFMODCodec::FADPCM) ? Codecs[EFMODCodec::FADPCM] : 0;
+    advSettings.maxOpusCodecs = Codecs.Contains(EFMODCodec::OPUS) ? Codecs[EFMODCodec::OPUS] : 0;
 
     if (Type == EFMODSystemContext::Runtime)
     {
@@ -713,7 +714,7 @@ void FFMODStudioModule::CreateStudioSystem(EFMODSystemContext::Type Type)
         verifyfmod(lowLevelSystem->setCallback(FMODErrorCallback, FMOD_SYSTEM_CALLBACK_ERROR));
     }
 
-    FMOD_STUDIO_ADVANCEDSETTINGS advStudioSettings = { 0 };
+    FMOD_STUDIO_ADVANCEDSETTINGS advStudioSettings = {0};
     advStudioSettings.cbsize = sizeof(advStudioSettings);
     advStudioSettings.studioupdateperiod = Settings.StudioUpdatePeriod;
 
@@ -743,7 +744,7 @@ void FFMODStudioModule::CreateStudioSystem(EFMODSystemContext::Type Type)
         FCoreDelegates::ApplicationHasReactivatedDelegate.AddRaw(this, &FFMODStudioModule::HandleApplicationHasReactivated);
     }
 
-    IMediaModule *MediaModule = FModuleManager::LoadModulePtr<IMediaModule>("Media");
+    IMediaModule* MediaModule = FModuleManager::LoadModulePtr<IMediaModule>("Media");
 
     if (MediaModule != nullptr)
     {
@@ -767,7 +768,7 @@ void FFMODStudioModule::DestroyStudioSystem(EFMODSystemContext::Type Type)
         // Calling through the shared ptr enforces thread safety with the media clock
         ClockSinks[Type]->OnDestroyStudioSystem();
 
-        IMediaModule *MediaModule = FModuleManager::LoadModulePtr<IMediaModule>("Media");
+        IMediaModule* MediaModule = FModuleManager::LoadModulePtr<IMediaModule>("Media");
 
         if (MediaModule != nullptr)
         {
@@ -818,7 +819,7 @@ bool FFMODStudioModule::Tick(float DeltaTime)
         SET_MEMORY_STAT(STAT_FMOD_Max_Memory, maxAlloc);
 
         int channels, realChannels;
-        FMOD::System *lowlevel;
+        FMOD::System* lowlevel;
         StudioSystem[EFMODSystemContext::Runtime]->getCoreSystem(&lowlevel);
         lowlevel->getChannelsPlaying(&channels, &realChannels);
         SET_DWORD_STAT(STAT_FMOD_Real_Channels, realChannels);
@@ -849,7 +850,7 @@ void FFMODStudioModule::UpdateListeners()
         // Every PIE session has its own world and local player controller(s), iterate all of them
         for (auto ContextIt = GEngine->GetWorldContexts().CreateConstIterator(); ContextIt; ++ContextIt)
         {
-            const FWorldContext &PieContext = *ContextIt;
+            const FWorldContext& PieContext = *ContextIt;
 
             // We need to update the listener for all PIE worlds and all standalone game worlds. Since this code is only built WITH_EDITOR
             // EWorldType::Game means a standalone game world in this scope.
@@ -873,7 +874,7 @@ void FFMODStudioModule::UpdateListeners()
     FinishSetListenerPosition(ListenerIndex);
 }
 
-void FFMODStudioModule::UpdateWorldListeners(UWorld *World, int *ListenerIndex)
+void FFMODStudioModule::UpdateWorldListeners(UWorld* World, int* ListenerIndex)
 {
     if (!World)
     {
@@ -884,11 +885,11 @@ void FFMODStudioModule::UpdateWorldListeners(UWorld *World, int *ListenerIndex)
 
     for (auto Iterator = GEngine->GetLocalPlayerIterator(World); Iterator; ++Iterator)
     {
-        ULocalPlayer *LocalPlayer = *Iterator;
+        ULocalPlayer* LocalPlayer = *Iterator;
 
         if (LocalPlayer && LocalPlayer->PlayerController)
         {
-            APlayerController *PlayerController = LocalPlayer->PlayerController;
+            APlayerController* PlayerController = LocalPlayer->PlayerController;
             FVector Location;
             FVector ProjFront;
             FVector ProjRight;
@@ -913,13 +914,13 @@ bool FFMODStudioModule::HasListenerMoved()
 
 void FFMODStudioModule::ResetInterpolation()
 {
-    for (FFMODListener &Listener : Listeners)
+    for (FFMODListener& Listener : Listeners)
     {
         Listener = FFMODListener();
     }
 }
 
-const FFMODListener &FFMODStudioModule::GetNearestListener(const FVector &Location)
+const FFMODListener& FFMODStudioModule::GetNearestListener(const FVector& Location)
 {
     float BestDistSq = FLT_MAX;
     int BestListener = 0;
@@ -936,9 +937,9 @@ const FFMODListener &FFMODStudioModule::GetNearestListener(const FVector &Locati
 }
 
 // Partially copied from FAudioDevice::SetListener
-void FFMODStudioModule::SetListenerPosition(int ListenerIndex, UWorld *World, const FTransform &ListenerTransform, float DeltaSeconds)
+void FFMODStudioModule::SetListenerPosition(int ListenerIndex, UWorld* World, const FTransform& ListenerTransform, float DeltaSeconds)
 {
-    FMOD::Studio::System *System = IFMODStudioModule::Get().GetStudioSystem(EFMODSystemContext::Runtime);
+    FMOD::Studio::System* System = IFMODStudioModule::Get().GetStudioSystem(EFMODSystemContext::Runtime);
     if (System && ListenerIndex < MAX_LISTENERS)
     {
         // Expand number of listeners dynamically
@@ -951,13 +952,12 @@ void FFMODStudioModule::SetListenerPosition(int ListenerIndex, UWorld *World, co
 
         FVector ListenerPos = ListenerTransform.GetTranslation();
 
-        FInteriorSettings *InteriorSettings =
-            (FInteriorSettings *)alloca(sizeof(FInteriorSettings)); // FinteriorSetting::FInteriorSettings() isn't exposed (possible UE4 bug???)
-        AAudioVolume *Volume = World->GetAudioSettings(ListenerPos, NULL, InteriorSettings);
+        FInteriorSettings* InteriorSettings =
+            (FInteriorSettings*)alloca(sizeof(FInteriorSettings)); // FinteriorSetting::FInteriorSettings() isn't exposed (possible UE4 bug???)
+        AAudioVolume* Volume = World->GetAudioSettings(ListenerPos, NULL, InteriorSettings);
 
         Listeners[ListenerIndex].Velocity =
-            DeltaSeconds > 0.f ? (ListenerTransform.GetTranslation() - Listeners[ListenerIndex].Transform.GetTranslation()) / DeltaSeconds :
-                                 FVector::ZeroVector;
+            DeltaSeconds > 0.f ? (ListenerTransform.GetTranslation() - Listeners[ListenerIndex].Transform.GetTranslation()) / DeltaSeconds : FVector::ZeroVector;
 
         Listeners[ListenerIndex].Transform = ListenerTransform;
 
@@ -969,7 +969,7 @@ void FFMODStudioModule::SetListenerPosition(int ListenerIndex, UWorld *World, co
         const FVector Right = Listeners[ListenerIndex].GetFront();
         const FVector Forward = Right ^ Up;
 
-        FMOD_3D_ATTRIBUTES Attributes = { { 0 } };
+        FMOD_3D_ATTRIBUTES Attributes = {{0}};
         Attributes.position = FMODUtils::ConvertWorldVector(ListenerPos);
         Attributes.forward = FMODUtils::ConvertUnitVector(Forward);
         Attributes.up = FMODUtils::ConvertUnitVector(Up);
@@ -981,7 +981,7 @@ void FFMODStudioModule::SetListenerPosition(int ListenerIndex, UWorld *World, co
 
 void FFMODStudioModule::FinishSetListenerPosition(int NumListeners)
 {
-    FMOD::Studio::System *System = IFMODStudioModule::Get().GetStudioSystem(EFMODSystemContext::Runtime);
+    FMOD::Studio::System* System = IFMODStudioModule::Get().GetStudioSystem(EFMODSystemContext::Runtime);
     if (!System || NumListeners < 1)
     {
         return;
@@ -1002,14 +1002,14 @@ void FFMODStudioModule::FinishSetListenerPosition(int NumListeners)
     TWeakObjectPtr<AAudioVolume> BestVolume = nullptr;
     for (int i = 0; i < ListenerCount; ++i)
     {
-        AAudioVolume *CandidateVolume = Listeners[i].Volume;
+        AAudioVolume* CandidateVolume = Listeners[i].Volume;
 
         if (BestVolume == nullptr || (IsValid(CandidateVolume) && BestVolume.IsValid() && CandidateVolume->GetPriority() > BestVolume->GetPriority()))
         {
             BestVolume = CandidateVolume;
         }
     }
-    UFMODSnapshotReverb *NewSnapshot = nullptr;
+    UFMODSnapshotReverb* NewSnapshot = nullptr;
 
     if (BestVolume.IsValid() && BestVolume->GetReverbSettings().bApplyReverb)
     {
@@ -1039,8 +1039,8 @@ void FFMODStudioModule::FinishSetListenerPosition(int NumListeners)
             UE_LOG(LogFMOD, Verbose, TEXT("Creating new instance"));
 
             FMOD::Studio::ID Guid = FMODUtils::ConvertGuid(NewSnapshot->AssetGuid);
-            FMOD::Studio::EventInstance *NewInstance = nullptr;
-            FMOD::Studio::EventDescription *EventDesc = nullptr;
+            FMOD::Studio::EventInstance* NewInstance = nullptr;
+            FMOD::Studio::EventDescription* EventDesc = nullptr;
             System->getEventByID(&Guid, &EventDesc);
             if (EventDesc)
             {
@@ -1065,7 +1065,7 @@ void FFMODStudioModule::FinishSetListenerPosition(int NumListeners)
     for (int i = 0; i < ReverbSnapshots.Num(); ++i)
     {
         UE_LOG(LogFMOD, Verbose, TEXT("Ramping intensity (%f,%f) -> %f"), ReverbSnapshots[i].FadeIntensityStart, ReverbSnapshots[i].FadeIntensityEnd,
-            ReverbSnapshots[i].CurrentIntensity());
+               ReverbSnapshots[i].CurrentIntensity());
         ReverbSnapshots[i].Instance->setParameterByName("Intensity", 100.0f * ReverbSnapshots[i].CurrentIntensity());
 
         if (ReverbSnapshots[i].Snapshot != NewSnapshot)
@@ -1122,7 +1122,7 @@ void FFMODStudioModule::SetInPIE(bool bInPIE, bool simulating)
         CreateStudioSystem(EFMODSystemContext::Runtime);
         LoadBanks(EFMODSystemContext::Runtime);
 
-        const UFMODSettings &Settings = *GetDefault<UFMODSettings>();
+        const UFMODSettings& Settings = *GetDefault<UFMODSettings>();
         flags = Settings.LoggingLevel;
     }
     else
@@ -1133,34 +1133,33 @@ void FFMODStudioModule::SetInPIE(bool bInPIE, bool simulating)
     }
 
     verifyfmod(FMOD::Debug_Initialize(flags, FMOD_DEBUG_MODE_CALLBACK, FMODLogCallback));
-
 }
 
-UFMODAsset *FFMODStudioModule::FindAssetByName(const FString &Name)
+UFMODAsset* FFMODStudioModule::FindAssetByName(const FString& Name)
 {
     return AssetTable.GetAssetByStudioPath(Name);
 }
 
-UFMODEvent *FFMODStudioModule::FindEventByName(const FString &Name)
+UFMODEvent* FFMODStudioModule::FindEventByName(const FString& Name)
 {
-    UFMODAsset *Asset = FindAssetByName(Name);
+    UFMODAsset* Asset = FindAssetByName(Name);
     return Cast<UFMODEvent>(Asset);
 }
 
-FString FFMODStudioModule::GetBankPath(const UFMODBank &Bank)
+FString FFMODStudioModule::GetBankPath(const UFMODBank& Bank)
 {
     FString BankPath = AssetTable.GetBankPath(Bank);
 
     if (!BankPath.IsEmpty())
     {
-        const UFMODSettings &Settings = *GetDefault<UFMODSettings>();
+        const UFMODSettings& Settings = *GetDefault<UFMODSettings>();
         BankPath = Settings.GetFullBankPath() / BankPath;
     }
 
     return BankPath;
 }
 
-void FFMODStudioModule::GetAllBankPaths(TArray<FString> &Paths, bool IncludeMasterBank) const
+void FFMODStudioModule::GetAllBankPaths(TArray<FString>& Paths, bool IncludeMasterBank) const
 {
     AssetTable.GetAllBankPaths(Paths, IncludeMasterBank);
 }
@@ -1173,7 +1172,7 @@ void FFMODStudioModule::SetSystemPaused(bool paused)
 
         if (bMixerPaused.compare_exchange_strong(expected, paused))
         {
-            FMOD::System *LowLevelSystem = nullptr;
+            FMOD::System* LowLevelSystem = nullptr;
             verifyfmod(StudioSystem[EFMODSystemContext::Runtime]->getCoreSystem(&LowLevelSystem));
 
             // Resume mixer before making calls for Android in particular
@@ -1182,7 +1181,7 @@ void FFMODStudioModule::SetSystemPaused(bool paused)
                 LowLevelSystem->mixerResume();
             }
 
-            FMOD::ChannelGroup *MasterChannelGroup = nullptr;
+            FMOD::ChannelGroup* MasterChannelGroup = nullptr;
             verifyfmod(LowLevelSystem->getMasterChannelGroup(&MasterChannelGroup));
             verifyfmod(MasterChannelGroup->setPaused(paused));
 
@@ -1258,7 +1257,7 @@ struct NamedBankEntry
         : Bank(nullptr)
     {
     }
-    NamedBankEntry(const FString &InName, FMOD::Studio::Bank *InBank, FMOD_RESULT InResult)
+    NamedBankEntry(const FString& InName, FMOD::Studio::Bank* InBank, FMOD_RESULT InResult)
         : Name(InName)
         , Bank(InBank)
         , Result(InResult)
@@ -1266,7 +1265,7 @@ struct NamedBankEntry
     }
 
     FString Name;
-    FMOD::Studio::Bank *Bank;
+    FMOD::Studio::Bank* Bank;
     FMOD_RESULT Result;
 };
 
@@ -1284,7 +1283,7 @@ bool FFMODStudioModule::AreBanksLoaded()
 
 bool FFMODStudioModule::SetLocale(const FString& LocaleName)
 {
-    const UFMODSettings &Settings = *GetDefault<UFMODSettings>();
+    const UFMODSettings& Settings = *GetDefault<UFMODSettings>();
 
     for (const FFMODProjectLocale& Locale : Settings.Locales)
     {
@@ -1327,7 +1326,7 @@ FString FFMODStudioModule::GetDefaultLocale()
 
 void FFMODStudioModule::LoadBanks(EFMODSystemContext::Type Type)
 {
-    const UFMODSettings &Settings = *GetDefault<UFMODSettings>();
+    const UFMODSettings& Settings = *GetDefault<UFMODSettings>();
 
     FailedBankLoads[Type].Reset();
     if (Type == EFMODSystemContext::Auditioning || Type == EFMODSystemContext::Editor)
@@ -1350,7 +1349,7 @@ void FFMODStudioModule::LoadBanks(EFMODSystemContext::Type Type)
         TArray<NamedBankEntry> BankEntries;
 
         // Always load the master bank at startup
-        FMOD::Studio::Bank *MasterBank = nullptr;
+        FMOD::Studio::Bank* MasterBank = nullptr;
 
         if (AssetTable.GetMasterBankPath().IsEmpty())
         {
@@ -1368,7 +1367,7 @@ void FFMODStudioModule::LoadBanks(EFMODSystemContext::Type Type)
 
         if (Result == FMOD_OK && !AssetTable.GetMasterAssetsBankPath().IsEmpty())
         {
-            FMOD::Studio::Bank *MasterAssetsBank = nullptr;
+            FMOD::Studio::Bank* MasterAssetsBank = nullptr;
             FString MasterAssetsBankPath = Settings.GetFullBankPath() / AssetTable.GetMasterAssetsBankPath();
             if (FPaths::FileExists(MasterAssetsBankPath))
             {
@@ -1385,7 +1384,7 @@ void FFMODStudioModule::LoadBanks(EFMODSystemContext::Type Type)
             {
                 FString StringsBankPath = Settings.GetFullBankPath() / AssetTable.GetMasterStringsBankPath();
                 UE_LOG(LogFMOD, Verbose, TEXT("Loading strings bank: %s"), *StringsBankPath);
-                FMOD::Studio::Bank *StringsBank = nullptr;
+                FMOD::Studio::Bank* StringsBank = nullptr;
                 Result = StudioSystem[Type]->loadBankFile(TCHAR_TO_UTF8(*StringsBankPath), BankFlags, &StringsBank);
                 BankEntries.Add(NamedBankEntry(StringsBankPath, StringsBank, Result));
             }
@@ -1396,7 +1395,7 @@ void FFMODStudioModule::LoadBanks(EFMODSystemContext::Type Type)
                 UE_LOG(LogFMOD, Verbose, TEXT("Loading all banks"));
                 TArray<FString> BankFiles;
                 AssetTable.GetAllBankPaths(BankFiles, false);
-                for (const FString &OtherFile : BankFiles)
+                for (const FString& OtherFile : BankFiles)
                 {
                     if (Settings.SkipLoadBankName.Len() && OtherFile.Contains(Settings.SkipLoadBankName))
                     {
@@ -1405,7 +1404,7 @@ void FFMODStudioModule::LoadBanks(EFMODSystemContext::Type Type)
                     }
                     UE_LOG(LogFMOD, Log, TEXT("Loading bank: %s"), *OtherFile);
 
-                    FMOD::Studio::Bank *OtherBank;
+                    FMOD::Studio::Bank* OtherBank;
                     Result = StudioSystem[Type]->loadBankFile(TCHAR_TO_UTF8(*OtherFile), BankFlags, &OtherBank);
                     BankEntries.Add(NamedBankEntry(OtherFile, OtherBank, Result));
                 }
@@ -1419,7 +1418,7 @@ void FFMODStudioModule::LoadBanks(EFMODSystemContext::Type Type)
                 verifyfmod(MasterBank->getBusCount(&BusCount));
                 if (BusCount != 0)
                 {
-                    TArray<FMOD::Studio::Bus *> BusList;
+                    TArray<FMOD::Studio::Bus*> BusList;
                     BusList.AddZeroed(BusCount);
                     verifyfmod(MasterBank->getBusList(BusList.GetData(), BusCount, &BusCount));
                     BusList.SetNum(BusCount);
@@ -1434,7 +1433,7 @@ void FFMODStudioModule::LoadBanks(EFMODSystemContext::Type Type)
         // Wait for all banks to load.
         StudioSystem[Type]->flushCommands();
 
-        for (NamedBankEntry &Entry : BankEntries)
+        for (NamedBankEntry& Entry : BankEntries)
         {
             if (Entry.Result == FMOD_OK)
             {
@@ -1511,7 +1510,7 @@ void FFMODStudioModule::UnloadEditorBanks()
 }
 #endif
 
-FMOD::Studio::System *FFMODStudioModule::GetStudioSystem(EFMODSystemContext::Type Context)
+FMOD::Studio::System* FFMODStudioModule::GetStudioSystem(EFMODSystemContext::Type Context)
 {
     if (Context == EFMODSystemContext::Max)
     {
@@ -1520,7 +1519,7 @@ FMOD::Studio::System *FFMODStudioModule::GetStudioSystem(EFMODSystemContext::Typ
     return StudioSystem[Context];
 }
 
-FMOD::Studio::EventDescription *FFMODStudioModule::GetEventDescription(const UFMODEvent *Event, EFMODSystemContext::Type Context)
+FMOD::Studio::EventDescription* FFMODStudioModule::GetEventDescription(const UFMODEvent* Event, EFMODSystemContext::Type Context)
 {
     if (Context == EFMODSystemContext::Max)
     {
@@ -1529,19 +1528,19 @@ FMOD::Studio::EventDescription *FFMODStudioModule::GetEventDescription(const UFM
     if (StudioSystem[Context] != nullptr && IsValid(Event) && Event->AssetGuid.IsValid())
     {
         FMOD::Studio::ID Guid = FMODUtils::ConvertGuid(Event->AssetGuid);
-        FMOD::Studio::EventDescription *EventDesc = nullptr;
+        FMOD::Studio::EventDescription* EventDesc = nullptr;
         StudioSystem[Context]->getEventByID(&Guid, &EventDesc);
         return EventDesc;
     }
     return nullptr;
 }
 
-FMOD::Studio::EventInstance *FFMODStudioModule::CreateAuditioningInstance(const UFMODEvent *Event)
+FMOD::Studio::EventInstance* FFMODStudioModule::CreateAuditioningInstance(const UFMODEvent* Event)
 {
     StopAuditioningInstance();
     if (IsValid(Event))
     {
-        FMOD::Studio::EventDescription *EventDesc = GetEventDescription(Event, EFMODSystemContext::Auditioning);
+        FMOD::Studio::EventDescription* EventDesc = GetEventDescription(Event, EFMODSystemContext::Auditioning);
         if (EventDesc)
         {
             FMOD_RESULT Result = EventDesc->createInstance(&AuditioningInstance);
@@ -1571,114 +1570,120 @@ static bool gNeedsReset = false;
 
 void FFMODStudioModule::InitializeAudioSession()
 {
-    [[NSNotificationCenter defaultCenter] addObserverForName:AVAudioSessionInterruptionNotification object:nil queue:nil usingBlock:^(NSNotification *notification)
-    {
-        AVAudioSessionInterruptionType type = (AVAudioSessionInterruptionType)[[notification.userInfo valueForKey:AVAudioSessionInterruptionTypeKey] unsignedIntegerValue];
-        if (type == AVAudioSessionInterruptionTypeBegan)
-        {
-            UE_LOG(LogFMOD, Log, TEXT("Interruption Began"));
-            // Ignore deprecated warnings regarding AVAudioSessionInterruptionReasonAppWasSuspended and
-            // AVAudioSessionInterruptionWasSuspendedKey, we protect usage for the versions where they are available
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            
-            // If the audio session was deactivated while the app was in the background, the app receives the
-            // notification when relaunched. Identify this reason for interruption and ignore it.
-            if (@available(iOS 16.0, tvOS 14.5, *))
-            {
-                // Delayed suspend-in-background notifications no longer exist, this must be a real interruption
-            }
-            #if !PLATFORM_TVOS // tvOS never supported "AVAudioSessionInterruptionReasonAppWasSuspended"
-            else if (@available(iOS 14.5, *))
-            {
-                if ([[notification.userInfo valueForKey:AVAudioSessionInterruptionReasonKey] intValue] == AVAudioSessionInterruptionReasonAppWasSuspended)
-                {
-                    return; // Ignore delayed suspend-in-background notification
-                }
-            }
-            #endif
-            else
-            {
-                if ([[notification.userInfo valueForKey:AVAudioSessionInterruptionWasSuspendedKey] boolValue])
-                {
-                    return; // Ignore delayed suspend-in-background notification
-                }
-            }
-            
-            SetSystemPaused(true);
-            gIsSuspended = true;
-            #pragma clang diagnostic pop
-        }
-        else if (type == AVAudioSessionInterruptionTypeEnded)
-        {
-            UE_LOG(LogFMOD, Log, TEXT("Interruption Ended"));
-            NSError *ActiveError = nil;
-            if (![[AVAudioSession sharedInstance] setActive:TRUE error:&ActiveError])
-            {
-                // Interruption like Siri can prevent session activation, wait for did-become-active notification
-                UE_LOG(LogFMOD, Error, TEXT("Failed to set audio session to active = %d [Error = %s]"), TRUE, *FString([ActiveError description]));
-                return;
-            }
-            
-            SetSystemPaused(false);
-            gIsSuspended = false;
-        }
-    }];
+    [[NSNotificationCenter defaultCenter] addObserverForName:AVAudioSessionInterruptionNotification
+                                                      object:nil
+                                                       queue:nil
+                                                  usingBlock:^(NSNotification* notification) {
+                                                    AVAudioSessionInterruptionType type = (AVAudioSessionInterruptionType)[[notification.userInfo valueForKey:AVAudioSessionInterruptionTypeKey] unsignedIntegerValue];
+                                                    if (type == AVAudioSessionInterruptionTypeBegan)
+                                                    {
+                                                        UE_LOG(LogFMOD, Log, TEXT("Interruption Began"));
+    // Ignore deprecated warnings regarding AVAudioSessionInterruptionReasonAppWasSuspended and
+    // AVAudioSessionInterruptionWasSuspendedKey, we protect usage for the versions where they are available
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:nil queue:nil usingBlock:^(NSNotification *notification)
-    {
-        // If the Media Services were reset while we were in the background we need to reset
-        // To reset we need to suspend so that we can resume.
-        if (gNeedsReset)
-        {
-            SetSystemPaused(true);
-            gIsSuspended = true;
-        }
+                                                        // If the audio session was deactivated while the app was in the background, the app receives the
+                                                        // notification when relaunched. Identify this reason for interruption and ignore it.
+                                                        if (@available(iOS 16.0, tvOS 14.5, *))
+                                                        {
+                                                            // Delayed suspend-in-background notifications no longer exist, this must be a real interruption
+                                                        }
+    #if !PLATFORM_TVOS // tvOS never supported "AVAudioSessionInterruptionReasonAppWasSuspended"
+                                                        else if (@available(iOS 14.5, *))
+                                                        {
+                                                            if ([[notification.userInfo valueForKey:AVAudioSessionInterruptionReasonKey] intValue] == AVAudioSessionInterruptionReasonAppWasSuspended)
+                                                            {
+                                                                return; // Ignore delayed suspend-in-background notification
+                                                            }
+                                                        }
+    #endif
+                                                        else
+                                                        {
+                                                            if ([[notification.userInfo valueForKey:AVAudioSessionInterruptionWasSuspendedKey] boolValue])
+                                                            {
+                                                                return; // Ignore delayed suspend-in-background notification
+                                                            }
+                                                        }
 
-        NSError *ActiveError = nil;
-        if (![[AVAudioSession sharedInstance] setActive:TRUE error:&ActiveError])
-        {
-            if ([ActiveError code] == AVAudioSessionErrorCodeCannotStartPlaying)
-            {
-                // Interruption like Screen Time can prevent session activation, but will not trigger an interruption-ended notification.
-                // There is no other callback or trigger to hook into after this point, we are not in the background and there is no other audio playing.
-                // Our only option is to have a sleep loop until the Audio Session can be activated again.
-                while (![[AVAudioSession sharedInstance] setActive:TRUE error:nil])
-                {
-                    FPlatformProcess::Sleep(0.02f);
-                }
-            }
-            else
-            {
-                // Interruption like Siri can prevent session activation, wait for interruption-ended notification.
-                UE_LOG(LogFMOD, Warning, TEXT("UIApplicationDidBecomeActiveNotification: Failed to set audio session to active = %d [Error = %s]"), TRUE, *FString([ActiveError description]));
-                return;
-            }
-        }
+                                                        SetSystemPaused(true);
+                                                        gIsSuspended = true;
+    #pragma clang diagnostic pop
+                                                    }
+                                                    else if (type == AVAudioSessionInterruptionTypeEnded)
+                                                    {
+                                                        UE_LOG(LogFMOD, Log, TEXT("Interruption Ended"));
+                                                        NSError* ActiveError = nil;
+                                                        if (![[AVAudioSession sharedInstance] setActive:TRUE error:&ActiveError])
+                                                        {
+                                                            // Interruption like Siri can prevent session activation, wait for did-become-active notification
+                                                            UE_LOG(LogFMOD, Error, TEXT("Failed to set audio session to active = %d [Error = %s]"), TRUE, *FString([ActiveError description]));
+                                                            return;
+                                                        }
 
-        // It's possible the system missed sending us an interruption end, so recover here
-        if (gIsSuspended)
-        {
-            SetSystemPaused(false);
-            gNeedsReset = false;
-            gIsSuspended = false;
-        }
-    }];
-    
-    [[NSNotificationCenter defaultCenter] addObserverForName:AVAudioSessionMediaServicesWereResetNotification object:nil queue:nil usingBlock:^(NSNotification *notification)
-    {
-        if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground || gIsSuspended)
-        {
-            // Received the reset notification while in the background, need to reset the AudioUnit when we come back to foreground.
-            gNeedsReset = true;
-        }
-        else
-        {
-            // In the foregound but something chopped the media services, need to do a reset.
-            SetSystemPaused(true);
-            SetSystemPaused(false);
-        }
-    }];
+                                                        SetSystemPaused(false);
+                                                        gIsSuspended = false;
+                                                    }
+                                                  }];
+
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification
+                                                      object:nil
+                                                       queue:nil
+                                                  usingBlock:^(NSNotification* notification) {
+                                                    // If the Media Services were reset while we were in the background we need to reset
+                                                    // To reset we need to suspend so that we can resume.
+                                                    if (gNeedsReset)
+                                                    {
+                                                        SetSystemPaused(true);
+                                                        gIsSuspended = true;
+                                                    }
+
+                                                    NSError* ActiveError = nil;
+                                                    if (![[AVAudioSession sharedInstance] setActive:TRUE error:&ActiveError])
+                                                    {
+                                                        if ([ActiveError code] == AVAudioSessionErrorCodeCannotStartPlaying)
+                                                        {
+                                                            // Interruption like Screen Time can prevent session activation, but will not trigger an interruption-ended notification.
+                                                            // There is no other callback or trigger to hook into after this point, we are not in the background and there is no other audio playing.
+                                                            // Our only option is to have a sleep loop until the Audio Session can be activated again.
+                                                            while (![[AVAudioSession sharedInstance] setActive:TRUE error:nil])
+                                                            {
+                                                                FPlatformProcess::Sleep(0.02f);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            // Interruption like Siri can prevent session activation, wait for interruption-ended notification.
+                                                            UE_LOG(LogFMOD, Warning, TEXT("UIApplicationDidBecomeActiveNotification: Failed to set audio session to active = %d [Error = %s]"), TRUE, *FString([ActiveError description]));
+                                                            return;
+                                                        }
+                                                    }
+
+                                                    // It's possible the system missed sending us an interruption end, so recover here
+                                                    if (gIsSuspended)
+                                                    {
+                                                        SetSystemPaused(false);
+                                                        gNeedsReset = false;
+                                                        gIsSuspended = false;
+                                                    }
+                                                  }];
+
+    [[NSNotificationCenter defaultCenter] addObserverForName:AVAudioSessionMediaServicesWereResetNotification
+                                                      object:nil
+                                                       queue:nil
+                                                  usingBlock:^(NSNotification* notification) {
+                                                    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground || gIsSuspended)
+                                                    {
+                                                        // Received the reset notification while in the background, need to reset the AudioUnit when we come back to foreground.
+                                                        gNeedsReset = true;
+                                                    }
+                                                    else
+                                                    {
+                                                        // In the foregound but something chopped the media services, need to do a reset.
+                                                        SetSystemPaused(true);
+                                                        SetSystemPaused(false);
+                                                    }
+                                                  }];
 }
 #endif
 

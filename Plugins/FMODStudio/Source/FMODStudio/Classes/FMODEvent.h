@@ -17,7 +17,7 @@ class FMODSTUDIO_API UFMODEvent : public UFMODAsset
 
 public:
     /** Get parameter descriptions for this event */
-    void GetParameterDescriptions(TArray<FMOD_STUDIO_PARAMETER_DESCRIPTION> &Parameters) const;
+    void GetParameterDescriptions(TArray<FMOD_STUDIO_PARAMETER_DESCRIPTION>& Parameters) const;
 
 private:
     /** Get tags to show in content view */
