@@ -202,8 +202,9 @@ SourceArt/**/*.png
 SourceArt/**/*.tga
 
 # Binary Files
-Plugins/*/Binaries/*
 Binaries/Mac/*
+Plugins/**/Binaries/**/*.pdb
+!Plugins/**/Binaries/**/*.lib
 Binaries/ENS (Mac)*
 .DS_Store
 
