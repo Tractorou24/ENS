@@ -6,11 +6,11 @@
 
 namespace FMOD
 {
-namespace Studio
-{
-class EventDescription;
-}
-}
+    namespace Studio
+    {
+        class EventDescription;
+    }
+} // namespace FMOD
 
 class SFMODEventEditorPanel : public SCompoundWidget
 {
@@ -22,13 +22,13 @@ public:
     ~SFMODEventEditorPanel();
 
     /** SCompoundWidget interface */
-    void Construct(const FArguments &InArgs);
+    void Construct(const FArguments& InArgs);
 
 private:
-    TSharedRef<SBorder> ConstructToolbar(FMOD::Studio::EventDescription *EventDescription);
-    TSharedRef<SExpandableArea> ConstructInfo(FMOD::Studio::EventDescription *EventDescription);
-    TSharedRef<SExpandableArea> ConstructParameters(FMOD::Studio::EventDescription *EventDescription);
-    TSharedRef<SExpandableArea> ConstructUserProperties(FMOD::Studio::EventDescription *EventDescription);
+    TSharedRef<SBorder> ConstructToolbar(FMOD::Studio::EventDescription* EventDescription);
+    TSharedRef<SExpandableArea> ConstructInfo(FMOD::Studio::EventDescription* EventDescription);
+    TSharedRef<SExpandableArea> ConstructParameters(FMOD::Studio::EventDescription* EventDescription);
+    TSharedRef<SExpandableArea> ConstructUserProperties(FMOD::Studio::EventDescription* EventDescription);
 
     /** Editor that owns this panel */
     TWeakPtr<FFMODEventEditor> FMODEventEditorPtr;

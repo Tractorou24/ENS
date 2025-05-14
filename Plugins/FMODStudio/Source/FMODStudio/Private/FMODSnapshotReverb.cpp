@@ -2,7 +2,7 @@
 
 #include "FMODSnapshotReverb.h"
 
-UFMODSnapshotReverb::UFMODSnapshotReverb(const FObjectInitializer &ObjectInitializer)
+UFMODSnapshotReverb::UFMODSnapshotReverb(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
 }
@@ -13,7 +13,7 @@ bool UFMODSnapshotReverb::IsAsset() const
 }
 
 #if WITH_EDITORONLY_DATA
-void UFMODSnapshotReverb::PostEditChangeProperty(FPropertyChangedEvent &PropertyChangedEvent)
+void UFMODSnapshotReverb::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 }
 #endif // EDITORONLY_DATA

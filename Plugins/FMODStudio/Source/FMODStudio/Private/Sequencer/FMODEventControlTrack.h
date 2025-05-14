@@ -2,10 +2,11 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "UObject/ObjectMacros.h"
-#include "MovieSceneNameableTrack.h"
 #include "Compilation/IMovieSceneTrackTemplateProducer.h"
+#include "CoreMinimal.h"
+#include "MovieSceneNameableTrack.h"
+#include "UObject/ObjectMacros.h"
+
 #include "FMODEventControlTrack.generated.h"
 
 /** Handles control of an FMOD Event */
@@ -15,18 +16,18 @@ class UFMODEventControlTrack : public UMovieSceneNameableTrack, public IMovieSce
     GENERATED_UCLASS_BODY()
 
 public:
-    virtual TArray<UMovieSceneSection *> GetAllControlSections() const { return ControlSections; }
+    virtual TArray<UMovieSceneSection*> GetAllControlSections() const { return ControlSections; }
 
 public:
     // Begin UMovieSceneTrack interface
-    virtual bool HasSection(const UMovieSceneSection &Section) const override;
-    virtual void AddSection(UMovieSceneSection &Section) override;
-    virtual void RemoveSection(UMovieSceneSection &Section) override;
+    virtual bool HasSection(const UMovieSceneSection& Section) const override;
+    virtual void AddSection(UMovieSceneSection& Section) override;
+    virtual void RemoveSection(UMovieSceneSection& Section) override;
     virtual bool IsEmpty() const override;
-    virtual const TArray<UMovieSceneSection *> &GetAllSections() const override;
+    virtual const TArray<UMovieSceneSection*>& GetAllSections() const override;
     virtual void AddNewSection(FFrameNumber SectionTime);
     virtual bool SupportsType(TSubclassOf<UMovieSceneSection> SectionClass) const override;
-    virtual UMovieSceneSection *CreateNewSection() override;
+    virtual UMovieSceneSection* CreateNewSection() override;
     // End UMovieSceneTrack interface
 
     // IMovieSceneTrackTemplateProducer interface
@@ -39,5 +40,5 @@ public:
 private:
     /** List of all event control sections. */
     UPROPERTY()
-    TArray<UMovieSceneSection *> ControlSections;
+    TArray<UMovieSceneSection*> ControlSections;
 };

@@ -2,11 +2,11 @@
 
 #pragma once
 
+#include "DSP/BufferVectorOperations.h"
 #include "IAudioLink.h"
 #include "IAudioLinkFactory.h"
-#include "Templates/SharedPointer.h"
 #include "IBufferedAudioOutput.h"
-#include "DSP/BufferVectorOperations.h"
+#include "Templates/SharedPointer.h"
 
 #include "fmod_studio.hpp"
 
@@ -16,7 +16,7 @@ class FFMODAudioLinkInputClient;
 class FFMODAudioLinkInputClient : public TSharedFromThis<FFMODAudioLinkInputClient, ESPMode::ThreadSafe>
 {
 public:
-    FFMODAudioLinkInputClient(const FSharedBufferedOutputPtr& InToConsumeFrom, const UAudioLinkSettingsAbstract::FSharedSettingsProxyPtr& InSettings, FName InNameOfProducingSource={});
+    FFMODAudioLinkInputClient(const FSharedBufferedOutputPtr& InToConsumeFrom, const UAudioLinkSettingsAbstract::FSharedSettingsProxyPtr& InSettings, FName InNameOfProducingSource = {});
     virtual ~FFMODAudioLinkInputClient();
 
     /// Used by all Audio Link sources.
@@ -36,7 +36,7 @@ public:
     IBufferedAudioOutput::FBufferFormat* GetFormat();
 
     /// Used Sound "Sources" instead of FormatKnownDelegate to store the format at the time of starting.
-    void SetFormat(const IBufferedAudioOutput::FBufferFormat *AudioFormat);
+    void SetFormat(const IBufferedAudioOutput::FBufferFormat* AudioFormat);
 
     FName GetProducerName() const { return ProducerName; }
     FMOD::Studio::EventInstance* EventInstance;

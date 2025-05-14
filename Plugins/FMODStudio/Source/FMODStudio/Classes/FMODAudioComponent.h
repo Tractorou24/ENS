@@ -2,35 +2,35 @@
 
 #pragma once
 
-#include "Containers/Map.h"
-#include "Runtime/Launch/Resources/Version.h"
-#include "Sound/SoundAttenuation.h"
 #include "AudioDevice.h"
+#include "Containers/Map.h"
 #include "FMODStudioModule.h"
 #include "FMODUtils.h"
+#include "Runtime/Launch/Resources/Version.h"
+#include "Sound/SoundAttenuation.h"
+
 #include "FMODAudioComponent.generated.h"
 
 // Event property
 UENUM()
 namespace EFMODEventProperty
 {
-enum Type
-{
-    /* Priority to set on low-level channels created by this event instance (-1 to 256). */
-    ChannelPriority,
-    /** Schedule delay to synchronized playback for multiple tracks in DSP clocks, or -1 for default. */
-    ScheduleDelay,
-    /** Schedule look-ahead on the timeline in DSP clocks, or -1 for default. */
-    ScheduleLookahead,
-    /** Override the event's 3D minimum distance, or -1 for default. */
-    MinimumDistance,
-    /** Override the event's 3D maximum distance, or -1 for default. */
-    MaximumDistance,
-    /** Number of options */
-    Count
-};
-}
-
+    enum Type
+    {
+        /* Priority to set on low-level channels created by this event instance (-1 to 256). */
+        ChannelPriority,
+        /** Schedule delay to synchronized playback for multiple tracks in DSP clocks, or -1 for default. */
+        ScheduleDelay,
+        /** Schedule look-ahead on the timeline in DSP clocks, or -1 for default. */
+        ScheduleLookahead,
+        /** Override the event's 3D minimum distance, or -1 for default. */
+        MinimumDistance,
+        /** Override the event's 3D maximum distance, or -1 for default. */
+        MaximumDistance,
+        /** Number of options */
+        Count
+    };
+} // namespace EFMODEventProperty
 
 /** Used to store callback info from FMOD thread to our event */
 struct FTimelineMarkerProperties
@@ -70,11 +70,11 @@ struct FFMODAttenuationDetails
     uint32 bOverrideAttenuation : 1;
     /** Override the event's 3D minimum distance. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FMOD|Attenuation",
-        meta = (ClampMin = "0.0", UIMin = "0.0", EditCondition = "bOverrideAttenuation"))
+              meta = (ClampMin = "0.0", UIMin = "0.0", EditCondition = "bOverrideAttenuation"))
     float MinimumDistance;
     /** Override the event's 3D maximum distance. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FMOD|Attenuation",
-        meta = (ClampMin = "0.0", UIMin = "0.0", EditCondition = "bOverrideAttenuation"))
+              meta = (ClampMin = "0.0", UIMin = "0.0", EditCondition = "bOverrideAttenuation"))
     float MaximumDistance;
 
     FFMODAttenuationDetails()
@@ -95,7 +95,7 @@ struct FFMODOcclusionDetails
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FMOD|Occlusion", meta = (EditCondition = "bEnableOcclusion"))
     TEnumAsByte<enum ECollisionChannel> OcclusionTraceChannel;
     /** Whether or not to enable complex geometry occlusion checks. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FMOD|Occlusion", meta=(EditCondition = "bEnableOcclusion"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FMOD|Occlusion", meta = (EditCondition = "bEnableOcclusion"))
     bool bUseComplexCollisionForOcclusion;
 
     FFMODOcclusionDetails()
@@ -117,14 +117,14 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(
 
 namespace FMOD
 {
-class DSP;
-class Sound;
-namespace Studio
-{
-class EventDescription;
-class EventInstance;
-}
-}
+    class DSP;
+    class Sound;
+    namespace Studio
+    {
+        class EventDescription;
+        class EventInstance;
+    } // namespace Studio
+} // namespace FMOD
 
 struct FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES;
 struct FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES;
@@ -133,14 +133,14 @@ struct FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES;
  * Plays FMOD Studio events.
  */
 UCLASS(Blueprintable, ClassGroup = (Audio, Common), hidecategories = (Object, ActorComponent, Physics, Rendering, Mobility, LOD),
-    ShowCategories = Trigger, meta = (BlueprintSpawnableComponent))
+       ShowCategories = Trigger, meta = (BlueprintSpawnableComponent))
 class FMODSTUDIO_API UFMODAudioComponent : public USceneComponent
 {
     GENERATED_UCLASS_BODY()
 
     friend struct FFMODEventControlExecutionToken;
     friend struct FPlayingToken;
-    friend FMOD_RESULT F_CALL UFMODAudioComponent_EventCallback(FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUDIO_EVENTINSTANCE *event, void *parameters);
+    friend FMOD_RESULT F_CALL UFMODAudioComponent_EventCallback(FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUDIO_EVENTINSTANCE* event, void* parameters);
 
 public:
     /** The event asset to use for this sound. */
@@ -171,7 +171,7 @@ public:
     uint32 bApplyAmbientVolumes : 1;
 
     /** Whether we apply gain and low-pass based on occlusion onto a parameter. */
-    uint32 bApplyOcclusionParameter:1;
+    uint32 bApplyOcclusionParameter : 1;
 
     /** Called when an event stops, either because it played to completion or because a Stop() call turned it off early. */
     UPROPERTY(BlueprintAssignable)
@@ -191,7 +191,7 @@ public:
 
     /** New Event to be used by the FMODAudioComponent. */
     UFUNCTION(BlueprintCallable, Category = "Audio|FMOD|Components")
-    void SetEvent(UFMODEvent *NewEvent);
+    void SetEvent(UFMODEvent* NewEvent);
 
     /** Start a sound playing on an audio component. */
     UFUNCTION(BlueprintCallable, Category = "Audio|FMOD|Components")
@@ -234,7 +234,7 @@ public:
 
     /** Will be deprecated in FMOD 2.01, use `GetParameterValue(FName, float, float)` instead.
      * Get parameter value from the Event.
-    */
+     */
     UFUNCTION(BlueprintCallable, Category = "Audio|FMOD|Components")
     float GetParameter(FName Name);
 
@@ -242,9 +242,9 @@ public:
      * @param Name - Name of parameter
      * @param UserValue - Parameter value as set from the public API.
      * @param FinalValue - Final combined parameter value.
-    */
+     */
     UFUNCTION(BlueprintCallable, Category = "Audio|FMOD|Components")
-    void GetParameterValue(FName Name, float &UserValue, float &FinalValue);
+    void GetParameterValue(FName Name, float& UserValue, float& FinalValue);
 
     /** Set a property of the Event. */
     UFUNCTION(BlueprintCallable, Category = "Audio|FMOD|Components")
@@ -271,7 +271,7 @@ public:
     void SetProgrammerSoundName(FString Value);
 
     /** Set a programmer sound to use for this audio component.  Lifetime of sound must exceed that of the audio component. */
-    void SetProgrammerSound(FMOD::Sound *Sound);
+    void SetProgrammerSound(FMOD::Sound* Sound);
 
     /** FMOD Custom Attenuation Details. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FMODAudio)
@@ -282,11 +282,11 @@ public:
     struct FFMODOcclusionDetails OcclusionDetails;
 
     /** Actual Studio instance handle. */
-    FMOD::Studio::EventInstance *StudioInstance;
+    FMOD::Studio::EventInstance* StudioInstance;
 
     // Begin UObject interface.
 #if WITH_EDITOR
-    virtual void PostEditChangeProperty(FPropertyChangedEvent &e) override;
+    virtual void PostEditChangeProperty(FPropertyChangedEvent& e) override;
 #endif // WITH_EDITOR
     virtual void PostLoad() override;
     // End UObject interface.
@@ -361,16 +361,16 @@ private:
     void ApplyVolumeLPF();
 
     /** Timeline Marker callback. */
-    void EventCallbackAddMarker(struct FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES *props);
+    void EventCallbackAddMarker(struct FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES* props);
 
     /** Timeline Beat callback. */
-    void EventCallbackAddBeat(struct FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES *props);
+    void EventCallbackAddBeat(struct FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES* props);
 
     /** Programmer Sound Create callback. */
-    void EventCallbackCreateProgrammerSound(struct FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES *props);
+    void EventCallbackCreateProgrammerSound(struct FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES* props);
 
     /** Programmer Sound Destroy callback. */
-    void EventCallbackDestroyProgrammerSound(struct FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES *props);
+    void EventCallbackDestroyProgrammerSound(struct FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES* props);
 
     /** Called when the event has finished stopping. */
     void OnPlaybackCompleted();
@@ -445,7 +445,7 @@ private:
     TArray<FTimelineBeatProperties> CallbackBeatQueue;
 
     /** Direct assignment of programmer sound from other C++ code. */
-    FMOD::Sound *ProgrammerSound;
+    FMOD::Sound* ProgrammerSound;
     bool NeedDestroyProgrammerSoundCallback;
     /** The length of the current Event in milliseconds. */
     int32 EventLength;

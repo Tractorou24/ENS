@@ -1,31 +1,31 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2025-2025.
 
 #include "FMODAudioLinkSynchronizer.h"
-#include "fmod_studio.hpp"
-#include "FMODStudioModule.h"
 #include "FMODAudioLinkLog.h"
+#include "FMODStudioModule.h"
+#include "fmod_studio.hpp"
 
 #include "AudioDeviceManager.h"
 
 FMOD_RESULT F_CALL MixCallback(FMOD_SYSTEM* system, FMOD_SYSTEM_CALLBACK_TYPE type, void* commanddata1, void* commanddata2, void* userdata)
 {
-    FFMODAudioLinkSynchronizer *Synchro = static_cast<FFMODAudioLinkSynchronizer*>(userdata);
+    FFMODAudioLinkSynchronizer* Synchro = static_cast<FFMODAudioLinkSynchronizer*>(userdata);
     if (Synchro)
     {
-        FMOD::System *CoreSystem = (FMOD::System*)system;
+        FMOD::System* CoreSystem = (FMOD::System*)system;
 
-        FMOD::ChannelGroup *MasterGroup = NULL;
+        FMOD::ChannelGroup* MasterGroup = NULL;
         CoreSystem->getMasterChannelGroup(&MasterGroup);
         uint64 dspClock = 0;
         MasterGroup->getDSPClock(&dspClock, 0);
 
         switch (type)
         {
-        case FMOD_SYSTEM_CALLBACK_POSTMIX:
-            Synchro->ExecuteEndRender(dspClock);
-            break;
-        default:
-            break;
+            case FMOD_SYSTEM_CALLBACK_POSTMIX:
+                Synchro->ExecuteEndRender(dspClock);
+                break;
+            default:
+                break;
         }
     }
     return FMOD_OK;

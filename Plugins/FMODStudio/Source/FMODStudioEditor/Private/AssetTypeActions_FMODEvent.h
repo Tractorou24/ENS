@@ -6,11 +6,11 @@
 
 namespace FMOD
 {
-namespace Studio
-{
-class EventInstance;
-}
-}
+    namespace Studio
+    {
+        class EventInstance;
+    }
+} // namespace FMOD
 
 class UFMODEvent;
 
@@ -23,12 +23,12 @@ public:
     // IAssetTypeActions Implementation
     virtual FText GetName() const override { return NSLOCTEXT("AssetTypeActions", "AssetTypeActions_FMODEvent", "FMOD Event"); }
     virtual FColor GetTypeColor() const override { return FColor(0, 175, 255); }
-    virtual UClass *GetSupportedClass() const override;
-    virtual bool HasActions(const TArray<UObject *> &InObjects) const override { return true; }
-    virtual void GetActions(const TArray<UObject *> &InObjects, FMenuBuilder &MenuBuilder) override;
-    virtual bool AssetsActivatedOverride(const TArray<UObject *> &InObjects, EAssetTypeActivationMethod::Type ActivationType) override;
+    virtual UClass* GetSupportedClass() const override;
+    virtual bool HasActions(const TArray<UObject*>& InObjects) const override { return true; }
+    virtual void GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder) override;
+    virtual bool AssetsActivatedOverride(const TArray<UObject*>& InObjects, EAssetTypeActivationMethod::Type ActivationType) override;
     virtual void OpenAssetEditor(
-        const TArray<UObject *> &InObjects, TSharedPtr<class IToolkitHost> EditWithinLevelEditor = TSharedPtr<IToolkitHost>()) override;
+        const TArray<UObject*>& InObjects, TSharedPtr<class IToolkitHost> EditWithinLevelEditor = TSharedPtr<IToolkitHost>()) override;
     virtual bool CanFilter() override { return false; }
     virtual uint32 GetCategories() override { return EAssetTypeCategories::Sounds; }
 
@@ -46,11 +46,11 @@ private:
     void ExecuteStop(TArray<TWeakObjectPtr<UFMODEvent>> Objects);
 
     /** Plays the event */
-    void PlayEvent(UFMODEvent *Event);
+    void PlayEvent(UFMODEvent* Event);
 
     void HandleBeginPIE(bool bSimulating);
     void HandleBanksReloaded();
 
-    FMOD::Studio::EventInstance *CurrentPreviewEventInstance;
+    FMOD::Studio::EventInstance* CurrentPreviewEventInstance;
     FDelegateHandle BeginPIEDelegateHandle;
 };

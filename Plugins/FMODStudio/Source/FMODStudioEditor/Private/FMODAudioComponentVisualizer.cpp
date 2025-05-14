@@ -2,20 +2,20 @@
 
 #include "FMODAudioComponentVisualizer.h"
 #include "FMODAudioComponent.h"
-#include "FMODUtils.h"
 #include "FMODEvent.h"
-#include "fmod_studio.hpp"
-#include "SceneView.h"
+#include "FMODUtils.h"
 #include "SceneManagement.h"
+#include "SceneView.h"
+#include "fmod_studio.hpp"
 
-void FFMODAudioComponentVisualizer::DrawVisualization(const UActorComponent *Component, const FSceneView *View, FPrimitiveDrawInterface *PDI)
+void FFMODAudioComponentVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI)
 {
     if (View->Family->EngineShowFlags.AudioRadius)
     {
-        const UFMODAudioComponent *AudioComp = Cast<const UFMODAudioComponent>(Component);
+        const UFMODAudioComponent* AudioComp = Cast<const UFMODAudioComponent>(Component);
         if (IsValid(AudioComp) && AudioComp->Event)
         {
-            FMOD::Studio::EventDescription *EventDesc =
+            FMOD::Studio::EventDescription* EventDesc =
                 IFMODStudioModule::Get().GetEventDescription(AudioComp->Event, EFMODSystemContext::Auditioning);
             if (EventDesc != nullptr)
             {
@@ -26,7 +26,7 @@ void FFMODAudioComponentVisualizer::DrawVisualization(const UActorComponent *Com
                     const FColor AudioOuterRadiusColor(255, 153, 0);
                     const FColor AudioInnerRadiusColor(216, 130, 0);
 
-                    const FTransform &Transform = AudioComp->GetComponentTransform();
+                    const FTransform& Transform = AudioComp->GetComponentTransform();
 
                     float MinDistance = 0.0f;
                     float MaxDistance = 0.0f;

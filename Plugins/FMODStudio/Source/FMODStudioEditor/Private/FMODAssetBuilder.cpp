@@ -7,17 +7,17 @@
 #include "FMODBankLookup.h"
 #include "FMODBus.h"
 #include "FMODEvent.h"
+#include "FMODPort.h"
 #include "FMODSettings.h"
 #include "FMODSnapshot.h"
 #include "FMODSnapshotReverb.h"
-#include "FMODPort.h"
 #include "FMODUtils.h"
 #include "FMODVCA.h"
 #include "FileHelpers.h"
-#include "ObjectTools.h"
-#include "SourceControlHelpers.h"
 #include "HAL/FileManager.h"
 #include "Misc/MessageDialog.h"
+#include "ObjectTools.h"
+#include "SourceControlHelpers.h"
 
 #include "fmod_studio.hpp"
 
@@ -34,11 +34,11 @@ FFMODAssetBuilder::~FFMODAssetBuilder()
 void FFMODAssetBuilder::Create()
 {
     verifyfmod(FMOD::Studio::System::create(&StudioSystem));
-    FMOD::System *lowLevelSystem = nullptr;
+    FMOD::System* lowLevelSystem = nullptr;
     verifyfmod(StudioSystem->getCoreSystem(&lowLevelSystem));
     verifyfmod(lowLevelSystem->setOutput(FMOD_OUTPUTTYPE_NOSOUND_NRT));
     verifyfmod(StudioSystem->initialize(1, FMOD_STUDIO_INIT_ALLOW_MISSING_PLUGINS | FMOD_STUDIO_INIT_SYNCHRONOUS_UPDATE, FMOD_INIT_MIX_FROM_UPDATE,
-        nullptr));
+                                        nullptr));
 }
 
 void FFMODAssetBuilder::ProcessBanks()
@@ -58,8 +58,8 @@ FString FFMODAssetBuilder::GetMasterStringsBankPath()
     return BankLookup ? BankLookup->MasterStringsBankPath : FString();
 }
 
-void FFMODAssetBuilder::BuildAssets(const UFMODSettings& InSettings, const FString &AssetLookupName, const FString &AssetLookupPath,
-    TArray<UObject*>& AssetsToSave, TArray<UObject*>& AssetsToDelete)
+void FFMODAssetBuilder::BuildAssets(const UFMODSettings& InSettings, const FString& AssetLookupName, const FString& AssetLookupPath,
+                                    TArray<UObject*>& AssetsToSave, TArray<UObject*>& AssetsToDelete)
 {
     if (!BankLookup->MasterStringsBankPath.IsEmpty())
     {
@@ -67,7 +67,7 @@ void FFMODAssetBuilder::BuildAssets(const UFMODSettings& InSettings, const FStri
 
         UE_LOG(LogFMOD, Log, TEXT("Loading strings bank: %s"), *StringPath);
 
-        FMOD::Studio::Bank *StudioStringBank;
+        FMOD::Studio::Bank* StudioStringBank;
         FMOD_RESULT StringResult = StudioSystem->loadBankFile(TCHAR_TO_UTF8(*StringPath), FMOD_STUDIO_LOAD_BANK_NORMAL, &StudioStringBank);
 
         if (StringResult == FMOD_OK)
@@ -84,7 +84,7 @@ void FFMODAssetBuilder::BuildAssets(const UFMODSettings& InSettings, const FStri
 
             for (int StringIdx = 0; StringIdx < Count; ++StringIdx)
             {
-                FMOD::Studio::ID Guid = { 0 };
+                FMOD::Studio::ID Guid = {0};
 
                 while (true)
                 {
@@ -121,13 +121,13 @@ void FFMODAssetBuilder::BuildAssets(const UFMODSettings& InSettings, const FStri
 
             // Load or create asset lookup
             FString AssetLookupPackageName = AssetLookupPath + AssetLookupName;
-            UPackage *AssetLookupPackage = CreatePackage(*AssetLookupPackageName);
+            UPackage* AssetLookupPackage = CreatePackage(*AssetLookupPackageName);
             AssetLookupPackage->FullyLoad();
 
             bool bAssetLookupCreated = false;
             bool bAssetLookupModified = false;
 
-            UDataTable *AssetLookup = FindObject<UDataTable>(AssetLookupPackage, *AssetLookupName, true);
+            UDataTable* AssetLookup = FindObject<UDataTable>(AssetLookupPackage, *AssetLookupName, true);
 
             if (!AssetLookup)
             {
@@ -142,13 +142,13 @@ void FFMODAssetBuilder::BuildAssets(const UFMODSettings& InSettings, const FStri
                 StaleAssets.Add(Key, Value);
             });
 
-            for (const AssetCreateInfo &CreateInfo : AssetCreateInfos)
+            for (const AssetCreateInfo& CreateInfo : AssetCreateInfos)
             {
-                UFMODAsset *Asset = CreateAsset(CreateInfo, AssetsToSave);
+                UFMODAsset* Asset = CreateAsset(CreateInfo, AssetsToSave);
 
                 if (Asset)
                 {
-                    UPackage *AssetPackage = Asset->GetPackage();
+                    UPackage* AssetPackage = Asset->GetPackage();
                     FString AssetPackageName = AssetPackage->GetPathName();
                     FString AssetName = Asset->GetPathName(AssetPackage);
                     FName LookupRowName = FName(*CreateInfo.StudioPath);
@@ -181,9 +181,9 @@ void FFMODAssetBuilder::BuildAssets(const UFMODSettings& InSettings, const FStri
             {
                 for (auto& Entry : StaleAssets)
                 {
-                    UPackage *Package = CreatePackage(*Entry.Value.PackageName);
+                    UPackage* Package = CreatePackage(*Entry.Value.PackageName);
                     Package->FullyLoad();
-                    UFMODAsset *Asset = Package ?  FindObject<UFMODAsset>(Package, *Entry.Value.AssetName) : nullptr;
+                    UFMODAsset* Asset = Package ? FindObject<UFMODAsset>(Package, *Entry.Value.AssetName) : nullptr;
 
                     if (Asset)
                     {
@@ -209,11 +209,11 @@ void FFMODAssetBuilder::BuildAssets(const UFMODSettings& InSettings, const FStri
     }
 }
 
-void FFMODAssetBuilder::BuildBankLookup(const FString &AssetName, const FString &PackagePath, const UFMODSettings &InSettings,
-    TArray<UObject*>& AssetsToSave)
+void FFMODAssetBuilder::BuildBankLookup(const FString& AssetName, const FString& PackagePath, const UFMODSettings& InSettings,
+                                        TArray<UObject*>& AssetsToSave)
 {
     FString PackageName = PackagePath + AssetName;
-    UPackage *Package = CreatePackage(*PackageName);
+    UPackage* Package = CreatePackage(*PackageName);
     Package->FullyLoad();
 
     bool bCreated = false;
@@ -261,7 +261,7 @@ void FFMODAssetBuilder::BuildBankLookup(const FString &AssetName, const FString 
             UE_LOG(LogFMOD, Error, TEXT("Failed to add bank %s to lookup."), *BankPath);
             continue;
         }
-        
+
         FString GUID = FMODUtils::ConvertGuid(BankID).ToString(EGuidFormats::DigitsWithHyphensInBraces);
         FName OuterRowName(*GUID);
 
@@ -286,7 +286,7 @@ void FFMODAssetBuilder::BuildBankLookup(const FString &AssetName, const FString 
         {
             // Remove all expected extensions from end of filename before checking for locale code.
             // Note, we may encounter multiple extensions e.g. "Dialogue.assets.bank"
-            const FString BankExtensions[] = { TEXT(".assets"), TEXT(".streams"), TEXT(".strings") };
+            const FString BankExtensions[] = {TEXT(".assets"), TEXT(".streams"), TEXT(".strings")};
             FString Filename = FPaths::GetCleanFilename(BankPath);
             Filename.RemoveFromEnd(TEXT(".bank"));
             for (const FString& extension : BankExtensions)
@@ -301,14 +301,15 @@ void FFMODAssetBuilder::BuildBankLookup(const FString &AssetName, const FString 
             }
         }
 
-        // See if we've visited this OuterRowName + InnerRowName already and skip it if so. This is mainly to 
-        // avoid setting "<NON-LOCALIZED>" multiple times (and causing BankLookup to be modified) when no 
+        // See if we've visited this OuterRowName + InnerRowName already and skip it if so. This is mainly to
+        // avoid setting "<NON-LOCALIZED>" multiple times (and causing BankLookup to be modified) when no
         // locales are set up in Unreal.
         FString LocalizedEntryKey = OuterRowName.ToString() + InnerRowName.ToString();
         if (LocalizedEntriesVisited.Find(LocalizedEntryKey) != INDEX_NONE)
         {
             UE_LOG(LogFMOD, Warning, TEXT("Ignoring bank %s as another bank with the same GUID is already being used.\n"
-                "Bank %s does not match any locales in the FMOD Studio plugin settings."), *BankPath, *BankPath);
+                                          "Bank %s does not match any locales in the FMOD Studio plugin settings."),
+                   *BankPath, *BankPath);
             continue;
         }
         LocalizedEntriesVisited.Add(LocalizedEntryKey);
@@ -392,7 +393,7 @@ void FFMODAssetBuilder::BuildBankLookup(const FString &AssetName, const FString 
         UE_LOG(LogFMOD, Log, TEXT("BankLookup created.\n"));
         FAssetRegistryModule::AssetCreated(BankLookup);
     }
-    
+
     if (bCreated || bModified)
     {
         UE_LOG(LogFMOD, Log, TEXT("BankLookup modified.\n"));
@@ -449,7 +450,7 @@ FString FFMODAssetBuilder::GetAssetClassName(UClass* AssetClass)
     return ClassName;
 }
 
-bool FFMODAssetBuilder::MakeAssetCreateInfo(const FGuid &AssetGuid, const FString &StudioPath, AssetCreateInfo *CreateInfo)
+bool FFMODAssetBuilder::MakeAssetCreateInfo(const FGuid& AssetGuid, const FString& StudioPath, AssetCreateInfo* CreateInfo)
 {
     CreateInfo->StudioPath = StudioPath;
     CreateInfo->Guid = AssetGuid;
@@ -501,7 +502,7 @@ bool FFMODAssetBuilder::MakeAssetCreateInfo(const FGuid &AssetGuid, const FStrin
     return true;
 }
 
-UFMODAsset *FFMODAssetBuilder::CreateAsset(const AssetCreateInfo& CreateInfo, TArray<UObject*>& AssetsToSave)
+UFMODAsset* FFMODAssetBuilder::CreateAsset(const AssetCreateInfo& CreateInfo, TArray<UObject*>& AssetsToSave)
 {
     FString SanitizedAssetName;
     FText OutReason;
@@ -514,10 +515,10 @@ UFMODAsset *FFMODAssetBuilder::CreateAsset(const AssetCreateInfo& CreateInfo, TA
     {
         SanitizedAssetName = ObjectTools::SanitizeObjectName(CreateInfo.AssetName);
         UE_LOG(LogFMOD, Log, TEXT("'%s' cannot be used as a UE4 asset name. %s. Using '%s' instead."), *CreateInfo.AssetName,
-            *OutReason.ToString(), *SanitizedAssetName);
+               *OutReason.ToString(), *SanitizedAssetName);
     }
 
-    const UFMODSettings &Settings = *GetDefault<UFMODSettings>();
+    const UFMODSettings& Settings = *GetDefault<UFMODSettings>();
     FString Folder = Settings.GetFullContentPath() / GetAssetClassName(CreateInfo.Class) + CreateInfo.Path;
     FString PackagePath = FString::Printf(TEXT("%s/%s"), *Folder, *SanitizedAssetName);
     FString SanitizedPackagePath;
@@ -530,13 +531,13 @@ UFMODAsset *FFMODAssetBuilder::CreateAsset(const AssetCreateInfo& CreateInfo, TA
     {
         SanitizedPackagePath = ObjectTools::SanitizeInvalidChars(PackagePath, INVALID_LONGPACKAGE_CHARACTERS);
         UE_LOG(LogFMOD, Log, TEXT("'%s' cannot be used as a UE4 asset path. %s. Using '%s' instead."), *PackagePath, *OutReason.ToString(),
-            *SanitizedPackagePath);
+               *SanitizedPackagePath);
     }
 
-    UPackage *Package = CreatePackage(*SanitizedPackagePath);
+    UPackage* Package = CreatePackage(*SanitizedPackagePath);
     Package->FullyLoad();
 
-    UFMODAsset *Asset = FindObject<UFMODAsset>(Package, *SanitizedAssetName);
+    UFMODAsset* Asset = FindObject<UFMODAsset>(Package, *SanitizedAssetName);
     bool bCreated = false;
     bool bModified = false;
 
@@ -576,13 +577,13 @@ UFMODAsset *FFMODAssetBuilder::CreateAsset(const AssetCreateInfo& CreateInfo, TA
     {
         FString OldPrefix = Settings.ContentBrowserPrefix + GetAssetClassName(Asset->GetClass());
         FString NewPrefix = Settings.ContentBrowserPrefix + GetAssetClassName(UFMODSnapshotReverb::StaticClass());
-        UObject *Outer = Asset->GetOuter() ? Asset->GetOuter() : Asset;
+        UObject* Outer = Asset->GetOuter() ? Asset->GetOuter() : Asset;
         FString ReverbPackagePath = Outer->GetPathName().Replace(*OldPrefix, *NewPrefix);
 
-        UPackage *ReverbPackage = CreatePackage(*ReverbPackagePath);
+        UPackage* ReverbPackage = CreatePackage(*ReverbPackagePath);
         ReverbPackage->FullyLoad();
 
-        UFMODSnapshotReverb *AssetReverb = FindObject<UFMODSnapshotReverb>(ReverbPackage, *SanitizedAssetName, true);
+        UFMODSnapshotReverb* AssetReverb = FindObject<UFMODSnapshotReverb>(ReverbPackage, *SanitizedAssetName, true);
         bCreated = false;
         bModified = false;
 
@@ -599,7 +600,7 @@ UFMODAsset *FFMODAssetBuilder::CreateAsset(const AssetCreateInfo& CreateInfo, TA
         {
             UE_LOG(LogFMOD, Log, TEXT("Constructing snapshot reverb asset: %s"), *ReverbPackagePath);
             AssetReverb = NewObject<UFMODSnapshotReverb>(ReverbPackage, UFMODSnapshotReverb::StaticClass(), FName(*SanitizedAssetName),
-                RF_Standalone | RF_Public | RF_MarkAsRootSet);
+                                                         RF_Standalone | RF_Public | RF_MarkAsRootSet);
             AssetReverb->AssetGuid = CreateInfo.Guid;
             bCreated = true;
         }
@@ -630,7 +631,7 @@ void FFMODAssetBuilder::SaveAssets(TArray<UObject*>& AssetsToSave)
         return;
     }
 
-    TArray<UPackage *> PackagesToSave;
+    TArray<UPackage*> PackagesToSave;
 
     for (auto& Asset : AssetsToSave)
     {
@@ -662,11 +663,11 @@ void FFMODAssetBuilder::DeleteAssets(TArray<UObject*>& AssetsToDelete)
         if (Asset->GetClass() == UFMODSnapshot::StaticClass())
         {
             // Also delete the reverb asset
-            const UFMODSettings &Settings = *GetDefault<UFMODSettings>();
+            const UFMODSettings& Settings = *GetDefault<UFMODSettings>();
             FString OldPrefix = Settings.ContentBrowserPrefix + GetAssetClassName(Asset->GetClass());
             FString NewPrefix = Settings.ContentBrowserPrefix + GetAssetClassName(UFMODSnapshotReverb::StaticClass());
             FString ReverbName = Asset->GetPathName().Replace(*OldPrefix, *NewPrefix);
-            UObject *Reverb = StaticFindObject(UFMODSnapshotReverb::StaticClass(), nullptr, *ReverbName);
+            UObject* Reverb = StaticFindObject(UFMODSnapshotReverb::StaticClass(), nullptr, *ReverbName);
 
             if (Reverb)
             {

@@ -1,16 +1,16 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2012-2015.
 
 #include "FMODFileCallbacks.h"
-#include "fmod_errors.h"
+#include "FMODStudioPrivatePCH.h"
 #include "FMODUtils.h"
-#include "HAL/FileManager.h"
 #include "GenericPlatform/GenericPlatformProcess.h"
+#include "HAL/FileManager.h"
 #include "HAL/Runnable.h"
 #include "HAL/RunnableThread.h"
 #include "Misc/ScopeLock.h"
-#include "FMODStudioPrivatePCH.h"
+#include "fmod_errors.h"
 
-FMOD_RESULT F_CALL FMODLogCallback(FMOD_DEBUG_FLAGS flags, const char *file, int line, const char *func, const char *message)
+FMOD_RESULT F_CALL FMODLogCallback(FMOD_DEBUG_FLAGS flags, const char* file, int line, const char* func, const char* message)
 {
     if (flags & FMOD_DEBUG_LEVEL_ERROR)
     {
@@ -43,19 +43,18 @@ FMOD_RESULT F_CALL FMODLogCallback(FMOD_DEBUG_FLAGS flags, const char *file, int
     return FMOD_OK;
 }
 
-FMOD_RESULT F_CALL FMODErrorCallback(FMOD_SYSTEM *system, FMOD_SYSTEM_CALLBACK_TYPE type, void *commanddata1, void* commanddata2, void *userdata)
+FMOD_RESULT F_CALL FMODErrorCallback(FMOD_SYSTEM* system, FMOD_SYSTEM_CALLBACK_TYPE type, void* commanddata1, void* commanddata2, void* userdata)
 {
-    FMOD_ERRORCALLBACK_INFO *callbackInfo = (FMOD_ERRORCALLBACK_INFO *)commanddata1;
+    FMOD_ERRORCALLBACK_INFO* callbackInfo = (FMOD_ERRORCALLBACK_INFO*)commanddata1;
 
-    if ((callbackInfo->instancetype == FMOD_ERRORCALLBACK_INSTANCETYPE_CHANNEL || callbackInfo->instancetype == FMOD_ERRORCALLBACK_INSTANCETYPE_CHANNELCONTROL) 
-        && (callbackInfo->result == FMOD_ERR_INVALID_HANDLE || callbackInfo->result == FMOD_ERR_CHANNEL_STOLEN))
+    if ((callbackInfo->instancetype == FMOD_ERRORCALLBACK_INSTANCETYPE_CHANNEL || callbackInfo->instancetype == FMOD_ERRORCALLBACK_INSTANCETYPE_CHANNELCONTROL) && (callbackInfo->result == FMOD_ERR_INVALID_HANDLE || callbackInfo->result == FMOD_ERR_CHANNEL_STOLEN))
     {
         return FMOD_OK;
     }
 
     UE_LOG(LogFMOD, Error, TEXT("%s(%s) returned error %d (\"%s\") for instance type: %d (0x%d)."),
-        UTF8_TO_TCHAR(callbackInfo->functionname), UTF8_TO_TCHAR(callbackInfo->functionparams), (int)callbackInfo->result,
-        UTF8_TO_TCHAR(FMOD_ErrorString(callbackInfo->result)), (int)callbackInfo->instancetype, callbackInfo->instance);
+           UTF8_TO_TCHAR(callbackInfo->functionname), UTF8_TO_TCHAR(callbackInfo->functionparams), (int)callbackInfo->result,
+           UTF8_TO_TCHAR(FMOD_ErrorString(callbackInfo->result)), (int)callbackInfo->instancetype, callbackInfo->instance);
     return FMOD_OK;
 }
 
@@ -80,15 +79,15 @@ public:
     {
     }
 
-    static FMOD_RESULT F_CALL OpenCallback(const char *name, unsigned int *filesize, void **handle, void * /*userdata*/);
-    static FMOD_RESULT F_CALL CloseCallback(void *handle, void * /*userdata*/);
-    static FMOD_RESULT F_CALL ReadCallback(void *handle, void *buffer, unsigned int sizebytes, unsigned int *bytesread, void * /*userdata*/);
-    static FMOD_RESULT F_CALL SeekCallback(void *handle, unsigned int pos, void * /*userdata*/);
+    static FMOD_RESULT F_CALL OpenCallback(const char* name, unsigned int* filesize, void** handle, void* /*userdata*/);
+    static FMOD_RESULT F_CALL CloseCallback(void* handle, void* /*userdata*/);
+    static FMOD_RESULT F_CALL ReadCallback(void* handle, void* buffer, unsigned int sizebytes, unsigned int* bytesread, void* /*userdata*/);
+    static FMOD_RESULT F_CALL SeekCallback(void* handle, unsigned int pos, void* /*userdata*/);
 
-    static FMOD_RESULT OpenInternal(const char *name, unsigned int *filesize, void **handle);
-    static FMOD_RESULT CloseInternal(void *handle);
-    static FMOD_RESULT ReadInternal(void *handle, void *buffer, unsigned int sizebytes, unsigned int *bytesread);
-    static FMOD_RESULT SeekInternal(void *handle, unsigned int pos);
+    static FMOD_RESULT OpenInternal(const char* name, unsigned int* filesize, void** handle);
+    static FMOD_RESULT CloseInternal(void* handle);
+    static FMOD_RESULT ReadInternal(void* handle, void* buffer, unsigned int sizebytes, unsigned int* bytesread);
+    static FMOD_RESULT SeekInternal(void* handle, unsigned int pos);
 
     void IncrementReferenceCount()
     {
@@ -129,7 +128,7 @@ public:
         }
     }
 
-    void Attach(FMOD::System *system, int32 fileBufferSize)
+    void Attach(FMOD::System* system, int32 fileBufferSize)
     {
         check(mThread);
 
@@ -193,17 +192,17 @@ private:
     }
 
     // Parameter for Close, Seek and Read
-    void *mHandleIn;
+    void* mHandleIn;
 
     // Parameters for Open
-    const char *mName;
-    unsigned int *mFileSize;
-    void **mHandleOut;
+    const char* mName;
+    unsigned int* mFileSize;
+    void** mHandleOut;
 
     // Parameters for Read
-    void *mBuffer;
+    void* mBuffer;
     unsigned int mSizeBytes;
-    unsigned int *mBytesRead;
+    unsigned int* mBytesRead;
 
     // Parameter for Seek
     unsigned int mSeekPosition;
@@ -212,16 +211,16 @@ private:
     FMOD_RESULT mResult;
 
     int mReferenceCount;
-    FRunnableThread *mThread;
-    FEvent *mCommandReadyEvent;
-    FEvent *mCommandCompleteEvent;
+    FRunnableThread* mThread;
+    FEvent* mCommandReadyEvent;
+    FEvent* mCommandCompleteEvent;
 
     FCriticalSection mCrit;
 };
 
 static FFMODFileSystem gFileSystem;
 
-FMOD_RESULT F_CALL FFMODFileSystem::OpenCallback(const char *name, unsigned int *filesize, void **handle, void * /*userdata*/)
+FMOD_RESULT F_CALL FFMODFileSystem::OpenCallback(const char* name, unsigned int* filesize, void** handle, void* /*userdata*/)
 {
     FScopeLock lock(&gFileSystem.mCrit);
     gFileSystem.mName = name;
@@ -231,11 +230,11 @@ FMOD_RESULT F_CALL FFMODFileSystem::OpenCallback(const char *name, unsigned int 
     return gFileSystem.RunCommand(COMMAND_OPEN);
 }
 
-FMOD_RESULT FFMODFileSystem::OpenInternal(const char *name, unsigned int *filesize, void **handle)
+FMOD_RESULT FFMODFileSystem::OpenInternal(const char* name, unsigned int* filesize, void** handle)
 {
     if (name)
     {
-        FArchive *Archive = IFileManager::Get().CreateFileReader(UTF8_TO_TCHAR(name));
+        FArchive* Archive = IFileManager::Get().CreateFileReader(UTF8_TO_TCHAR(name));
         UE_LOG(LogFMOD, Verbose, TEXT("FFMODFileSystem::OpenInternal opening '%s' returned archive %p"), UTF8_TO_TCHAR(name), Archive);
         if (!Archive)
         {
@@ -249,7 +248,7 @@ FMOD_RESULT FFMODFileSystem::OpenInternal(const char *name, unsigned int *filesi
     return FMOD_OK;
 }
 
-FMOD_RESULT F_CALL FFMODFileSystem::CloseCallback(void *handle, void * /*userdata*/)
+FMOD_RESULT F_CALL FFMODFileSystem::CloseCallback(void* handle, void* /*userdata*/)
 {
     FScopeLock lock(&gFileSystem.mCrit);
     gFileSystem.mHandleIn = handle;
@@ -257,21 +256,21 @@ FMOD_RESULT F_CALL FFMODFileSystem::CloseCallback(void *handle, void * /*userdat
     return gFileSystem.RunCommand(COMMAND_CLOSE);
 }
 
-FMOD_RESULT FFMODFileSystem::CloseInternal(void *handle)
+FMOD_RESULT FFMODFileSystem::CloseInternal(void* handle)
 {
     if (!handle)
     {
         return FMOD_ERR_INVALID_PARAM;
     }
 
-    FArchive *Archive = (FArchive *)handle;
+    FArchive* Archive = (FArchive*)handle;
     UE_LOG(LogFMOD, Verbose, TEXT("FFMODFileSystem::CloseCallback closing archive %p"), Archive);
     delete Archive;
 
     return FMOD_OK;
 }
 
-FMOD_RESULT F_CALL FFMODFileSystem::ReadCallback(void *handle, void *buffer, unsigned int sizebytes, unsigned int *bytesread, void * /*userdata*/)
+FMOD_RESULT F_CALL FFMODFileSystem::ReadCallback(void* handle, void* buffer, unsigned int sizebytes, unsigned int* bytesread, void* /*userdata*/)
 {
     FScopeLock lock(&gFileSystem.mCrit);
     gFileSystem.mHandleIn = handle;
@@ -282,7 +281,7 @@ FMOD_RESULT F_CALL FFMODFileSystem::ReadCallback(void *handle, void *buffer, uns
     return gFileSystem.RunCommand(COMMAND_READ);
 }
 
-FMOD_RESULT FFMODFileSystem::ReadInternal(void *handle, void *buffer, unsigned int sizebytes, unsigned int *bytesread)
+FMOD_RESULT FFMODFileSystem::ReadInternal(void* handle, void* buffer, unsigned int sizebytes, unsigned int* bytesread)
 {
     if (!handle)
     {
@@ -291,7 +290,7 @@ FMOD_RESULT FFMODFileSystem::ReadInternal(void *handle, void *buffer, unsigned i
 
     if (bytesread)
     {
-        FArchive *Archive = (FArchive *)handle;
+        FArchive* Archive = (FArchive*)handle;
 
         int64 BytesLeft = Archive->TotalSize() - Archive->Tell();
         int64 ReadAmount = FMath::Min((int64)sizebytes, BytesLeft);
@@ -308,7 +307,7 @@ FMOD_RESULT FFMODFileSystem::ReadInternal(void *handle, void *buffer, unsigned i
     return FMOD_OK;
 }
 
-FMOD_RESULT F_CALL FFMODFileSystem::SeekCallback(void *handle, unsigned int pos, void * /*userdata*/)
+FMOD_RESULT F_CALL FFMODFileSystem::SeekCallback(void* handle, unsigned int pos, void* /*userdata*/)
 {
     FScopeLock lock(&gFileSystem.mCrit);
     gFileSystem.mHandleIn = handle;
@@ -317,14 +316,14 @@ FMOD_RESULT F_CALL FFMODFileSystem::SeekCallback(void *handle, unsigned int pos,
     return gFileSystem.RunCommand(COMMAND_SEEK);
 }
 
-FMOD_RESULT FFMODFileSystem::SeekInternal(void *handle, unsigned int pos)
+FMOD_RESULT FFMODFileSystem::SeekInternal(void* handle, unsigned int pos)
 {
     if (!handle)
     {
         return FMOD_ERR_INVALID_PARAM;
     }
 
-    FArchive *Archive = (FArchive *)handle;
+    FArchive* Archive = (FArchive*)handle;
     Archive->Seek(pos);
 
     return FMOD_OK;
@@ -340,7 +339,7 @@ void ReleaseFMODFileSystem()
     gFileSystem.DecrementReferenceCount();
 }
 
-void AttachFMODFileSystem(FMOD::System *system, int32 fileBufferSize)
+void AttachFMODFileSystem(FMOD::System* system, int32 fileBufferSize)
 {
     gFileSystem.Attach(system, fileBufferSize);
 }

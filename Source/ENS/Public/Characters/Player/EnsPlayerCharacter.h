@@ -94,7 +94,7 @@ public:
      * \param MovementVector Scale of movement.
      */
     void Move(const FVector2D& MovementVector);
-    
+
 private:
     void MoveTo(const struct FAIMoveRequest& MoveReq);
 

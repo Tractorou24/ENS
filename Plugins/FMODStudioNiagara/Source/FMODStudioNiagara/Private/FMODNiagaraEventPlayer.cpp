@@ -4,12 +4,12 @@
 #include "FMODBlueprintStatics.h"
 #include "FMODSettings.h"
 
-#include "NiagaraTypes.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 #include "NiagaraCustomVersion.h"
 #include "NiagaraSystemInstance.h"
+#include "NiagaraTypes.h"
 #include "NiagaraWorldManager.h"
-#include "Kismet/GameplayStatics.h"
-#include "Engine/World.h"
 #include "Sound/SoundBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFMODNiagara, Log, All);
@@ -191,7 +191,7 @@ bool UFMODNiagaraEventPlayer::PerInstanceTickPostSimulate(void* PerInstanceData,
 
     if (!PIData->PlayAudioQueue.IsEmpty() && System)
     {
-        //Drain the queue into an array here
+        // Drain the queue into an array here
         TArray<FEventParticleData> Data;
         FEventParticleData Value;
         while (PIData->PlayAudioQueue.Dequeue(Value))
@@ -404,8 +404,7 @@ void UFMODNiagaraEventPlayer::SetParameterFloat(FVectorVMExternalFunctionContext
             FName ParameterName = InstData->ParameterNames[NameIndex];
             FPersistentEventParticleData AudioData;
             AudioData.AudioHandle = Handle;
-            AudioData.UpdateCallback = [ParameterName, Value](FEventPlayerInterface_InstanceData*, UFMODAudioComponent* AudioComponent, FNiagaraSystemInstance*)
-            {
+            AudioData.UpdateCallback = [ParameterName, Value](FEventPlayerInterface_InstanceData*, UFMODAudioComponent* AudioComponent, FNiagaraSystemInstance*) {
                 if (AudioComponent && AudioComponent->IsPlaying())
                 {
                     AudioComponent->SetParameter(ParameterName, Value);
@@ -433,8 +432,7 @@ void UFMODNiagaraEventPlayer::UpdateLocation(FVectorVMExternalFunctionContext& C
         {
             FPersistentEventParticleData AudioData;
             AudioData.AudioHandle = Handle;
-            AudioData.UpdateCallback = [Location](FEventPlayerInterface_InstanceData*, UFMODAudioComponent* AudioComponent, FNiagaraSystemInstance*)
-            {
+            AudioData.UpdateCallback = [Location](FEventPlayerInterface_InstanceData*, UFMODAudioComponent* AudioComponent, FNiagaraSystemInstance*) {
                 if (AudioComponent && AudioComponent->IsPlaying())
                 {
                     AudioComponent->SetWorldLocation(Location);
@@ -462,8 +460,7 @@ void UFMODNiagaraEventPlayer::UpdateRotation(FVectorVMExternalFunctionContext& C
         {
             FPersistentEventParticleData AudioData;
             AudioData.AudioHandle = Handle;
-            AudioData.UpdateCallback = [Rotation](FEventPlayerInterface_InstanceData*, UFMODAudioComponent* AudioComponent, FNiagaraSystemInstance*)
-            {
+            AudioData.UpdateCallback = [Rotation](FEventPlayerInterface_InstanceData*, UFMODAudioComponent* AudioComponent, FNiagaraSystemInstance*) {
                 if (AudioComponent && AudioComponent->IsPlaying())
                 {
                     FRotator NewRotator(Rotation.X, Rotation.Y, Rotation.Z);
@@ -492,8 +489,7 @@ void UFMODNiagaraEventPlayer::SetPausedState(FVectorVMExternalFunctionContext& C
         {
             FPersistentEventParticleData AudioData;
             AudioData.AudioHandle = Handle;
-            AudioData.UpdateCallback = [IsPaused](FEventPlayerInterface_InstanceData*, UFMODAudioComponent* AudioComponent, FNiagaraSystemInstance*)
-            {
+            AudioData.UpdateCallback = [IsPaused](FEventPlayerInterface_InstanceData*, UFMODAudioComponent* AudioComponent, FNiagaraSystemInstance*) {
                 if (AudioComponent)
                 {
                     AudioComponent->SetPaused(IsPaused);
@@ -569,8 +565,7 @@ void UFMODNiagaraEventPlayer::PlayPersistentAudio(FVectorVMExternalFunctionConte
                 // play a new sound
                 Handle = InstData->HandleCount.Increment();
                 AudioData.AudioHandle = Handle;
-                AudioData.UpdateCallback = [Handle, Position, Rotation](FEventPlayerInterface_InstanceData* InstanceData, UFMODAudioComponent*, FNiagaraSystemInstance* SystemInstance)
-                {
+                AudioData.UpdateCallback = [Handle, Position, Rotation](FEventPlayerInterface_InstanceData* InstanceData, UFMODAudioComponent*, FNiagaraSystemInstance* SystemInstance) {
                     USceneComponent* NiagaraComponent = SystemInstance->GetAttachComponent();
                     TWeakObjectPtr<UFMODEvent> Sound = InstanceData->EventToPlay;
                     if (NiagaraComponent && Sound.IsValid())

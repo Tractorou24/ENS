@@ -7,7 +7,8 @@
 DEFINE_LOG_CATEGORY(LogMovementAttributeSet)
 
 FMaxSpeedAttributeData::FMaxSpeedAttributeData(UEnsMovementAttributeSet* AttributeSet)
-    : OwningAttributeSet(AttributeSet) {}
+    : OwningAttributeSet(AttributeSet)
+{}
 
 void FMaxSpeedAttributeData::SetCurrentValue(const float NewValue)
 {
@@ -16,4 +17,5 @@ void FMaxSpeedAttributeData::SetCurrentValue(const float NewValue)
 }
 
 UEnsMovementAttributeSet::UEnsMovementAttributeSet()
-    : MaxSpeed(this) {}
+    : MaxSpeed(this)
+{}

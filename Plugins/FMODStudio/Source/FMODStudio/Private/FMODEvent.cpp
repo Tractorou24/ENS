@@ -4,7 +4,7 @@
 #include "FMODStudioModule.h"
 #include "fmod_studio.hpp"
 
-UFMODEvent::UFMODEvent(const FObjectInitializer &ObjectInitializer)
+UFMODEvent::UFMODEvent(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
 }
@@ -15,7 +15,7 @@ void UFMODEvent::GetAssetRegistryTags(FAssetRegistryTagsContext Context) const
     Super::GetAssetRegistryTags(Context);
     if (IFMODStudioModule::Get().AreBanksLoaded())
     {
-        FMOD::Studio::EventDescription *EventDesc = IFMODStudioModule::Get().GetEventDescription(this, EFMODSystemContext::Max);
+        FMOD::Studio::EventDescription* EventDesc = IFMODStudioModule::Get().GetEventDescription(this, EFMODSystemContext::Max);
 
         bool bOneshot = false;
         bool bStream = false;
@@ -38,11 +38,11 @@ FString UFMODEvent::GetDesc()
     return FString::Printf(TEXT("Event %s"), *AssetGuid.ToString(EGuidFormats::DigitsWithHyphensInBraces));
 }
 
-void UFMODEvent::GetParameterDescriptions(TArray<FMOD_STUDIO_PARAMETER_DESCRIPTION> &Parameters) const
+void UFMODEvent::GetParameterDescriptions(TArray<FMOD_STUDIO_PARAMETER_DESCRIPTION>& Parameters) const
 {
     if (IFMODStudioModule::Get().AreBanksLoaded())
     {
-        FMOD::Studio::EventDescription *EventDesc = IFMODStudioModule::Get().GetEventDescription(this, EFMODSystemContext::Auditioning);
+        FMOD::Studio::EventDescription* EventDesc = IFMODStudioModule::Get().GetEventDescription(this, EFMODSystemContext::Auditioning);
 
         if (EventDesc)
         {

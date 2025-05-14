@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include "IAudioLink.h"
 #include "AudioDevice.h"
-#include "IBufferedAudioOutput.h"
 #include "FMODAudioLinkInputClient.h"
+#include "IAudioLink.h"
+#include "IBufferedAudioOutput.h"
 
 //* AudioLink Instance, a container holding shared pointers for lifetime management. */
 struct FFMODAudioLink : IAudioLink

@@ -1,8 +1,8 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2025-2025.
 
 #include "FMODAudioLinkComponent.h"
-#include "FMODAudioLinkFactory.h"
 #include "Components/AudioComponent.h"
+#include "FMODAudioLinkFactory.h"
 #include "FMODAudioLinkLog.h"
 
 void UFMODAudioLinkComponent::CreateLink()

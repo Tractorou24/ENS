@@ -14,7 +14,7 @@ FFMODBankUpdateNotifier::FFMODBankUpdateNotifier()
 {
 }
 
-void FFMODBankUpdateNotifier::SetFilePath(const FString &InPath)
+void FFMODBankUpdateNotifier::SetFilePath(const FString& InPath)
 {
     FilePath = InPath;
     NextRefreshTime = FDateTime::MinValue();
@@ -67,7 +67,7 @@ void FFMODBankUpdateNotifier::Refresh()
 
         if (NewFileTime != FileTime)
         {
-            const UFMODSettings &Settings = *GetDefault<UFMODSettings>();
+            const UFMODSettings& Settings = *GetDefault<UFMODSettings>();
             Countdown = (float)Settings.ReloadBanksDelay;
             FileTime = NewFileTime;
         }

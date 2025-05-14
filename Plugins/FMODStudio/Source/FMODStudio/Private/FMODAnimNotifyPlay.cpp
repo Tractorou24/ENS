@@ -1,7 +1,7 @@
 
 #include "FMODAnimNotifyPlay.h"
-#include "FMODBlueprintStatics.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "FMODBlueprintStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 UFMODAnimNotifyPlay::UFMODAnimNotifyPlay()
@@ -15,7 +15,7 @@ UFMODAnimNotifyPlay::UFMODAnimNotifyPlay()
 #endif // WITH_EDITORONLY_DATA
 }
 
-void UFMODAnimNotifyPlay::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *AnimSeq)
+void UFMODAnimNotifyPlay::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* AnimSeq)
 {
     if (Event)
     {

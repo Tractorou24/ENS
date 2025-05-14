@@ -1,8 +1,8 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2012-2025.
 
 #include "FMODListener.h"
-#include "Misc/App.h"
 #include "AudioDefines.h"
+#include "Misc/App.h"
 #include "Sound/AudioVolume.h"
 
 float FFMODListener::Interpolate(const double EndTime)
@@ -30,7 +30,7 @@ void FFMODListener::UpdateCurrentInteriorSettings()
     ExteriorLPFInterp = Interpolate(ExteriorLPFEndTime);
 }
 
-void FFMODListener::ApplyInteriorSettings(class AAudioVolume *InVolume, const FInteriorSettings &Settings)
+void FFMODListener::ApplyInteriorSettings(class AAudioVolume* InVolume, const FInteriorSettings& Settings)
 {
     if (InteriorSettings != Settings)
     {
@@ -59,19 +59,19 @@ FFMODInteriorSettings::FFMODInteriorSettings()
 {
 }
 
-bool FFMODInteriorSettings::operator==(const FInteriorSettings &Other) const
+bool FFMODInteriorSettings::operator==(const FInteriorSettings& Other) const
 {
     return (this->bIsWorldSettings == Other.bIsWorldSettings) && (this->ExteriorVolume == Other.ExteriorVolume) &&
            (this->ExteriorTime == Other.ExteriorTime) && (this->ExteriorLPF == Other.ExteriorLPF) &&
            (this->ExteriorLPFTime == Other.ExteriorLPFTime) && (this->InteriorVolume == Other.InteriorVolume) &&
            (this->InteriorTime == Other.InteriorTime) && (this->InteriorLPF == Other.InteriorLPF) && (this->InteriorLPFTime == Other.InteriorLPFTime);
 }
-bool FFMODInteriorSettings::operator!=(const FInteriorSettings &Other) const
+bool FFMODInteriorSettings::operator!=(const FInteriorSettings& Other) const
 {
     return !(*this == Other);
 }
 
-FFMODInteriorSettings &FFMODInteriorSettings::operator=(FInteriorSettings Other)
+FFMODInteriorSettings& FFMODInteriorSettings::operator=(FInteriorSettings Other)
 {
     bIsWorldSettings = Other.bIsWorldSettings;
     ExteriorVolume = Other.ExteriorVolume;

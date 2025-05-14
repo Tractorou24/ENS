@@ -7,14 +7,14 @@
 
 namespace FMOD
 {
-namespace Studio
-{
-class EventDescription;
-class EventInstance;
-}
-}
+    namespace Studio
+    {
+        class EventDescription;
+        class EventInstance;
+    } // namespace Studio
+} // namespace FMOD
 
-static bool operator==(const FMOD_STUDIO_PARAMETER_ID &a, const FMOD_STUDIO_PARAMETER_ID &b)
+static bool operator==(const FMOD_STUDIO_PARAMETER_ID& a, const FMOD_STUDIO_PARAMETER_ID& b)
 {
     return (a.data1 == b.data1 && a.data2 == b.data2);
 }
@@ -26,17 +26,17 @@ FORCEINLINE uint32 GetTypeHash(const FMOD_STUDIO_PARAMETER_ID& id)
 class FFMODEventEditor : public FAssetEditorToolkit
 {
 public:
-    virtual void RegisterTabSpawners(const TSharedRef<class FTabManager> &NewTabManager) override;
-    virtual void UnregisterTabSpawners(const TSharedRef<class FTabManager> &NewTabManager) override;
+    virtual void RegisterTabSpawners(const TSharedRef<class FTabManager>& NewTabManager) override;
+    virtual void UnregisterTabSpawners(const TSharedRef<class FTabManager>& NewTabManager) override;
 
     /**
-	* Edits the specified event
-	*
-	* @param	Mode					Asset editing mode for this editor (standalone or world-centric)
-	* @param	InitToolkitHost			When Mode is WorldCentric, this is the level editor instance to spawn this editor within
-	* @param	Event					The event to edit
-	*/
-    void InitFMODEventEditor(const EToolkitMode::Type Mode, const TSharedPtr<class IToolkitHost> &InitToolkitHost, class UFMODEvent *Event);
+     * Edits the specified event
+     *
+     * @param	Mode					Asset editing mode for this editor (standalone or world-centric)
+     * @param	InitToolkitHost			When Mode is WorldCentric, this is the level editor instance to spawn this editor within
+     * @param	Event					The event to edit
+     */
+    void InitFMODEventEditor(const EToolkitMode::Type Mode, const TSharedPtr<class IToolkitHost>& InitToolkitHost, class UFMODEvent* Event);
 
     /** Constructor */
     FFMODEventEditor();
@@ -44,8 +44,8 @@ public:
     /** Destructor */
     virtual ~FFMODEventEditor();
 
-    UFMODEvent *GetEditedEvent() const;
-    FMOD::Studio::EventDescription *GetEventDescription() const;
+    UFMODEvent* GetEditedEvent() const;
+    FMOD::Studio::EventDescription* GetEventDescription() const;
     void PlayEvent();
     void PauseEvent();
     void StopEvent();
@@ -61,7 +61,7 @@ public:
 
 private:
     TMap<FMOD_STUDIO_PARAMETER_ID, float> ParameterValues;
-    FMOD::Studio::EventInstance *CurrentPreviewEventInstance;
+    FMOD::Studio::EventInstance* CurrentPreviewEventInstance;
 
     void HandlePreBanksReloaded();
     void HandleBanksReloaded();
@@ -71,7 +71,7 @@ private:
     void CreateInternalWidgets();
 
     /**	Spawns the tab with the FMOD event inside */
-    TSharedRef<SDockTab> SpawnTab_EventEditor(const FSpawnTabArgs &Args);
+    TSharedRef<SDockTab> SpawnTab_EventEditor(const FSpawnTabArgs& Args);
 
     TSharedPtr<class SFMODEventEditorPanel> FMODEventEditorPanel;
     TSharedPtr<SDockTab> OwnerTab;
@@ -82,7 +82,7 @@ private:
     /** FMOD event editor app identifier string */
     static const FName FMODEventEditorAppIdentifier;
 
-    class UFMODEvent *EditedEvent;
+    class UFMODEvent* EditedEvent;
 
     FDelegateHandle BeginPIEDelegateHandle;
 };

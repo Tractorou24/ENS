@@ -3,6 +3,7 @@
 #pragma once
 
 #include "ComponentAssetBroker.h"
+#include "FMODAudioComponent.h"
 #include "FMODEvent.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -11,13 +12,13 @@
 class FFMODAssetBroker : public IComponentAssetBroker
 {
 public:
-    UClass *GetSupportedAssetClass() override { return UFMODEvent::StaticClass(); }
+    UClass* GetSupportedAssetClass() override { return UFMODEvent::StaticClass(); }
 
-    virtual bool AssignAssetToComponent(UActorComponent *InComponent, UObject *InAsset) override
+    virtual bool AssignAssetToComponent(UActorComponent* InComponent, UObject* InAsset) override
     {
-        if (UFMODAudioComponent *AudioComp = Cast<UFMODAudioComponent>(InComponent))
+        if (UFMODAudioComponent* AudioComp = Cast<UFMODAudioComponent>(InComponent))
         {
-            UFMODEvent *Event = Cast<UFMODEvent>(InAsset);
+            UFMODEvent* Event = Cast<UFMODEvent>(InAsset);
 
             if ((Event != NULL) || (InAsset == NULL))
             {
@@ -28,9 +29,9 @@ public:
         return false;
     }
 
-    virtual UObject *GetAssetFromComponent(UActorComponent *InComponent) override
+    virtual UObject* GetAssetFromComponent(UActorComponent* InComponent) override
     {
-        if (UFMODAudioComponent *AudioComp = Cast<UFMODAudioComponent>(InComponent))
+        if (UFMODAudioComponent* AudioComp = Cast<UFMODAudioComponent>(InComponent))
         {
             return AudioComp->Event;
         }

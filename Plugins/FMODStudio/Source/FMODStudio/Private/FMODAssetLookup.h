@@ -11,9 +11,9 @@ struct FMODSTUDIO_API FFMODAssetLookupRow : public FTableRowBase
 {
     GENERATED_BODY()
 
-    UPROPERTY(VisibleAnywhere, Category="FMOD|Internal|AssetLookup")
+    UPROPERTY(VisibleAnywhere, Category = "FMOD|Internal|AssetLookup")
     FString PackageName;
 
-    UPROPERTY(VisibleAnywhere, Category="FMOD|Internal|AssetLookup")
+    UPROPERTY(VisibleAnywhere, Category = "FMOD|Internal|AssetLookup")
     FString AssetName;
 };

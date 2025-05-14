@@ -1,8 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "FMODStudioNiagara.h"
-#include "Misc/Paths.h"
 #include "Interfaces/IPluginManager.h"
+#include "Misc/Paths.h"
 
 #define LOCTEXT_NAMESPACE "FFMODStudioNiagaraModule"
 
@@ -16,5 +16,5 @@ void FFMODStudioNiagaraModule::ShutdownModule()
 }
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FFMODStudioNiagaraModule, FMODStudioNiagara)

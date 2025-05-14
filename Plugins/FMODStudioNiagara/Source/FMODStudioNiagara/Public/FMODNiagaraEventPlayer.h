@@ -1,7 +1,7 @@
 #pragma once
 
-#include "FMODEvent.h"
 #include "FMODAudioComponent.h"
+#include "FMODEvent.h"
 
 #include "NiagaraCommon.h"
 #include "NiagaraDataInterface.h"
@@ -11,6 +11,7 @@
 #include "Sound/SoundAttenuation.h"
 
 #include "FMODStudioNiagara.h"
+
 #include "FMODNiagaraEventPlayer.generated.h"
 
 struct FEventParticleData
@@ -57,43 +58,43 @@ class FMODSTUDIONIAGARA_API UFMODNiagaraEventPlayer : public UNiagaraDataInterfa
 public:
     /** Reference to the audio asset to play */
     UPROPERTY(EditAnywhere, Category = "Audio")
-        UFMODEvent* EventToPlay;
+    UFMODEvent* EventToPlay;
 
     /** A set of parameter names that can be referenced via index when setting sound cue parameters on persistent audio */
     UPROPERTY(VisibleAnywhere, NoClear, Category = "Parameters")
-        TArray<FName> ParameterNames;
+    TArray<FName> ParameterNames;
 
     UPROPERTY(EditAnywhere, AdvancedDisplay, Category = "Audio", meta = (InlineEditConditionToggle))
-        bool bLimitPlaysPerTick;
+    bool bLimitPlaysPerTick;
 
     /** This sets the max number of sounds played each tick.
      *  If more particles try to play a sound in a given tick, then it will play sounds until the limit is reached and discard the rest.
      *  The particles to discard when over the limit are *not* chosen in a deterministic way. */
     UPROPERTY(EditAnywhere, AdvancedDisplay, Category = "Audio", meta = (EditCondition = "bLimitPlaysPerTick", ClampMin = "0", UIMin = "0"))
-        int32 MaxPlaysPerTick;
+    int32 MaxPlaysPerTick;
 
     /** If false then it the audio component keeps playing after the niagara component was destroyed. Looping sounds are always stopped when the component is destroyed. */
     UPROPERTY(EditAnywhere, AdvancedDisplay, Category = "Audio")
-        bool bStopWhenComponentIsDestroyed = true;
+    bool bStopWhenComponentIsDestroyed = true;
 
 #if WITH_EDITORONLY_DATA
     /** If true then this data interface only processes sounds during active gameplay. This is useful when you are working in the preview window and the sounds annoy you.
      *  Currently the FMOD Niagara integration will not play in Editor.
      */
     UPROPERTY(VisibleAnywhere, AdvancedDisplay, Category = "Audio")
-        bool bOnlyActiveDuringGameplay = true;
+    bool bOnlyActiveDuringGameplay = true;
 
     virtual bool UpgradeFunctionCall(FNiagaraFunctionSignature& FunctionSignature) override;
 #endif
 
-    //UObject Interface
+    // UObject Interface
     virtual void PostInitProperties() override;
 #if WITH_EDITOR
     virtual void PostEditChangeProperty(FPropertyChangedEvent& e);
 #endif
-    //UObject Interface End
+    // UObject Interface End
 
-    //UNiagaraDataInterface Interface
+    // UNiagaraDataInterface Interface
     virtual void GetFunctions(TArray<FNiagaraFunctionSignature>& OutFunctions) override;
     virtual void GetVMExternalFunction(const FVMExternalFunctionBindingInfo& BindingInfo, void* InstanceData, FVMExternalFunction& OutFunc) override;
     virtual bool InitPerInstanceData(void* PerInstanceData, FNiagaraSystemInstance* SystemInstance) override;
@@ -107,7 +108,7 @@ public:
     virtual bool HasPreSimulateTick() const override { return true; }
     virtual bool HasPostSimulateTick() const override { return true; }
     virtual bool PostSimulateCanOverlapFrames() const { return false; }
-    //UNiagaraDataInterface Interface
+    // UNiagaraDataInterface Interface
 
     virtual void PlayOneShotAudio(FVectorVMExternalFunctionContext& Context);
     virtual void PlayPersistentAudio(FVectorVMExternalFunctionContext& Context);

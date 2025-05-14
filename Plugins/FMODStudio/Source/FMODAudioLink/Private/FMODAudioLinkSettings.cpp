@@ -3,15 +3,14 @@
 #include "FMODAudioLinkSettings.h"
 #include "FMODAudioLinkFactory.h"
 #include "FMODAudioLinkLog.h"
-#include "FMODStudioModule.h"
 #include "FMODEvent.h"
-#include "fmod_studio.hpp"
 #include "FMODSettings.h"
+#include "FMODStudioModule.h"
+#include "fmod_studio.hpp"
 
-#include "Engine/StreamableManager.h"
-#include "Engine/AssetManager.h"
 #include "Async/Async.h"
-
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 
 FFMODAudioLinkSettingsProxy::FFMODAudioLinkSettingsProxy(const UFMODAudioLinkSettings& InSettings)
 {
@@ -57,8 +56,7 @@ void FFMODAudioLinkSettingsProxy::RefreshFromSettings(UAudioLinkSettingsAbstract
     UE_LOG(LogFMODAudioLink, VeryVerbose, TEXT("FFMODAudioLinkSettingsProxy::RefreshFromSettings."));
     Update(*CastChecked<UFMODAudioLinkSettings>(InSettings));
 }
-#endif //WITH_EDITOR
-
+#endif // WITH_EDITOR
 
 void UFMODAudioLinkSettings::PostLoad()
 {
@@ -76,17 +74,16 @@ void UFMODAudioLinkSettings::RequestLoadLinkEvent() const
     const UFMODSettings& Settings = *GetDefault<UFMODSettings>();
     if (Settings.bFMODAudioLinkEnabled)
     {
-        AsyncTask(ENamedThreads::GameThread, [WeakThis = MakeWeakObjectPtr(const_cast<UFMODAudioLinkSettings*>(this))]()
+        AsyncTask(ENamedThreads::GameThread, [WeakThis = MakeWeakObjectPtr(const_cast<UFMODAudioLinkSettings*>(this))]() {
+            if (WeakThis.IsValid())
             {
-                if (WeakThis.IsValid())
-                {
-                    FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
-                    FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(WeakThis.Get(), &UFMODAudioLinkSettings::OnLoadCompleteCallback);
-                    WeakThis->LoadingHandle = StreamableManager.RequestAsyncLoad(WeakThis->LinkEvent.ToSoftObjectPath(), Delegate, FStreamableManager::AsyncLoadHighPriority,
-                        /* Managed active handle */ true);
-                    UE_LOG(LogFMODAudioLink, VeryVerbose, TEXT("FFMODAudioLinkSettings::RequestLoadLinkEvent: Async Loading %s."), *WeakThis->LinkEvent.ToSoftObjectPath().ToString());
-                }
-            });
+                FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
+                FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(WeakThis.Get(), &UFMODAudioLinkSettings::OnLoadCompleteCallback);
+                WeakThis->LoadingHandle = StreamableManager.RequestAsyncLoad(WeakThis->LinkEvent.ToSoftObjectPath(), Delegate, FStreamableManager::AsyncLoadHighPriority,
+                                                                             /* Managed active handle */ true);
+                UE_LOG(LogFMODAudioLink, VeryVerbose, TEXT("FFMODAudioLinkSettings::RequestLoadLinkEvent: Async Loading %s."), *WeakThis->LinkEvent.ToSoftObjectPath().ToString());
+            }
+        });
     }
 }
 

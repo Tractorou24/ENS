@@ -1,9 +1,9 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2025-2025.
 
-#include "Modules/ModuleInterface.h"
-#include "FMODAudioLinkSettingsFactory.h"
 #include "FMODAudioLinkSettings.h"
+#include "FMODAudioLinkSettingsFactory.h"
 #include "ISettingsModule.h"
+#include "Modules/ModuleInterface.h"
 
 class FAssetTypeActions_FMODAudioLinkSettings;
 
@@ -21,7 +21,7 @@ public:
             if (ISettingsModule* SettingsModule = FModuleManager::Get().GetModulePtr<ISettingsModule>("Settings"))
             {
                 SettingsModule->RegisterSettings("Project", "Plugins", "FMOD AudioLink", NSLOCTEXT("FMODAudioLink", "FMOD AudioLink", "FMOD AudioLink"),
-                    NSLOCTEXT("FMODAudioLink", "Configure AudioLink for FMOD Settings", "Configure AudioLink for FMOD Settings"), GetMutableDefault<UFMODAudioLinkSettings>());
+                                                 NSLOCTEXT("FMODAudioLink", "Configure AudioLink for FMOD Settings", "Configure AudioLink for FMOD Settings"), GetMutableDefault<UFMODAudioLinkSettings>());
             }
         }
     }
@@ -34,6 +34,7 @@ public:
         }
         AssetActions.Reset();
     }
+
 private:
     TSharedPtr<FAssetTypeActions_FMODAudioLinkSettings> AssetActions;
 };

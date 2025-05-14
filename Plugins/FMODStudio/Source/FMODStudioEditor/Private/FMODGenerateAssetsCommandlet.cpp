@@ -2,12 +2,12 @@
 
 #include "FMODGenerateAssetsCommandlet.h"
 
-#include "FMODSettings.h"
+#include "../Classes/FMODAssetBuilder.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Editor.h"
 #include "Editor/UnrealEd/Public/FileHelpers.h"
+#include "FMODSettings.h"
 #include "HAL/PlatformFileManager.h"
-#include "../Classes/FMODAssetBuilder.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFMODCommandlet, Log, All);
 
@@ -40,13 +40,13 @@ int32 UFMODGenerateAssetsCommandlet::Main(const FString& CommandLine)
 
         /*
             Combine the ProjectContentDir + ContentBrowserPrefix to make a filesystem path
-            to where the FMOD generated assets directories live e.g. 
+            to where the FMOD generated assets directories live e.g.
             ../../../../UnrealProjects/MyProject/Content/FMOD
             Should work for non-default values of ContentBrowserPrefix e.g. /Game/foo/bar/baz/
         */
-        FString folderPath = Settings.ContentBrowserPrefix.TrimChar('/');   // /Game/FMOD/ -> Game/FMOD
-        folderPath.Split(TEXT("/"), 0, &folderPath);                        // Game/FMOD -> FMOD
-        folderPath = FPaths::ProjectContentDir() + folderPath + "/";        // FMOD -> ../../../../UnrealProjects/MyProject/Content/FMOD/
+        FString folderPath = Settings.ContentBrowserPrefix.TrimChar('/'); // /Game/FMOD/ -> Game/FMOD
+        folderPath.Split(TEXT("/"), 0, &folderPath);                      // Game/FMOD -> FMOD
+        folderPath = FPaths::ProjectContentDir() + folderPath + "/";      // FMOD -> ../../../../UnrealProjects/MyProject/Content/FMOD/
 
         for (FString folder : Settings.GeneratedFolders)
         {
@@ -76,5 +76,5 @@ int32 UFMODGenerateAssetsCommandlet::Main(const FString& CommandLine)
     }
 #endif
 
-	return returnCode;
+    return returnCode;
 }

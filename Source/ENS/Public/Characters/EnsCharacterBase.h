@@ -56,12 +56,12 @@ protected:
 
     /// \brief Adds the startup effects to the character. (e.g. set attributes to default)
     virtual void AddStartupEffects();
-    
+
     /**
      * \brief Called when the health attribute changes.
      * \param Data The data of the attribute change.
      */
-    virtual void HealthChanged(const FOnAttributeChangeData& Data){}
+    virtual void HealthChanged(const FOnAttributeChangeData& Data) {}
 
 protected:
     /// \brief The ability system component of the character using this state.

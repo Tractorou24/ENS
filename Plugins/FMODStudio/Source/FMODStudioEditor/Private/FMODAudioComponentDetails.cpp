@@ -1,15 +1,15 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2012-2025.
 
 #include "FMODAudioComponentDetails.h"
-#include "Subsystems/AssetEditorSubsystem.h"
-#include "FMODAmbientSound.h"
-#include "FMODStudioModule.h"
-#include "FMODEvent.h"
-#include "fmod_studio.hpp"
 #include "Editor.h"
-#include "Widgets/Input/SButton.h"
-#include "Editor/PropertyEditor/Public/DetailLayoutBuilder.h"
 #include "Editor/PropertyEditor/Public/DetailCategoryBuilder.h"
+#include "Editor/PropertyEditor/Public/DetailLayoutBuilder.h"
+#include "FMODAmbientSound.h"
+#include "FMODEvent.h"
+#include "FMODStudioModule.h"
+#include "Subsystems/AssetEditorSubsystem.h"
+#include "Widgets/Input/SButton.h"
+#include "fmod_studio.hpp"
 
 #define LOCTEXT_NAMESPACE "FMODStudio"
 
@@ -18,13 +18,13 @@ TSharedRef<IDetailCustomization> FFMODAudioComponentDetails::MakeInstance()
     return MakeShareable(new FFMODAudioComponentDetails);
 }
 
-void FFMODAudioComponentDetails::CustomizeDetails(IDetailLayoutBuilder &DetailBuilder)
+void FFMODAudioComponentDetails::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
 {
-    const TArray<TWeakObjectPtr<UObject>> &SelectedObjects = DetailBuilder.GetSelectedObjects();
+    const TArray<TWeakObjectPtr<UObject>>& SelectedObjects = DetailBuilder.GetSelectedObjects();
 
     for (int32 ObjectIndex = 0; !AudioComponent.IsValid() && ObjectIndex < SelectedObjects.Num(); ++ObjectIndex)
     {
-        const TWeakObjectPtr<UObject> &CurrentObject = SelectedObjects[ObjectIndex];
+        const TWeakObjectPtr<UObject>& CurrentObject = SelectedObjects[ObjectIndex];
         if (CurrentObject.Get()->GetClass()->IsChildOf(UFMODAudioComponent::StaticClass()))
         {
             AudioComponent = Cast<UFMODAudioComponent>(CurrentObject.Get());
@@ -73,7 +73,7 @@ FReply FFMODAudioComponentDetails::OnEditSoundClicked()
 {
     if (AudioComponent.IsValid())
     {
-        UFMODEvent *Event = AudioComponent.Get()->Event;
+        UFMODEvent* Event = AudioComponent.Get()->Event;
         if (Event)
         {
             GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(Event);
@@ -87,10 +87,10 @@ FReply FFMODAudioComponentDetails::OnPlaySoundClicked()
 {
     if (AudioComponent.IsValid())
     {
-        UFMODEvent *Event = AudioComponent.Get()->Event;
+        UFMODEvent* Event = AudioComponent.Get()->Event;
         if (IsValid(Event))
         {
-            FMOD::Studio::EventInstance *Instance = IFMODStudioModule::Get().CreateAuditioningInstance(Event);
+            FMOD::Studio::EventInstance* Instance = IFMODStudioModule::Get().CreateAuditioningInstance(Event);
             if (Instance)
             {
                 for (auto param : AudioComponent->ParameterCache)

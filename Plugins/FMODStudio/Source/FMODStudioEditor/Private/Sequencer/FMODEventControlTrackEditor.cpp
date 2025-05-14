@@ -1,30 +1,30 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2012-2025.
 
 #include "FMODEventControlTrackEditor.h"
+#include "AnimatedRange.h"
+#include "Channels/MovieSceneChannelEditorData.h"
+#include "Channels/MovieSceneChannelProxy.h"
+#include "Curves/IntegralCurve.h"
+#include "Editor/UnrealEdEngine.h"
+#include "EditorStyleSet.h"
 #include "FMODAmbientSound.h"
+#include "Framework/MultiBox/MultiBoxBuilder.h"
+#include "ISectionLayoutBuilder.h"
+#include "Rendering/DrawElements.h"
 #include "Sequencer/FMODEventControlSection.h"
 #include "Sequencer/FMODEventControlTrack.h"
-#include "AnimatedRange.h"
-#include "Rendering/DrawElements.h"
-#include "Framework/MultiBox/MultiBoxBuilder.h"
-#include "Curves/IntegralCurve.h"
 #include "SequencerSectionPainter.h"
 #include "TimeToPixel.h"
-#include "EditorStyleSet.h"
-#include "Editor/UnrealEdEngine.h"
-#include "ISectionLayoutBuilder.h"
-#include "Channels/MovieSceneChannelProxy.h"
-#include "Channels/MovieSceneChannelEditorData.h"
 
 #define LOCTEXT_NAMESPACE "FFMODEventControlTrackEditor"
 
-FFMODEventControlSection::FFMODEventControlSection(UMovieSceneSection &InSection, TSharedRef<ISequencer> InOwningSequencer)
+FFMODEventControlSection::FFMODEventControlSection(UMovieSceneSection& InSection, TSharedRef<ISequencer> InOwningSequencer)
     : Section(InSection)
     , OwningSequencerPtr(InOwningSequencer)
 {
 }
 
-UMovieSceneSection *FFMODEventControlSection::GetSectionObject()
+UMovieSceneSection* FFMODEventControlSection::GetSectionObject()
 {
     return &Section;
 }
@@ -35,7 +35,7 @@ float FFMODEventControlSection::GetSectionHeight() const
     return SectionHeight;
 }
 
-int32 FFMODEventControlSection::OnPaintSection(FSequencerSectionPainter &InPainter) const
+int32 FFMODEventControlSection::OnPaintSection(FSequencerSectionPainter& InPainter) const
 {
     TSharedPtr<ISequencer> OwningSequencer = OwningSequencerPtr.Pin();
 
@@ -45,15 +45,15 @@ int32 FFMODEventControlSection::OnPaintSection(FSequencerSectionPainter &InPaint
     }
 
     const ESlateDrawEffect DrawEffects = InPainter.bParentEnabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect;
-    const FTimeToPixel &TimeToPixelConverter = InPainter.GetTimeConverter();
+    const FTimeToPixel& TimeToPixelConverter = InPainter.GetTimeConverter();
 
     FLinearColor TrackColor;
 
     // TODO: Set / clip stop time based on event length
-    UFMODEventControlSection *ControlSection = Cast<UFMODEventControlSection>(&Section);
+    UFMODEventControlSection* ControlSection = Cast<UFMODEventControlSection>(&Section);
     if (IsValid(ControlSection))
     {
-        UFMODEventControlTrack *ParentTrack = Cast<UFMODEventControlTrack>(ControlSection->GetOuter());
+        UFMODEventControlTrack* ParentTrack = Cast<UFMODEventControlTrack>(ControlSection->GetOuter());
         if (IsValid(ParentTrack))
         {
             TrackColor = ParentTrack->GetColorTint();
@@ -98,20 +98,20 @@ int32 FFMODEventControlSection::OnPaintSection(FSequencerSectionPainter &InPaint
         DrawRanges.Add(TRange<float>(CurrentRangeStart.GetValue(), OwningSequencer->GetViewRange().GetUpperBoundValue()));
     }
 
-    for (const TRange<float> &DrawRange : DrawRanges)
+    for (const TRange<float>& DrawRange : DrawRanges)
     {
         float XOffset = TimeToPixelConverter.SecondsToPixel(DrawRange.GetLowerBoundValue());
         float XSize = TimeToPixelConverter.SecondsToPixel(DrawRange.GetUpperBoundValue()) - XOffset;
         FSlateDrawElement::MakeBox(InPainter.DrawElements, InPainter.LayerId,
-            InPainter.SectionGeometry.ToPaintGeometry(
-                FVector2D(XSize, SequencerSectionConstants::KeySize.Y),
-                FSlateLayoutTransform(1.0f, FVector2D(XOffset, (InPainter.SectionGeometry.GetLocalSize().Y - SequencerSectionConstants::KeySize.Y) / 2))),
-            FAppStyle::GetBrush("Sequencer.Section.Background"), DrawEffects);
+                                   InPainter.SectionGeometry.ToPaintGeometry(
+                                       FVector2D(XSize, SequencerSectionConstants::KeySize.Y),
+                                       FSlateLayoutTransform(1.0f, FVector2D(XOffset, (InPainter.SectionGeometry.GetLocalSize().Y - SequencerSectionConstants::KeySize.Y) / 2))),
+                                   FAppStyle::GetBrush("Sequencer.Section.Background"), DrawEffects);
         FSlateDrawElement::MakeBox(InPainter.DrawElements, InPainter.LayerId,
-            InPainter.SectionGeometry.ToPaintGeometry(
-                FVector2D(XSize, SequencerSectionConstants::KeySize.Y),
-                FSlateLayoutTransform(1.0f, FVector2D(XOffset, (InPainter.SectionGeometry.GetLocalSize().Y - SequencerSectionConstants::KeySize.Y) / 2))),
-            FAppStyle::GetBrush("Sequencer.Section.BackgroundTint"), DrawEffects, TrackColor);
+                                   InPainter.SectionGeometry.ToPaintGeometry(
+                                       FVector2D(XSize, SequencerSectionConstants::KeySize.Y),
+                                       FSlateLayoutTransform(1.0f, FVector2D(XOffset, (InPainter.SectionGeometry.GetLocalSize().Y - SequencerSectionConstants::KeySize.Y) / 2))),
+                                   FAppStyle::GetBrush("Sequencer.Section.BackgroundTint"), DrawEffects, TrackColor);
     }
 
     return InPainter.LayerId + 1;
@@ -133,22 +133,22 @@ bool FFMODEventControlTrackEditor::SupportsType(TSubclassOf<UMovieSceneTrack> Ty
 }
 
 TSharedRef<ISequencerSection> FFMODEventControlTrackEditor::MakeSectionInterface(
-    UMovieSceneSection &SectionObject, UMovieSceneTrack &Track, FGuid ObjectBinding)
+    UMovieSceneSection& SectionObject, UMovieSceneTrack& Track, FGuid ObjectBinding)
 {
     check(SupportsType(SectionObject.GetOuter()->GetClass()));
     const TSharedPtr<ISequencer> OwningSequencer = GetSequencer();
     return MakeShareable(new FFMODEventControlSection(SectionObject, OwningSequencer.ToSharedRef()));
 }
 
-void FFMODEventControlTrackEditor::BuildObjectBindingTrackMenu(FMenuBuilder &MenuBuilder, const TArray<FGuid> &ObjectBindings, const UClass *ObjectClass)
+void FFMODEventControlTrackEditor::BuildObjectBindingTrackMenu(FMenuBuilder& MenuBuilder, const TArray<FGuid>& ObjectBindings, const UClass* ObjectClass)
 {
     if (ObjectClass->IsChildOf(AFMODAmbientSound::StaticClass()) || ObjectClass->IsChildOf(UFMODAudioComponent::StaticClass()))
     {
         const TSharedPtr<ISequencer> ParentSequencer = GetSequencer();
 
         MenuBuilder.AddMenuEntry(LOCTEXT("AddFMODEventControlTrack", "FMOD Event Control Track"),
-            LOCTEXT("FMODEventControlTooltip", "Adds a track for controlling FMOD event."), FSlateIcon(),
-            FUIAction(FExecuteAction::CreateSP(this, &FFMODEventControlTrackEditor::AddControlKey, ObjectBindings)));
+                                 LOCTEXT("FMODEventControlTooltip", "Adds a track for controlling FMOD event."), FSlateIcon(),
+                                 FUIAction(FExecuteAction::CreateSP(this, &FFMODEventControlTrackEditor::AddControlKey, ObjectBindings)));
     }
 }
 
@@ -157,7 +157,7 @@ void FFMODEventControlTrackEditor::AddControlKey(TArray<FGuid> ObjectGuids)
     TSharedPtr<ISequencer> SequencerPtr = GetSequencer();
     for (FGuid ObjectGuid : ObjectGuids)
     {
-        UObject *Object = SequencerPtr.IsValid() ? SequencerPtr->FindSpawnedObjectOrTemplate(ObjectGuid) : nullptr;
+        UObject* Object = SequencerPtr.IsValid() ? SequencerPtr->FindSpawnedObjectOrTemplate(ObjectGuid) : nullptr;
 
         if (Object)
         {
@@ -166,7 +166,7 @@ void FFMODEventControlTrackEditor::AddControlKey(TArray<FGuid> ObjectGuids)
     }
 }
 
-FKeyPropertyResult FFMODEventControlTrackEditor::AddKeyInternal(FFrameNumber KeyTime, UObject *Object)
+FKeyPropertyResult FFMODEventControlTrackEditor::AddKeyInternal(FFrameNumber KeyTime, UObject* Object)
 {
     FKeyPropertyResult KeyPropertyResult;
 
@@ -177,12 +177,12 @@ FKeyPropertyResult FFMODEventControlTrackEditor::AddKeyInternal(FFrameNumber Key
     if (ObjectHandle.IsValid())
     {
         FFindOrCreateTrackResult TrackResult = FindOrCreateTrackForObject(ObjectHandle, UFMODEventControlTrack::StaticClass());
-        UMovieSceneTrack *Track = TrackResult.Track;
+        UMovieSceneTrack* Track = TrackResult.Track;
         KeyPropertyResult.bTrackCreated |= TrackResult.bWasCreated;
 
         if (KeyPropertyResult.bTrackCreated && ensure(Track))
         {
-            UFMODEventControlTrack *EventTrack = Cast<UFMODEventControlTrack>(Track);
+            UFMODEventControlTrack* EventTrack = Cast<UFMODEventControlTrack>(Track);
             EventTrack->AddNewSection(KeyTime);
             EventTrack->SetDisplayName(LOCTEXT("TrackName", "FMOD Event"));
             KeyPropertyResult.bTrackModified = true;

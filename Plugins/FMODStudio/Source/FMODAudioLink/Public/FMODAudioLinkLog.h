@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Stats/Stats.h"
 #include "Logging/LogMacros.h"
+#include "Stats/Stats.h"
 
 FMODSTUDIO_API DECLARE_LOG_CATEGORY_EXTERN(LogFMODAudioLink, Log, All);

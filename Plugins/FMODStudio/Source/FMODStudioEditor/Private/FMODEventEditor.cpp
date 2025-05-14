@@ -1,6 +1,7 @@
 // Copyright (c), Firelight Technologies Pty, Ltd. 2012-2025.
 
 #include "FMODEventEditor.h"
+#include "Editor.h"
 #include "FMODEvent.h"
 #include "FMODStudioEditorModule.h"
 #include "FMODStudioModule.h"
@@ -8,7 +9,6 @@
 #include "SFMODEventEditorPanel.h"
 #include "Widgets/Docking/SDockTab.h"
 #include "fmod_studio.hpp"
-#include "Editor.h"
 
 #define LOCTEXT_NAMESPACE "FMODEventEditor"
 
@@ -17,7 +17,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogFMODEventEditor, Log, All);
 const FName FFMODEventEditor::EventEditorTabId(TEXT("FFMODEventEditor_EventView"));
 const FName FFMODEventEditor::FMODEventEditorAppIdentifier(TEXT("FMODEventEditorApp"));
 
-void FFMODEventEditor::RegisterTabSpawners(const TSharedRef<class FTabManager> &NewTabManager)
+void FFMODEventEditor::RegisterTabSpawners(const TSharedRef<class FTabManager>& NewTabManager)
 {
     WorkspaceMenuCategory = NewTabManager->AddLocalWorkspaceMenuCategory(LOCTEXT("WorkspaceMenu_FMODEventEditor", "FMOD Event Editor"));
     auto WorkspaceMenuCategoryRef = WorkspaceMenuCategory.ToSharedRef();
@@ -29,7 +29,7 @@ void FFMODEventEditor::RegisterTabSpawners(const TSharedRef<class FTabManager> &
         .SetGroup(WorkspaceMenuCategoryRef);
 }
 
-void FFMODEventEditor::UnregisterTabSpawners(const TSharedRef<class FTabManager> &NewTabManager)
+void FFMODEventEditor::UnregisterTabSpawners(const TSharedRef<class FTabManager>& NewTabManager)
 {
     FAssetEditorToolkit::UnregisterTabSpawners(NewTabManager);
 
@@ -52,12 +52,12 @@ FFMODEventEditor::~FFMODEventEditor()
     CurrentPreviewEventInstance = nullptr;
 }
 
-UFMODEvent *FFMODEventEditor::GetEditedEvent() const
+UFMODEvent* FFMODEventEditor::GetEditedEvent() const
 {
     return EditedEvent;
 }
 
-FMOD::Studio::EventDescription *FFMODEventEditor::GetEventDescription() const
+FMOD::Studio::EventDescription* FFMODEventEditor::GetEventDescription() const
 {
     return IFMODStudioModule::Get().GetEventDescription(EditedEvent, EFMODSystemContext::Auditioning);
 }
@@ -69,7 +69,7 @@ void FFMODEventEditor::PlayEvent()
     {
         TArray<float> values;
         TArray<FMOD_STUDIO_PARAMETER_ID> ids;
-        
+
         ParameterValues.GenerateKeyArray(ids);
         ParameterValues.GenerateValueArray(values);
 
@@ -114,7 +114,7 @@ float FFMODEventEditor::GetParameterValue(FMOD_STUDIO_PARAMETER_ID Id)
     return ParameterValues[Id];
 }
 
-void FFMODEventEditor::InitFMODEventEditor(const EToolkitMode::Type Mode, const TSharedPtr<class IToolkitHost> &InitToolkitHost, UFMODEvent *Event)
+void FFMODEventEditor::InitFMODEventEditor(const EToolkitMode::Type Mode, const TSharedPtr<class IToolkitHost>& InitToolkitHost, UFMODEvent* Event)
 {
     if (IsValid(Event))
     {
@@ -129,7 +129,7 @@ void FFMODEventEditor::InitFMODEventEditor(const EToolkitMode::Type Mode, const 
         const bool bCreateDefaultStandaloneMenu = true;
         const bool bCreateDefaultToolbar = false;
         FAssetEditorToolkit::InitAssetEditor(Mode, InitToolkitHost, FFMODEventEditor::FMODEventEditorAppIdentifier, StandaloneDefaultLayout,
-            bCreateDefaultStandaloneMenu, bCreateDefaultToolbar, Event);
+                                             bCreateDefaultStandaloneMenu, bCreateDefaultToolbar, Event);
     }
 }
 
@@ -158,7 +158,7 @@ void FFMODEventEditor::CreateInternalWidgets()
     FMODEventEditorPanel = SNew(SFMODEventEditorPanel).FMODEventEditor(SharedThis(this));
 }
 
-TSharedRef<SDockTab> FFMODEventEditor::SpawnTab_EventEditor(const FSpawnTabArgs &Args)
+TSharedRef<SDockTab> FFMODEventEditor::SpawnTab_EventEditor(const FSpawnTabArgs& Args)
 {
     check(Args.GetTabId().TabType == EventEditorTabId);
 

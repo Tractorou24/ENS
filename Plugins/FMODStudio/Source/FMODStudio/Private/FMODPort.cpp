@@ -3,7 +3,7 @@
 #include "FMODPort.h"
 #include "FMODStudioModule.h"
 
-UFMODPort::UFMODPort(const FObjectInitializer &ObjectInitializer)
+UFMODPort::UFMODPort(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
 }

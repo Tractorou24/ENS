@@ -3,8 +3,8 @@
 #pragma once
 
 #include "GenericPlatform/GenericPlatform.h"
-#include "UObject/Object.h"
 #include "Math/Vector.h"
+#include "UObject/Object.h"
 
 struct FInteriorSettings;
 
@@ -22,9 +22,9 @@ struct FFMODInteriorSettings
     float InteriorLPFTime;
 
     FFMODInteriorSettings();
-    bool operator==(const FInteriorSettings &Other) const;
-    bool operator!=(const FInteriorSettings &Other) const;
-    FFMODInteriorSettings &operator=(FInteriorSettings Other);
+    bool operator==(const FInteriorSettings& Other) const;
+    bool operator!=(const FInteriorSettings& Other) const;
+    FFMODInteriorSettings& operator=(FInteriorSettings Other);
 };
 
 /** A direct copy of FListener (which doesn't have external linkage, unfortunately) **/
@@ -35,7 +35,7 @@ struct FFMODListener
 
     struct FFMODInteriorSettings InteriorSettings;
     /** The volume the listener resides in */
-    class AAudioVolume *Volume;
+    class AAudioVolume* Volume;
 
     /** The times of interior volumes fading in and out */
     double InteriorStartTime;
@@ -53,19 +53,19 @@ struct FFMODListener
     FVector GetRight() const { return Transform.GetUnitAxis(EAxis::X); }
 
     /**
-	 * Works out the interp value between source and end
-	 */
+     * Works out the interp value between source and end
+     */
     float Interpolate(const double EndTime);
 
     /**
-	 * Gets the current state of the interior settings for the listener
-	 */
+     * Gets the current state of the interior settings for the listener
+     */
     void UpdateCurrentInteriorSettings();
 
-    /** 
-	 * Apply the interior settings to ambient sounds
-	 */
-    void ApplyInteriorSettings(class AAudioVolume *Volume, const FInteriorSettings &Settings);
+    /**
+     * Apply the interior settings to ambient sounds
+     */
+    void ApplyInteriorSettings(class AAudioVolume* Volume, const FInteriorSettings& Settings);
 
     FFMODListener()
         : Transform(FTransform::Identity)
