@@ -101,20 +101,6 @@ UPathFollowingComponent* AEnsPlayerCharacter::GetPathFollowingComponent() const
     return PathFollowingComponent;
 }
 
-void AEnsPlayerCharacter::MoveToLocation(const FVector& Location)
-{
-    TSubclassOf<UNavigationQueryFilter> DefaultNavigationFilterClass;
-    FAIMoveRequest MoveReq(Location);
-    MoveReq.SetUsePathfinding(true);
-    MoveReq.SetAllowPartialPath(true);
-    MoveReq.SetProjectGoalLocation(false);
-    MoveReq.SetNavigationFilter(DefaultNavigationFilterClass);
-    MoveReq.SetAcceptanceRadius(GetInventoryComponent()->GetCurrentWeapon()->BaseAttackRange);
-    MoveReq.SetReachTestIncludesAgentRadius(false);
-    MoveReq.SetCanStrafe(true);
-    MoveTo(MoveReq);
-}
-
 void AEnsPlayerCharacter::MoveToActor(const AActor* Actor)
 {
     TSubclassOf<UNavigationQueryFilter> DefaultNavigationFilterClass;
@@ -169,6 +155,15 @@ void AEnsPlayerCharacter::SetGenericTeamId(const FGenericTeamId& NewTeamID)
 FGenericTeamId AEnsPlayerCharacter::GetGenericTeamId() const
 {
     return TeamId;
+}
+
+void AEnsPlayerCharacter::Move(const FVector2D& MovementVector)
+{
+    if (!Controller)
+        return;
+        
+    AddMovementInput(ForwardVector, MovementVector.X);
+    AddMovementInput(RightVector, MovementVector.Y);
 }
 
 void AEnsPlayerCharacter::MoveTo(const FAIMoveRequest& MoveReq)

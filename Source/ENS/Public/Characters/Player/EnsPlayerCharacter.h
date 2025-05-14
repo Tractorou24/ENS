@@ -44,12 +44,6 @@ public:
     virtual void OnDeath(AEnsCharacterBase* SourceActor) override;
 
     /**
-     * \brief Moves the player character to a \p Location.
-     * \param Location The location to move to.
-     */
-    void MoveToLocation(const FVector& Location);
-
-    /**
      * \brief Moves the player character to an \p Actor.
      * \param Actor The actor to move to.
      */
@@ -87,6 +81,20 @@ public:
     UFUNCTION(BlueprintCallable)
     virtual FGenericTeamId GetGenericTeamId() const override;
 
+    /// \brief Vector used as forward direction.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+    FVector ForwardVector;
+
+    /// \brief Vector used as right direction.
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+    FVector RightVector;
+
+    /**
+     * \brief Move player using \ref ForwardVector and \ref RightVector scaled by the values of \p MovementVector.
+     * \param MovementVector Scale of movement.
+     */
+    void Move(const FVector2D& MovementVector);
+    
 private:
     void MoveTo(const struct FAIMoveRequest& MoveReq);
 
